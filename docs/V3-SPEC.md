@@ -129,3 +129,11 @@ DW Wholesale > Dashboard, Products, Categories, Fields, Customers, Import / Expo
 | 단계 | 브랜치 | 상태 |
 |---|---|---|
 | 1. 기반 (메뉴 · M8 · M9) | `v3/phase-1-foundation` | 완료 — 검토 대기 |
+
+### 결정 기록
+
+| 날짜 | 항목 | 결정 | 영향 |
+|---|---|---|---|
+| 2026-11-10 | DASOM-Forge 라이선스 게이트 | **유지** | 9개 게이트와 두 겹 구조 그대로. 새 관리자 동작에도 게이트 연결. dasomforge 에 product slug `dw-wholesale` 등록 필요(운영자 작업, MIGRATION-PLAN §11 #2). 라이선스 화면은 `languages/dw-wholesale-en_US.po` 로 영어 지원(SDK 파일은 수정하지 않음) |
+| — | 전환 후 DW Admin 플러그인 비활성화 | 미정 (4단계에서 확인) | |
+| — | kgitrading.com 가격 그룹 이름·개수 | 미정 (5단계에서 확인) | |

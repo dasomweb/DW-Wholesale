@@ -51,6 +51,9 @@ DW Wholesale (구 DW Catalog WP) 의 변경 이력. [SemVer](https://semver.org/
 - 번역은 `init` 에서 요청마다 고른 언어로 로드(관리자), 사이트는 위젯이 렌더될 때만 로드 — 카탈로그가 없는 페이지는 추가 DB 조회 없음.
   워드프레스 자체 언어는 바뀌지 않음. 표준 역할 이름(관리자·편집자 등)도 관리자 언어를 따름.
 - 플러그인 삭제 시 사용자별 언어 선택(user meta)도 삭제.
+- **라이선스 화면도 관리자 언어를 따름** — 라이선스 게이트 유지 결정(2026-11-10)에 따라. 라이선스 SDK 는 여러 플러그인에
+  같은 파일로 배포되므로 수정하지 않고, 한국어 원문 58개를 `languages/dw-wholesale-en_US.po/.mo` 에서 영어로 번역.
+  영어 관리자 화면에서 이 파일을 로드(플러그인 자체 문구는 원래 영어라 영향 없음). `build/i18n.php` 가 SDK 문구 누락도 검사.
 
 **테스트**
 - `tests/core/run.php`: 권한(기본값, 숨김 화면 거부, 보기 전용, 세부 동작, 저장·초기화, 알 수 없는 역할 제거, 운영자 모드),
@@ -65,6 +68,7 @@ DW Wholesale (구 DW Catalog WP) 의 변경 이력. [SemVer](https://semver.org/
 - `.mo` 를 `.gitattributes` 에 binary 로 지정 (빌드 결정론).
 
 ### Anti-piracy 관련 변경
+- **라이선스 게이트 유지** (운영자 결정 2026-11-10, docs/V3-SPEC.md 결정 기록).
 - 새 동작의 게이트: `save_settings` → `dwcat_can_save_meta`, `save_access` · `reset_access` · `set_lang` → `dwcat_can_render_admin`.
   기존 9개 게이트와 두 겹 구조(어댑터 진입점 + `Host::allows()`)는 그대로.
 - DASOM-Forge 에 등록된 product slug 가 `dw-catalog-wp` → `dw-wholesale` 로 바뀝니다.

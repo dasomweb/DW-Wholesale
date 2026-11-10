@@ -39,6 +39,16 @@ function dwcat_i18n_files(): array {
 	return $files;
 }
 
+/**
+ * The DASOM-Forge license SDK. It is distributed as-is to several plugins (prefix strategy), so its
+ * Korean source strings are not edited here: languages/dw-wholesale-en_US.po translates them to
+ * English, and the Korean admin simply shows the source.
+ */
+function dwcat_i18n_sdk_files(): array {
+	$root = dwcat_i18n_root();
+	return array( $root . '/includes/class-dw-license-manager.php', $root . '/includes/class-dw-forge-client.php', $root . '/includes/class-dwcat-license-rest.php' );
+}
+
 /** Decode a PHP single- or double-quoted literal body. */
 function dwcat_i18n_unquote( string $quote, string $body ): string {
 	if ( "'" === $quote ) {
@@ -50,7 +60,7 @@ function dwcat_i18n_unquote( string $quote, string $body ): string {
 /**
  * Literal strings in translation calls: msgid => [ "file:line", … ].
  */
-function dwcat_i18n_extract(): array {
+function dwcat_i18n_extract( ?array $files = null ): array {
 	$root = dwcat_i18n_root();
 	$out  = array();
 	$lit  = '(\'(?:[^\'\\\\]|\\\\.)*\'|"(?:[^"\\\\$]|\\\\.)*")';
@@ -58,7 +68,7 @@ function dwcat_i18n_extract(): array {
 	$wpx  = '/\b_x\(\s*' . $lit . '\s*,\s*' . $lit . '\s*,\s*[\'"]' . DWCAT_I18N_DOMAIN . '[\'"]/s';
 	$wpn  = '/\b_n\(\s*' . $lit . '\s*,\s*' . $lit . '\s*,/s';
 	$core = '/(?:->t|->translate|->frontText|\bT)\(\s*' . $lit . '\s*[,)]/s';
-	foreach ( dwcat_i18n_files() as $file ) {
+	foreach ( null === $files ? dwcat_i18n_files() : $files as $file ) {
 		$src = (string) file_get_contents( $file );
 		$rel = ltrim( str_replace( '\\', '/', substr( $file, strlen( $root ) ) ), '/' );
 		foreach ( array( $wp, $wpx, $wpn, $core ) as $re ) {
@@ -178,6 +188,15 @@ function dwcat_i18n_write_pot( string $po, string $pot ): void {
 		}
 		$out .= 'msgid "' . dwcat_i18n_po_escape( $id ) . "\"\nmsgstr \"\"\n\n";
 	}
+	// License SDK strings (Korean source), kept in the English catalogue
+	$en = dirname( $po ) . '/dw-wholesale-en_US.po';
+	if ( is_file( $en ) ) {
+		foreach ( dwcat_i18n_parse_po( $en )['entries'] as $id => $e ) {
+			if ( ! isset( $data['entries'][ $id ] ) ) {
+				$out .= "#. License SDK (Korean source)\n" . 'msgid "' . dwcat_i18n_po_escape( $id ) . "\"\nmsgstr \"\"\n\n";
+			}
+		}
+	}
 	file_put_contents( $pot, $out );
 }
 
@@ -243,7 +262,27 @@ function dwcat_i18n_problems(): array {
 			$problems[] = 'placeholders differ: "' . $id . '" → "' . $str . '"';
 		}
 	}
+	// License SDK (Korean source) → English catalogue
+	$en     = dwcat_i18n_root() . '/languages/dw-wholesale-en_US.po';
+	$enDict = is_file( $en ) ? dwcat_i18n_dict( $en ) : array();
+	foreach ( dwcat_i18n_sdk_strings() as $id => $where ) {
+		if ( ! isset( $enDict[ $id ] ) ) {
+			$problems[] = 'missing in en_US: "' . $id . '" (' . $where[0] . ')';
+		}
+	}
+	foreach ( $enDict as $id => $str ) {
+		if ( dwcat_i18n_placeholders( $id ) !== dwcat_i18n_placeholders( $str ) ) {
+			$problems[] = 'placeholders differ (en_US): "' . $id . '" → "' . $str . '"';
+		}
+	}
 	return $problems;
+}
+
+/** Korean-source strings of the license SDK (English-source ones need no English translation). */
+function dwcat_i18n_sdk_strings(): array {
+	return array_filter( dwcat_i18n_extract( dwcat_i18n_sdk_files() ), function ( $id ) {
+		return 1 === preg_match( '/[\x{AC00}-\x{D7A3}]/u', (string) $id );
+	}, ARRAY_FILTER_USE_KEY );
 }
 
 // ── CLI ──────────────────────────────────────────────────────────
@@ -252,6 +291,13 @@ if ( PHP_SAPI === 'cli' && isset( $argv ) && realpath( $argv[0] ) === realpath( 
 	$cmd  = isset( $argv[1] ) ? $argv[1] : 'all';
 	$lang = dwcat_i18n_root() . '/languages';
 	$code = 0;
+	if ( 'list-sdk' === $cmd ) { // Korean-source strings of the license SDK
+		foreach ( dwcat_i18n_sdk_strings() as $id => $where ) {
+			echo $id, "
+";
+		}
+		exit( 0 );
+	}
 	if ( 'list' === $cmd ) { // every extracted string (for translators)
 		foreach ( dwcat_i18n_extract() as $id => $where ) {
 			echo $id, "\n";

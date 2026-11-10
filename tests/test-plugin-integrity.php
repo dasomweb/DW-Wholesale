@@ -73,6 +73,8 @@ $required_files = array(
 	'languages/dw-wholesale.pot',
 	'languages/dw-wholesale-ko_KR.po',
 	'languages/dw-wholesale-ko_KR.mo',
+	'languages/dw-wholesale-en_US.po',  // license SDK screens in English
+	'languages/dw-wholesale-en_US.mo',
 	'includes/wp/class-dwcat-wp-rest.php',
 	'includes/class-pc-github-updater.php',
 	'includes/class-dw-license-manager.php',

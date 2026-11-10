@@ -7,7 +7,8 @@
  *   site pages:    the widget language setting → the site language
  *
  * Only the dw-wholesale text domain is affected; WordPress itself keeps its own language.
- * Translation files: languages/dw-wholesale-{locale}.mo (English is the source language).
+ * Translation files: languages/dw-wholesale-{locale}.mo. English is the source language; the en_US
+ * file only translates the license SDK, whose strings are Korean at the source.
  *
  * @package DW_Wholesale
  */
@@ -61,7 +62,7 @@ class DWCAT_WP_I18n {
 		}
 	}
 
-	/** Swap the domain to $locale. English (or a language without a file) = source strings. */
+	/** Swap the domain to $locale. A language without a file = source strings. */
 	public static function load( string $locale ) {
 		if ( $locale === self::$loaded ) {
 			return;
@@ -80,10 +81,17 @@ class DWCAT_WP_I18n {
 		$GLOBALS['l10n'][ self::DOMAIN ] = new NOOP_Translations(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride
 	}
 
-	/** Shipped translation file for a locale ("ko_KR", or "ko" matched to ko_KR), or ''. */
+	/**
+	 * Shipped translation file for a locale ("ko_KR", or "ko" matched to ko_KR), or ''.
+	 * Any English locale uses dw-wholesale-en_US.mo: the plugin's own strings are English already,
+	 * that file only translates the license SDK's Korean source strings.
+	 */
 	public static function file( string $locale ): string {
-		if ( '' === $locale || 0 === strpos( $locale, 'en_' ) || 'en' === $locale ) {
+		if ( '' === $locale ) {
 			return '';
+		}
+		if ( 'en' === $locale || 0 === strpos( $locale, 'en_' ) ) {
+			$locale = 'en_US';
 		}
 		$dir = dwcat_get_path() . 'languages/';
 		foreach ( array( $locale, substr( $locale, 0, 2 ) . '_' . strtoupper( substr( $locale, 0, 2 ) ) ) as $try ) {

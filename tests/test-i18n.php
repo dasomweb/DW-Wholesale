@@ -55,6 +55,17 @@ unset( $compiled[''] );
 ksort( $compiled );
 ksort( $dict );
 t( $compiled === $dict, '.mo matches .po (run `php build/i18n.php mo` after editing the .po)' );
+$enPo = $lang . '/dw-wholesale-en_US.po';
+$enMo = $lang . '/dw-wholesale-en_US.mo';
+t( is_file( $enPo ) && is_file( $enMo ), 'English catalogue for the license SDK shipped' );
+$enDict     = dwcat_i18n_dict( $enPo );
+$enCompiled = dwcat_i18n_read_mo( $enMo );
+unset( $enCompiled[''] );
+ksort( $enDict );
+ksort( $enCompiled );
+t( $enCompiled === $enDict, 'en_US .mo matches .po' );
+$sdk = dwcat_i18n_sdk_strings();
+t( count( $sdk ) > 50 && ! array_diff_key( $sdk, $enDict ), 'every Korean string of the license screens has English (' . count( $sdk ) . ')' );
 $tmp = tempnam( sys_get_temp_dir(), 'pot' );
 dwcat_i18n_write_pot( $po, $tmp );
 t( file_get_contents( $tmp ) === file_get_contents( $pot ), '.pot matches .po (run `php build/i18n.php pot`)' );
@@ -69,7 +80,8 @@ foreach ( \DWCatalog\Security\Access::MENUS as $key => $spec ) {
 echo "--- loader ---\n";
 $loader = (string) file_get_contents( dirname( __DIR__ ) . '/includes/wp/class-dwcat-wp-i18n.php' );
 t( false !== strpos( $loader, "add_action( 'init'" ), 'translations load on init (WordPress 6.7+ rule)' );
-t( false !== strpos( $loader, 'NOOP_Translations' ), 'English choice blocks just-in-time loading of another language' );
+t( false !== strpos( $loader, 'NOOP_Translations' ), 'a language without a file blocks just-in-time loading of another language' );
+t( false !== strpos( $loader, '$locale = \'en_US\';' ), 'English admin loads the en_US file (license screens)' );
 $main = (string) file_get_contents( dirname( __DIR__ ) . '/dw-wholesale.php' );
 t( false === strpos( $main, 'load_plugin_textdomain' ), 'no plugins_loaded textdomain load (language is chosen per request)' );
 
