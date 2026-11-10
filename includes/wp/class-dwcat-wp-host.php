@@ -61,7 +61,7 @@ class DWCAT_WP_Host implements \DWCatalog\Host\Host {
 	}
 
 	public function translate( string $text ): string {
-		return translate( $text, 'dw-catalog-wp' ); // phpcs:ignore WordPress.WP.I18n — core strings are dynamic
+		return translate( $text, 'dw-wholesale' ); // phpcs:ignore WordPress.WP.I18n — core strings are dynamic
 	}
 
 	public function sanitizeHtml( string $html ): string {

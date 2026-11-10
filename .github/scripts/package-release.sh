@@ -64,7 +64,7 @@ rsync -a \
 # ─── 2. WordPress readme.txt ───────────────────────────────────────
 # integrity 생성 **전에** 써야 매니페스트에 포함됩니다.
 cat > "$PLUGIN_DIR/README.txt" <<READMEEOF
-=== DW Catalog WP ===
+=== DW Wholesale ===
 Contributors: dasomweb
 Tags: catalog, custom fields, custom post type
 Requires at least: 5.0
@@ -78,18 +78,18 @@ Product catalog with dynamic custom fields per post type.
 
 == Description ==
 
-DW Catalog WP lets you manage product catalogs with dynamic custom fields.
+DW Wholesale lets you manage product catalogs with dynamic custom fields.
 Each post type gets its own admin menu, list page, bulk import, PDF export,
 and field reference.
 
 This plugin requires an active DASOM Forge license to display catalogs on the
-front end. Enter your license key under DW Catalog > License after activation.
+front end. Enter your license key under DW Wholesale > License after activation.
 
 == Installation ==
 
 1. Upload the plugin zip via Plugins > Add New > Upload Plugin.
 2. Activate the plugin.
-3. Enter your license key under DW Catalog > License.
+3. Enter your license key under DW Wholesale > License.
 4. Visit Settings > Permalinks to flush rewrite rules.
 
 == Changelog ==

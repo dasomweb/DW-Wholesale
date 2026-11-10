@@ -112,7 +112,7 @@ function dwcat_is_licensed() {
 	if ( defined( 'DWCAT_DEV_BYPASS' ) && DWCAT_DEV_BYPASS ) {
 		return true;
 	}
-	$d = get_option( 'dw_license_dw_catalog_wp', array() );
+	$d = get_option( 'dw_license_dw_wholesale', array() );
 	return is_array( $d ) && isset( $d['status'] ) && 'active' === $d['status'];
 }
 
@@ -179,7 +179,7 @@ function dwcat_can_manage_fields() {
 	if ( dwcat_gate_bypass() ) {
 		return true;
 	}
-	$d = get_option( 'dw_license_dw_catalog_wp', array() );
+	$d = get_option( 'dw_license_dw_wholesale', array() );
 	if ( ! is_array( $d ) || empty( $d['key'] ) ) {
 		return false;
 	}
@@ -187,7 +187,7 @@ function dwcat_can_manage_fields() {
 		return false;
 	}
 	$claims = DW_DWCAT_License_Manager::get_token_claims();
-	return isset( $claims['aud'] ) && 'dw-catalog-wp' === $claims['aud'];
+	return isset( $claims['aud'] ) && 'dw-wholesale' === $claims['aud'];
 }
 
 /**
@@ -335,9 +335,9 @@ function dwcat_gate_placeholder() {
 		return '';
 	}
 	return '<p class="dwcat-unlicensed" style="padding:12px;border:1px dashed #d63638;color:#d63638;">'
-		. esc_html__( 'DW Catalog WP: 라이선스가 활성화되지 않아 카탈로그를 표시할 수 없습니다.', 'dw-catalog-wp' )
-		. ' <a href="' . esc_url( admin_url( 'admin.php?page=dw-catalog-license' ) ) . '">'
-		. esc_html__( '라이선스 설정', 'dw-catalog-wp' ) . '</a></p>';
+		. esc_html__( 'DW Wholesale: 라이선스가 활성화되지 않아 카탈로그를 표시할 수 없습니다.', 'dw-wholesale' )
+		. ' <a href="' . esc_url( admin_url( 'admin.php?page=dw-wholesale-license' ) ) . '">'
+		. esc_html__( '라이선스 설정', 'dw-wholesale' ) . '</a></p>';
 }
 
 /** 레거시 유예 안내 — 만료가 가까울수록 강하게. */
@@ -359,13 +359,13 @@ function dwcat_legacy_grace_notice() {
 	printf(
 		'<div class="notice %s"><p><strong>%s</strong> %s <a href="%s">%s</a></p></div>',
 		esc_attr( $class ),
-		esc_html__( 'DW Catalog WP:', 'dw-catalog-wp' ),
+		esc_html__( 'DW Wholesale:', 'dw-wholesale' ),
 		esc_html( sprintf(
 			/* translators: %d: days remaining */
-			__( '라이선스 인증이 필요합니다. %d일 후 카탈로그 출력이 중단됩니다.', 'dw-catalog-wp' ),
+			__( '라이선스 인증이 필요합니다. %d일 후 카탈로그 출력이 중단됩니다.', 'dw-wholesale' ),
 			$days
 		) ),
-		esc_url( admin_url( 'admin.php?page=dw-catalog-license' ) ),
-		esc_html__( '지금 활성화', 'dw-catalog-wp' )
+		esc_url( admin_url( 'admin.php?page=dw-wholesale-license' ) ),
+		esc_html__( '지금 활성화', 'dw-wholesale' )
 	);
 }

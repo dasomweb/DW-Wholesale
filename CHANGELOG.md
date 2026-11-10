@@ -1,9 +1,24 @@
 # Changelog
 
-DW Catalog WP 의 변경 이력. [SemVer](https://semver.org/lang/ko/) 를 따릅니다
+DW Wholesale (구 DW Catalog WP) 의 변경 이력. [SemVer](https://semver.org/lang/ko/) 를 따릅니다
 (PLUGIN-DEV-GUIDE §7.1).
 
 릴리스마다 **anti-piracy 관련 변경**을 별도 표기합니다 (§7.6 의무).
+
+---
+
+## [3.0.0] — 개발 시작 (미출시)
+
+### Changed — 제품명 변경: DW Catalog WP → DW Wholesale
+- DW Product Catalog 와 DW Wholesale Customer Management 를 하나로 통합하는 제품의 기반으로 전환합니다.
+- 플러그인 이름 `DW Wholesale`, 메인 파일 `dw-wholesale.php`, 슬러그 · 텍스트 도메인 `dw-wholesale`.
+- 저장소 주소 `github.com/dasomweb/DW-Wholesale` (Plugin URI · Update URI · 설정값).
+- 라이선스 SDK 의 product slug · 옵션 키 · 설정 페이지를 새 슬러그로 변경 (`dw_license_dw_wholesale`, `dw-wholesale-license`).
+- 내부 코드 접두사(`dwcat_`, `DWCAT_`)와 테이블 이름(`{prefix}dwcat_*`)은 그대로 유지합니다.
+
+### Anti-piracy 관련 변경
+- DASOM-Forge 에 등록된 product slug 가 `dw-catalog-wp` → `dw-wholesale` 로 바뀝니다.
+  dasomforge 에 `dw-wholesale` 제품을 등록하기 전까지 라이선스 활성화가 되지 않습니다.
 
 ---
 

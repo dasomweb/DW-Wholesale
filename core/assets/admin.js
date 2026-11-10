@@ -1,5 +1,5 @@
 /**
- * DW Catalog — admin UI behaviour (no dependencies).
+ * DW Wholesale — admin UI behaviour (no dependencies).
  *
  * data-dwc-add="x"        clone <template data-dwc-template="x"> into table[data-dwc-rows="x"]
  * data-dwc-remove         remove the row

@@ -13,7 +13,7 @@
 
 ### 2. 업데이트 프로세스
 1. WordPress 관리자 > **플러그인** 페이지
-2. **DW Catalog WP** 플러그인에 "새 버전 사용 가능" 알림 표시
+2. **DW Wholesale** 플러그인에 "새 버전 사용 가능" 알림 표시
 3. **지금 업데이트** 버튼 클릭
 4. 자동으로 GitHub에서 최신 버전 다운로드 및 설치
 5. 플러그인 자동 재활성화
@@ -23,12 +23,12 @@
 ### 방법 1: 태그 기반 자동 릴리스 (권장)
 
 ```bash
-# 1. 버전 번호 업데이트 (dw-catalog-wp.php)
+# 1. 버전 번호 업데이트 (dw-wholesale.php)
 # Version: 1.3.1 → 1.3.2
 # 'plugin_version' => '1.3.1' → '1.3.2'
 
 # 2. 변경사항 커밋 및 푸시
-git add dw-catalog-wp.php
+git add dw-wholesale.php
 git commit -m "Update version to 1.3.2"
 git push origin main
 
@@ -61,7 +61,7 @@ git push origin v1.3.2
 
 WordPress 관리자에서:
 1. **플러그인** > **설치된 플러그인**
-2. **DW Catalog WP** 옆의 **업데이트 확인** 클릭
+2. **DW Wholesale** 옆의 **업데이트 확인** 클릭
 3. 또는 페이지 새로고침
 
 ### 업데이트 캐시 초기화
@@ -70,7 +70,7 @@ WordPress 관리자에서:
 
 ```php
 // WordPress functions.php 또는 플러그인에 추가
-delete_transient( 'pc_github_latest_release_' . md5( 'dasomweb' . 'dw-catalog-wp' ) );
+delete_transient( 'pc_github_latest_release_' . md5( 'dasomweb' . 'dw-wholesale' ) );
 ```
 
 또는 WordPress 관리자에서:
@@ -81,14 +81,14 @@ delete_transient( 'pc_github_latest_release_' . md5( 'dasomweb' . 'dw-catalog-wp
 
 플러그인 설정이 올바른지 확인:
 
-**파일:** `dw-catalog-wp.php`
+**파일:** `dw-wholesale.php`
 
 ```php
 function pc_get_plugin_config() {
     return array(
         'github_repo_owner' => 'dasomweb',        // ✅ 확인
-        'github_repo_name'  => 'dw-catalog-wp', // ✅ 확인
-        'plugin_slug'       => 'dw-catalog-wp', // ✅ 확인
+        'github_repo_name'  => 'dw-wholesale', // ✅ 확인
+        'plugin_slug'       => 'dw-wholesale', // ✅ 확인
         'plugin_version'    => '1.3.1',            // 릴리스마다 업데이트 필요
         // ...
     );
@@ -104,7 +104,7 @@ function pc_get_plugin_config() {
    - 버전 형식: `1.3.1` (숫자.숫자.숫자)
 
 2. **GitHub 릴리스 확인**
-   - https://github.com/dasomweb/dw-catalog-wp/releases
+   - https://github.com/dasomweb/DW-Wholesale/releases
    - 최신 릴리스에 ZIP 파일이 첨부되어 있는지 확인
 
 3. **캐시 확인**

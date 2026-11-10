@@ -19,7 +19,7 @@
  * 두 집합이 정확히 같아야 /auth/token 이 통과합니다. 릴리스 후에 알면
  * 이미 늦습니다 (재릴리스 + 재SyncRelease).
  *
- * 사용: node build/verify-package.js dw-catalog-wp-2.0.0.zip
+ * 사용: node build/verify-package.js dw-wholesale-2.0.0.zip
  */
 
 'use strict';

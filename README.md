@@ -1,4 +1,4 @@
-# DW Catalog WP
+# DW Wholesale
 
 **독립 카탈로그 시스템**을 워드프레스 플러그인으로 배포합니다. 워드프레스는 디자인(테마 · 페이지)만
 맡고, 카탈로그 데이터는 플러그인 전용 테이블에만 있습니다 (`wp_posts` · `wp_postmeta` · 미디어 라이브러리 미사용).
@@ -46,7 +46,7 @@ v2.0.0 부터 이 플러그인은 **DASOM-Forge 플랫폼에 의존**합니다.
 
 **기존 v1.x 사용자**: 자동 업데이트로 즉시 끊기지 않습니다. 업그레이드가 감지되면
 **30일 유예**가 부여되고 관리자 화면에 남은 일수가 표시됩니다. 유예 기간 안에
-`DW Catalog → License` 에서 라이선스 키를 입력하십시오.
+`DW Wholesale → License` 에서 라이선스 키를 입력하십시오.
 (기존에 키를 넣었다면 그대로 승계되어 재입력이 불필요합니다.)
 
 **개발자**: 로컬 개발은 `wp-config.php` 에 `define('DWCAT_DEV_BYPASS', true);` 로 우회합니다.
@@ -117,7 +117,7 @@ This plugin is automatically deployed and updated through GitHub Releases.
 2. 태그 선택 또는 새 태그 생성 (예: `v1.0.0`)
 3. 릴리스 제목 및 설명 작성
 4. 플러그인 ZIP 파일을 수동으로 업로드
-   - ZIP 파일명: `dw-catalog-wp-{version}.zip`
+   - ZIP 파일명: `dw-wholesale-{version}.zip`
    - ZIP에는 `.git`, `.github` 폴더 제외
 
 ### 📥 설치 방법 (Installation)
@@ -143,19 +143,19 @@ This plugin is automatically deployed and updated through GitHub Releases.
 
 ```bash
 # 저장소 클론
-git clone https://github.com/dasomweb/dw-catalog-wp.git
-cd dw-catalog-wp
+git clone https://github.com/dasomweb/DW-Wholesale.git
+cd dw-wholesale
 
 # WordPress 플러그인 디렉토리에 심볼릭 링크 생성 (선택사항)
 # Create symbolic link to WordPress plugins directory (optional)
-ln -s $(pwd) /path/to/wordpress/wp-content/plugins/dw-catalog-wp
+ln -s $(pwd) /path/to/wordpress/wp-content/plugins/dw-wholesale
 ```
 
 ### 📋 릴리스 체크리스트 (Release Checklist)
 
 릴리스 전 확인사항:
 
-- [ ] 플러그인 버전 번호 업데이트 (`dw-catalog-wp.php`)
+- [ ] 플러그인 버전 번호 업데이트 (`dw-wholesale.php`)
 - [ ] `pc_get_plugin_config()` 함수의 버전 번호 업데이트
 - [ ] 변경사항 문서화 (CHANGELOG 또는 릴리스 노트)
 - [ ] 코드 테스트 완료
@@ -167,7 +167,7 @@ ln -s $(pwd) /path/to/wordpress/wp-content/plugins/dw-catalog-wp
 
 버전 번호는 다음 위치에서 관리됩니다:
 
-1. **플러그인 헤더** (`dw-catalog-wp.php`):
+1. **플러그인 헤더** (`dw-wholesale.php`):
    ```php
    * Version: 1.0.0
    ```
@@ -217,7 +217,7 @@ GPL v2 or later
 
 ### 📞 지원 (Support)
 
-이슈가 있으시면 [GitHub Issues](https://github.com/dasomweb/dw-catalog-wp/issues)에 등록해주세요.
+이슈가 있으시면 [GitHub Issues](https://github.com/dasomweb/DW-Wholesale/issues)에 등록해주세요.
 
 ---
 

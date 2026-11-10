@@ -1,6 +1,6 @@
 <?php
 /**
- * DASOM-Forge API Client — dw-catalog-wp fork.
+ * DASOM-Forge API Client — dw-wholesale fork.
  *
  * ── Prefix 배포 전략 (PLUGIN-DEV-GUIDE §3.5 B / SDK-README §Prefix) ──
  * 정본 클래스 `DW_Forge_Client` 를 `DW_DWCAT_Forge_Client` 로 rename 한 사본입니다.

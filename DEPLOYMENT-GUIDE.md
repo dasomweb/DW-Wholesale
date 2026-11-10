@@ -2,9 +2,9 @@
 
 ## 개요 (Overview)
 
-이 가이드는 DW Catalog WP 플러그인을 GitHub을 통해 배포하는 방법을 설명합니다.
+이 가이드는 DW Wholesale 플러그인을 GitHub을 통해 배포하는 방법을 설명합니다.
 
-This guide explains how to deploy the DW Catalog WP plugin through GitHub.
+This guide explains how to deploy the DW Wholesale plugin through GitHub.
 
 ## 🚀 빠른 시작 (Quick Start)
 
@@ -12,7 +12,7 @@ This guide explains how to deploy the DW Catalog WP plugin through GitHub.
 
 플러그인 파일에서 버전 번호를 업데이트합니다:
 
-**파일:** `dw-catalog-wp.php`
+**파일:** `dw-wholesale.php`
 
 ```php
 // 플러그인 헤더
@@ -26,7 +26,7 @@ This guide explains how to deploy the DW Catalog WP plugin through GitHub.
 
 ```bash
 # 변경사항 커밋
-git add dw-catalog-wp.php
+git add dw-wholesale.php
 git commit -m "Bump version to 1.0.1"
 
 # 태그 생성 및 푸시
@@ -48,13 +48,13 @@ GitHub Actions가 자동으로:
 
 1. **로컬에서 버전 업데이트**
    ```bash
-   # 버전 번호 수정 (dw-catalog-wp.php)
-   # Version number update (dw-catalog-wp.php)
+   # 버전 번호 수정 (dw-wholesale.php)
+   # Version number update (dw-wholesale.php)
    ```
 
 2. **커밋 및 푸시**
    ```bash
-   git add dw-catalog-wp.php
+   git add dw-wholesale.php
    git commit -m "Release version 1.0.1"
    git push origin main
    ```
@@ -89,7 +89,7 @@ GitHub Actions가 자동으로:
 1. **플러그인 ZIP 파일 생성**
    ```bash
    # 플러그인 디렉토리에서
-   zip -r dw-catalog-wp-1.0.1.zip . \
+   zip -r dw-wholesale-1.0.1.zip . \
      -x "*.git*" \
      -x "*.github*" \
      -x "*.DS_Store" \
@@ -116,7 +116,7 @@ GitHub Actions가 자동으로:
 릴리스가 성공적으로 생성되었는지 확인:
 
 1. **GitHub Releases 페이지**
-   - https://github.com/dasomweb/dw-catalog-wp/releases
+   - https://github.com/dasomweb/DW-Wholesale/releases
    - 최신 릴리스 확인
    - ZIP 파일 다운로드 가능 여부 확인
 
@@ -130,8 +130,8 @@ GitHub Actions가 자동으로:
 생성된 ZIP 파일에는 다음이 포함됩니다:
 
 ```
-dw-catalog-wp-1.0.1.zip
-├── dw-catalog-wp.php          # 메인 플러그인 파일
+dw-wholesale-1.0.1.zip
+├── dw-wholesale.php          # 메인 플러그인 파일
 ├── includes/
 │   ├── class-pc-github-updater.php
 │   └── class-pc-url-helper.php
@@ -235,7 +235,7 @@ Private 저장소의 경우 GitHub Personal Access Token이 필요합니다:
 ## 📝 릴리스 노트 템플릿 (Release Notes Template)
 
 ```markdown
-## DW Catalog WP v1.0.1
+## DW Wholesale v1.0.1
 
 ### 새로운 기능 (New Features)
 - 기능 1

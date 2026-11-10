@@ -1,7 +1,7 @@
 <?php
 /**
  * Authenticated item list for the DW Admin SPA:
- *   GET /wp-json/dw-catalog-wp/v1/items?search=&page=   (edit_posts + REST nonce required)
+ *   GET /wp-json/dw-wholesale/v1/items?search=&page=   (edit_posts + REST nonce required)
  *
  * There is no public data API — visitors only ever receive rendered HTML.
  *
@@ -20,7 +20,7 @@ class DWCAT_WP_Rest {
 	}
 
 	public function routes() {
-		register_rest_route( 'dw-catalog-wp/v1', '/items', array(
+		register_rest_route( 'dw-wholesale/v1', '/items', array(
 			'methods'             => 'GET',
 			'permission_callback' => function () {
 				return current_user_can( 'edit_posts' ) && dwcat_can_call_rest();
@@ -69,9 +69,9 @@ class DWCAT_WP_Rest {
 				}
 				$modules[] = array(
 					'key'       => 'dwcat-' . $type,
-					'label'     => 'DW Catalog',
+					'label'     => 'DW Wholesale',
 					'icon'      => 'grid',
-					'rest_base' => rest_url( 'dw-catalog-wp/v1/items' ),
+					'rest_base' => rest_url( 'dw-wholesale/v1/items' ),
 					'columns'   => $cols,
 					'roles'     => array(),
 				);

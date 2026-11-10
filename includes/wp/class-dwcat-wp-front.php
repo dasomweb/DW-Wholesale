@@ -123,7 +123,7 @@ class DWCAT_WP_Front {
 		try {
 			return $fn();
 		} catch ( \Throwable $e ) {
-			return current_user_can( 'manage_options' ) ? '<p class="dwcat-empty">DW Catalog: ' . esc_html( $e->getMessage() ) . '</p>' : '';
+			return current_user_can( 'manage_options' ) ? '<p class="dwcat-empty">DW Wholesale: ' . esc_html( $e->getMessage() ) . '</p>' : '';
 		}
 	}
 

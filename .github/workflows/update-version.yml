@@ -23,7 +23,7 @@ jobs:
       - name: Update version in plugin file
         run: |
           VERSION="${{ github.event.inputs.version }}"
-          PLUGIN_FILE="dw-catalog-wp.php"
+          PLUGIN_FILE="dw-wholesale.php"
           
           # Update version in plugin header
           if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -40,7 +40,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add dw-catalog-wp.php
+          git add dw-wholesale.php
           git commit -m "Bump version to ${{ github.event.inputs.version }}" || exit 0
           git push
 

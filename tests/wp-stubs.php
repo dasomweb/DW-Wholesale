@@ -125,8 +125,8 @@ function home_url( $p = '' ) { return 'https://canary.example.com' . $p; }
 function admin_url( $p = '' ) { return 'https://canary.example.com/wp-admin/' . $p; }
 function rest_url( $p = '' ) { return home_url( '/wp-json/' . $p ); }
 function plugin_dir_path( $f ) { return rtrim( str_replace( '\\', '/', dirname( $f ) ), '/' ) . '/'; }
-function plugin_dir_url( $f ) { return 'https://canary.example.com/wp-content/plugins/dw-catalog-wp/'; }
-function plugin_basename( $f ) { return 'dw-catalog-wp/' . basename( $f ); }
+function plugin_dir_url( $f ) { return 'https://canary.example.com/wp-content/plugins/dw-wholesale/'; }
+function plugin_basename( $f ) { return 'dw-wholesale/' . basename( $f ); }
 function wp_parse_url( $u, $c = -1 ) { return parse_url( $u, $c ); }
 function wp_json_encode( $d, $f = 0 ) { return json_encode( $d, $f ); }
 

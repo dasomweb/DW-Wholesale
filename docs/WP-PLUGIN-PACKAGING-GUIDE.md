@@ -13,7 +13,7 @@ WordPress 플러그인 배포에서 가장 중요한 두 가지 규칙:
 ```
 {plugin-slug}-{version}.zip
 ```
-예: `dw-catalog-wp-1.0.6.zip`, `dw-church-2.3.1.zip`
+예: `dw-wholesale-1.0.6.zip`, `dw-church-2.3.1.zip`
 
 **이유:**
 - 다운로드 시 어떤 버전인지 즉시 식별
@@ -22,9 +22,9 @@ WordPress 플러그인 배포에서 가장 중요한 두 가지 규칙:
 
 ### ZIP 내부 루트 폴더 = 반드시 플러그인 슬러그 (버전 없이)
 ```
-dw-catalog-wp-1.0.6.zip
-└── dw-catalog-wp/          ← 이 폴더명이 설치 경로를 결정
-    ├── dw-catalog-wp.php
+dw-wholesale-1.0.6.zip
+└── dw-wholesale/          ← 이 폴더명이 설치 경로를 결정
+    ├── dw-wholesale.php
     ├── uninstall.php
     ├── README.txt
     ├── includes/
@@ -34,17 +34,17 @@ dw-catalog-wp-1.0.6.zip
 
 **이유:**
 - WordPress는 ZIP 안의 **루트 폴더명**을 `wp-content/plugins/` 아래에 그대로 생성
-- 폴더명에 버전이 포함되면 (`dw-catalog-wp-1.0.6/`) 업데이트할 때마다 새 폴더가 생겨 이전 버전이 남음
-- 폴더명이 항상 `dw-catalog-wp/`로 고정되면 업데이트 시 자동 덮어쓰기됨
+- 폴더명에 버전이 포함되면 (`dw-wholesale-1.0.6/`) 업데이트할 때마다 새 폴더가 생겨 이전 버전이 남음
+- 폴더명이 항상 `dw-wholesale/`로 고정되면 업데이트 시 자동 덮어쓰기됨
 
 ```
 ✅ 올바른 구조:
-ZIP: dw-catalog-wp-1.0.6.zip → 폴더: dw-catalog-wp/
-                                  설치: wp-content/plugins/dw-catalog-wp/
+ZIP: dw-wholesale-1.0.6.zip → 폴더: dw-wholesale/
+                                  설치: wp-content/plugins/dw-wholesale/
 
 ❌ 잘못된 구조:
-ZIP: dw-catalog-wp-1.0.6.zip → 폴더: dw-catalog-wp-1.0.6/
-                                  설치: wp-content/plugins/dw-catalog-wp-1.0.6/
+ZIP: dw-wholesale-1.0.6.zip → 폴더: dw-wholesale-1.0.6/
+                                  설치: wp-content/plugins/dw-wholesale-1.0.6/
                                   (업데이트마다 새 폴더 생성 → 이전 버전 잔존)
 ```
 
@@ -70,7 +70,7 @@ on:
 
 ### ZIP 생성 핵심 로직
 ```bash
-PLUGIN_NAME="dw-catalog-wp"
+PLUGIN_NAME="dw-wholesale"
 ZIP_NAME="${PLUGIN_NAME}-${VERSION}.zip"     # 파일명: 버전 포함
 
 mkdir -p temp_plugin/${PLUGIN_NAME}          # 폴더명: 버전 없이 (고정)
@@ -191,7 +191,7 @@ git tag v1.0.6
 # 4. 푸시 (커밋 + 태그)
 git push origin main && git push origin v1.0.6
 # 5. GitHub Actions가 자동으로:
-#    - ZIP 생성 (dw-catalog-wp-1.0.6.zip)
+#    - ZIP 생성 (dw-wholesale-1.0.6.zip)
 #    - Release 생성 (v1.0.6)
 #    - ZIP을 Release asset으로 첨부
 ```
@@ -214,7 +214,7 @@ $config = Get-Content "{slug}.php" -Raw
 if ($config -match "plugin_version'\s*=>\s*'([^']+)'") { $ver = $Matches[1] }
 
 # 폴더 구조: build/{slug}/ (버전 없이)
-$pluginSlug = "dw-catalog-wp"
+$pluginSlug = "dw-wholesale"
 $pluginDir = "build\$pluginSlug"
 
 # 필요한 파일만 복사 (whitelist 방식)
@@ -228,7 +228,7 @@ Copy-Item "vendor" $pluginDir -Recurse  # Composer deps
 # ... (Stable tag: $ver)
 
 # ZIP 파일명: 버전 포함
-$zipName = "$pluginSlug-$ver.zip"        # dw-catalog-wp-1.0.6.zip
+$zipName = "$pluginSlug-$ver.zip"        # dw-wholesale-1.0.6.zip
 Compress-Archive -Path "build\$pluginSlug" -DestinationPath $zipName
 ```
 
@@ -280,17 +280,17 @@ PDF 내보내기 등에서 Composer 패키지를 사용하는 경우:
 DW License Manager SDK가 `pre_set_site_transient_update_plugins` 훅으로 자동 업데이트를 처리. 라이선스 서버의 `/releases/update-check` 응답에서 `download_url`이 GitHub Release의 ZIP URL을 반환:
 
 ```
-GET /releases/update-check?license_key=xxx&product_slug=dw-catalog-wp&current_version=1.0.5
+GET /releases/update-check?license_key=xxx&product_slug=dw-wholesale&current_version=1.0.5
 
 Response:
 {
   "update_available": true,
   "version": "1.0.6",
-  "download_url": "https://github.com/.../dw-catalog-wp-1.0.6.zip"
+  "download_url": "https://github.com/.../dw-wholesale-1.0.6.zip"
 }
 ```
 
-→ WordPress가 이 URL에서 ZIP을 다운로드 → 기존 `dw-catalog-wp/` 폴더를 덮어쓰기
+→ WordPress가 이 URL에서 ZIP을 다운로드 → 기존 `dw-wholesale/` 폴더를 덮어쓰기
 
 ---
 
@@ -315,7 +315,7 @@ Response:
 
 | 플러그인 | 저장소 | ZIP 패턴 |
 |---------|--------|---------|
-| DW Catalog WP | `dasomweb/dw-catalog-wp` | `dw-catalog-wp-{ver}.zip` → `dw-catalog-wp/` |
+| DW Wholesale | `dasomweb/dw-wholesale` | `dw-wholesale-{ver}.zip` → `dw-wholesale/` |
 
 ---
 

@@ -3,7 +3,7 @@
  * Admin navigation.
  *
  * Main tabs: for hosts without their own menu. A host that lists these screens in its own menu
- * (WordPress: the DW Catalog submenu) puts class "dwc-host-nav" on an ancestor and they are hidden.
+ * (WordPress: the DW Wholesale submenu) puts class "dwc-host-nav" on an ancestor and they are hidden.
  * Section tabs (Import | Export, Design | Shortcodes) always show.
  *
  * @var DWCatalog\Admin\AdminApp $app

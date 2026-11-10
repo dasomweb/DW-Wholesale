@@ -1,6 +1,6 @@
 <?php
 /**
- * DW Catalog core — bootstrap.
+ * DW Wholesale core — bootstrap.
  *
  * The core is a standalone PHP library (namespace DWCatalog\) with no WordPress dependency.
  * Hosts (the WordPress adapter, or any other PHP app) include this file, then build a

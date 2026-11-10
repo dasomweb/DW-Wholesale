@@ -11,7 +11,7 @@
  *
  * 서버가 실제로 읽는 필드는 `version` 뿐. 나머지는 CI·휴먼 참조용입니다.
  *
- * `runtime` 섹션은 **의도적으로 생략** — dw-catalog-wp 는 MIGRATION-PLAN §4.1
+ * `runtime` 섹션은 **의도적으로 생략** — dw-wholesale 는 MIGRATION-PLAN §4.1
  * 합의에 따라 런타임 JS 배포를 적용하지 않는 순수 PHP 플러그인입니다.
  * 런타임 번들을 도입하면 이 스크립트에 sri 맵을 추가하십시오.
  *
@@ -36,9 +36,9 @@ const STAGE_DIR = path.resolve(opt('stage', path.join(PLUGIN_ROOT, 'release/wp-p
 const OUT_FILE = path.resolve(opt('output', path.join(PLUGIN_ROOT, 'release/manifest.json')));
 
 function readPluginVersion() {
-  const src = fs.readFileSync(path.join(PLUGIN_ROOT, 'dw-catalog-wp.php'), 'utf8');
+  const src = fs.readFileSync(path.join(PLUGIN_ROOT, 'dw-wholesale.php'), 'utf8');
   const m = src.match(/^\s*\*\s*Version:\s*(.+)$/m);
-  if (!m) throw new Error('Version header not found in dw-catalog-wp.php');
+  if (!m) throw new Error('Version header not found in dw-wholesale.php');
   return m[1].trim();
 }
 
@@ -77,13 +77,13 @@ const manifest = {
   version,
   wp_plugin: {
     integrity_files_count: integrity.files.length,
-    main_php_file: 'dw-catalog-wp.php',
+    main_php_file: 'dw-wholesale.php',
   },
   compatibility: {
     min_wp_version: '5.0',
     min_php_version: '7.4',
   },
-  release_notes_url: `https://github.com/dasomweb/dw-catalog-wp/releases/tag/v${version}`,
+  release_notes_url: `https://github.com/dasomweb/DW-Wholesale/releases/tag/v${version}`,
 };
 
 if (process.env.SOURCE_DATE_EPOCH) {

@@ -1,16 +1,16 @@
-# DW Catalog WP
+# DW Wholesale
 
 > **워드프레스에서 가장 유연한 상품 카탈로그 플러그인**  
 > 필드도, 디자인도 — 코드 수정 없이 관리자 페이지에서.
 
 ---
 
-## 왜 DW Catalog WP인가?
+## 왜 DW Wholesale인가?
 
 워드프레스 카탈로그 플러그인은 많지만, 대부분 **고정된 필드**와 **고정된 디자인**만 제공합니다.  
 상품명, 가격, 재고 — 그 이상을 원하시면 개발자를 부르셔야 하죠.
 
-**DW Catalog WP는 다릅니다.**  
+**DW Wholesale는 다릅니다.**  
 식당 메뉴든, 장비 재고든, 책 컬렉션이든 —  
 **필드를 직접 만들고, 색과 폰트도 직접 바꾸세요.**
 
@@ -47,7 +47,7 @@
 오버레이 위치: 좌상/우상/좌하/우하/중앙 5가지 선택.
 
 ### 3. 디자인을 관리자에서 제어 ⭐ NEW
-**DW Catalog > Shortcode Design** 메뉴에서:
+**DW Wholesale > Shortcode Design** 메뉴에서:
 
 - 🎨 **컬러피커** — 색상을 클릭으로 선택
 - 📐 **타이포그래피** — 폰트 크기, 굵기, 색상 조절
@@ -98,7 +98,7 @@
 
 ## 다른 플러그인과의 차이
 
-| 기능 | DW Catalog WP | 일반 카탈로그 플러그인 | WooCommerce |
+| 기능 | DW Wholesale | 일반 카탈로그 플러그인 | WooCommerce |
 |------|:-------------:|:----------------------:|:-----------:|
 | 동적 커스텀 필드 | ✅ | ❌ | ⚠️ (추가 플러그인 필요) |
 | 드래그 정렬 필드 관리 | ✅ | ❌ | ❌ |
@@ -111,7 +111,7 @@
 | 결제·장바구니 | ❌ | ⚠️ | ✅ |
 | 라이선스 자동 업데이트 | ✅ | ⚠️ | ✅ |
 
-**DW Catalog WP는 "판매"가 아닌 "카탈로그 관리"에 특화되어 있습니다.**  
+**DW Wholesale는 "판매"가 아닌 "카탈로그 관리"에 특화되어 있습니다.**  
 장바구니·결제가 필요 없는 B2B, 재고 관리, 콘텐츠 포트폴리오에 최적.
 
 ---
@@ -119,13 +119,13 @@
 ## 설치 5분 — 운영 시작
 
 ### 1. 플러그인 업로드
-`dw-catalog-wp-x.x.x.zip` 파일을 워드프레스에 업로드
+`dw-wholesale-x.x.x.zip` 파일을 워드프레스에 업로드
 
 ### 2. 활성화
 한 번 클릭
 
 ### 3. 커스텀 필드 정의
-**DW Catalog > Custom Fields** 에서 원하는 필드 추가
+**DW Wholesale > Custom Fields** 에서 원하는 필드 추가
 
 ### 4. 상품 등록
 개별 등록 or CSV 일괄 업로드
@@ -136,7 +136,7 @@
 ```
 
 ### 6. 디자인 커스터마이징
-**DW Catalog > Shortcode Design** 에서 브랜드 컬러 & 폰트 설정
+**DW Wholesale > Shortcode Design** 에서 브랜드 컬러 & 폰트 설정
 
 ---
 
@@ -247,9 +247,9 @@ A. 제품 상세 페이지(single-post), 추천 상품 배너, 브랜드 스토�
 
 ## 링크
 
-- **GitHub**: https://github.com/dasomweb/dw-catalog-wp
-- **최신 릴리즈**: https://github.com/dasomweb/dw-catalog-wp/releases/latest
-- **이슈 리포트**: https://github.com/dasomweb/dw-catalog-wp/issues
+- **GitHub**: https://github.com/dasomweb/DW-Wholesale
+- **최신 릴리즈**: https://github.com/dasomweb/DW-Wholesale/releases/latest
+- **이슈 리포트**: https://github.com/dasomweb/DW-Wholesale/issues
 - **라이선스 구매**: https://www.dwsitebuilder.com/pricing
 
 ---
@@ -266,7 +266,7 @@ A. 제품 상세 페이지(single-post), 추천 상품 배너, 브랜드 스토�
 **지금 시작하세요.**  
 카탈로그 관리의 시간을 절약하고, 고객에게 더 좋은 경험을 전달하세요.
 
-> **DW Catalog WP** — *Your catalog. Your fields. Your design. Your way.*
+> **DW Wholesale** — *Your catalog. Your fields. Your design. Your way.*
 
 ---
 

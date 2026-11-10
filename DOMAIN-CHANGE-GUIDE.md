@@ -15,7 +15,7 @@ $config = pc_get_plugin_config();
 // Access: $config['github_repo_owner'], $config['plugin_slug'], etc.
 ```
 
-**Location:** `dw-catalog-wp.php`
+**Location:** `dw-wholesale.php`
 
 **Benefits:**
 - Single source of truth for all plugin settings

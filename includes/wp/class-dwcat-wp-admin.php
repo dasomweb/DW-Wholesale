@@ -1,6 +1,6 @@
 <?php
 /**
- * WordPress admin integration: one "DW Catalog" menu that hosts the core admin app,
+ * WordPress admin integration: one "DW Wholesale" menu that hosts the core admin app,
  * and admin-post.php routing for its forms.
  *
  * @package DW_Catalog_WP
@@ -60,12 +60,12 @@ class DWCAT_WP_Admin {
 	}
 
 	public function menu() {
-		add_menu_page( 'DW Catalog', 'DW Catalog', 'edit_posts', DWCAT_WP_Host::ADMIN_PAGE, array( $this, 'page' ), 'dashicons-products', 21 );
+		add_menu_page( 'DW Wholesale', 'DW Wholesale', 'edit_posts', DWCAT_WP_Host::ADMIN_PAGE, array( $this, 'page' ), 'dashicons-products', 21 );
 		foreach ( self::SUBMENU as $view => $item ) {
 			add_submenu_page(
 				DWCAT_WP_Host::ADMIN_PAGE,
-				__( $item[0], 'dw-catalog-wp' ), // phpcs:ignore WordPress.WP.I18n
-				__( $item[0], 'dw-catalog-wp' ), // phpcs:ignore WordPress.WP.I18n
+				__( $item[0], 'dw-wholesale' ), // phpcs:ignore WordPress.WP.I18n
+				__( $item[0], 'dw-wholesale' ), // phpcs:ignore WordPress.WP.I18n
 				$item[1],
 				'items' === $view ? DWCAT_WP_Host::ADMIN_PAGE : 'admin.php?page=' . DWCAT_WP_Host::ADMIN_PAGE . '&view=' . $view
 			);
@@ -101,10 +101,10 @@ class DWCAT_WP_Admin {
 		// 게이트 7 — 라이선스가 없으면 카탈로그 관리 화면을 렌더하지 않습니다.
 		if ( ! dwcat_can_render_admin() ) {
 			printf(
-				'<div class="wrap"><h1>DW Catalog</h1><div class="notice notice-error"><p>%s <a href="%s">%s</a></p></div></div>',
-				esc_html__( '라이선스가 활성화되지 않아 카탈로그를 표시할 수 없습니다.', 'dw-catalog-wp' ),
-				esc_url( admin_url( 'admin.php?page=dw-catalog-license' ) ),
-				esc_html__( '라이선스 설정으로 이동', 'dw-catalog-wp' )
+				'<div class="wrap"><h1>DW Wholesale</h1><div class="notice notice-error"><p>%s <a href="%s">%s</a></p></div></div>',
+				esc_html__( '라이선스가 활성화되지 않아 카탈로그를 표시할 수 없습니다.', 'dw-wholesale' ),
+				esc_url( admin_url( 'admin.php?page=dw-wholesale-license' ) ),
+				esc_html__( '라이선스 설정으로 이동', 'dw-wholesale' )
 			);
 			return;
 		}
@@ -118,10 +118,10 @@ class DWCAT_WP_Admin {
 	public function post() {
 		$do = isset( $_POST['do'] ) ? sanitize_key( wp_unslash( $_POST['do'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification — core verifies its CSRF token
 		if ( ! isset( self::ACTION_GATES[ $do ] ) ) {
-			wp_die( esc_html__( 'Unknown action.', 'dw-catalog-wp' ), 400 );
+			wp_die( esc_html__( 'Unknown action.', 'dw-wholesale' ), 400 );
 		}
 		if ( ! call_user_func( self::ACTION_GATES[ $do ] ) ) {
-			wp_die( esc_html__( 'DW Catalog WP: 라이선스가 활성화되지 않아 이 작업을 실행할 수 없습니다.', 'dw-catalog-wp' ), 403 );
+			wp_die( esc_html__( 'DW Wholesale: 라이선스가 활성화되지 않아 이 작업을 실행할 수 없습니다.', 'dw-wholesale' ), 403 );
 		}
 		if ( 'export' === $do && is_file( dwcat_get_path() . 'vendor/autoload.php' ) ) {
 			require_once dwcat_get_path() . 'vendor/autoload.php';

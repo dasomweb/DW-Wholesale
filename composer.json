@@ -1,5 +1,5 @@
 {
-    "name": "dasomweb/dw-catalog-wp",
+    "name": "dasomweb/dw-wholesale",
     "description": "Product catalog plugin PDF export dependency",
     "require": {
         "php": ">=7.4",

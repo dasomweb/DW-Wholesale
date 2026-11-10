@@ -2,7 +2,7 @@
 /**
  * 라이선스 진단 REST 엔드포인트 — PLUGIN-DEV-GUIDE §3.6 SHOULD #2.
  *
- *   GET /wp-json/dw-catalog-wp/v1/license/status
+ *   GET /wp-json/dw-wholesale/v1/license/status
  *
  * 운영자가 카나리·고객 환경에서 이 엔드포인트 하나만 폴링하면
  * "어느 플러그인의 SDK 사본이 실제로 로드됐는지 · 어떤 메서드가 있는지 ·
@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class DWCAT_License_REST {
 
-	const NAMESPACE_V1 = 'dw-catalog-wp/v1';
+	const NAMESPACE_V1 = 'dw-wholesale/v1';
 
 	public function __construct() {
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
@@ -61,7 +61,7 @@ class DWCAT_License_REST {
 
 		return rest_ensure_response( array(
 			'plugin'     => array(
-				'slug'    => 'dw-catalog-wp',
+				'slug'    => 'dw-wholesale',
 				'version' => dwcat_get_config()['plugin_version'],
 			),
 			'sdk'        => $sdk,

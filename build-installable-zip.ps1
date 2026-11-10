@@ -1,12 +1,12 @@
 # 깃허브에 푸시하는 플러그인 파일만 담은 설치용 ZIP (GitHub 릴리즈와 동일 구성)
-# Run from repo root. Output: dw-catalog-wp-<version>.zip
-# ZIP filename = versioned; ZIP contents = single root folder "dw-catalog-wp/" so install dir is always wp-content/plugins/dw-catalog-wp/
+# Run from repo root. Output: dw-wholesale-<version>.zip
+# ZIP filename = versioned; ZIP contents = single root folder "dw-wholesale/" so install dir is always wp-content/plugins/dw-wholesale/
 
 $ErrorActionPreference = "Stop"
-$config = Get-Content "dw-catalog-wp.php" -Raw
+$config = Get-Content "dw-wholesale.php" -Raw
 if ($config -match "plugin_version'\s*=>\s*'([^']+)'") { $ver = $Matches[1] } else { $ver = "1.0.0" }
 $buildDir = "build"
-$pluginSlug = "dw-catalog-wp"
+$pluginSlug = "dw-wholesale"
 $pluginDir = "$buildDir\$pluginSlug"
 
 if (Test-Path $buildDir) { Remove-Item $buildDir -Recurse -Force }
@@ -20,7 +20,7 @@ if (Test-Path "composer.json") {
 }
 
 # 푸시한 파일만 복사 (release.yml과 동일)
-Copy-Item "dw-catalog-wp.php" $pluginDir
+Copy-Item "dw-wholesale.php" $pluginDir
 if (Test-Path "uninstall.php") { Copy-Item "uninstall.php" $pluginDir }
 Copy-Item "includes" $pluginDir -Recurse -Force
 Copy-Item "assets" $pluginDir -Recurse -Force
@@ -28,7 +28,7 @@ if (Test-Path "vendor") { Copy-Item "vendor" $pluginDir -Recurse -Force }
 
 # WordPress용 요약
 @"
-=== DW Catalog WP ===
+=== DW Wholesale ===
 Contributors: dasomweb
 Tags: catalog, custom fields, custom post type
 Requires at least: 5.0
@@ -42,7 +42,7 @@ Product catalog with dynamic custom fields per post type.
 
 == Description ==
 
-DW Catalog WP lets you manage product catalogs with dynamic custom fields.
+DW Wholesale lets you manage product catalogs with dynamic custom fields.
 Each post type gets its own admin menu, list page, bulk import, PDF export, and field reference.
 
 == Installation ==
@@ -57,7 +57,7 @@ Each post type gets its own admin menu, list page, bulk import, PDF export, and 
 * See GitHub Releases for details.
 "@ | Set-Content "$pluginDir\README.txt" -Encoding UTF8
 
-# ZIP filename = versioned (dw-catalog-wp-1.5.6.zip). Contents = single root folder "dw-catalog-wp/" so WordPress always installs to wp-content/plugins/dw-catalog-wp/
+# ZIP filename = versioned (dw-wholesale-1.5.6.zip). Contents = single root folder "dw-wholesale/" so WordPress always installs to wp-content/plugins/dw-wholesale/
 $zipName = "$pluginSlug-$ver.zip"
 $zipPath = (Join-Path (Get-Location) $zipName)
 if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
@@ -66,4 +66,4 @@ Remove-Item $buildDir -Recurse -Force
 
 Write-Host "Created: $zipName (version $ver)" -ForegroundColor Green
 Write-Host "Upload this file in WordPress: Plugins > Add New > Upload Plugin"
-Write-Host "Install folder will always be: wp-content/plugins/dw-catalog-wp/"
+Write-Host "Install folder will always be: wp-content/plugins/dw-wholesale/"
