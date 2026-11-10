@@ -4,7 +4,10 @@
       "mcp__dw-mcp__get_page",
       "Bash(cat)",
       "Bash(bash /tmp/verify.sh)",
-      "mcp__dw-mcp__get_code_index"
+      "mcp__dw-mcp__get_code_index",
+      "mcp__claude-in-chrome__tabs_context_mcp",
+      "ClaudeInChromeDomain(127.0.0.1:9411)",
+      "ClaudeInChromeDomain(127.0.0.1:9500)"
     ]
   }
 }
