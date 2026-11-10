@@ -1,6 +1,6 @@
 <?php
 /**
- * DW Catalog WP — 부트스트랩 · 라이선스 게이트 런타임 테스트
+ * DW Wholesale — 부트스트랩 · 라이선스 게이트 런타임 테스트
  *
  * WordPress 없이 최소 스텁만 두고 플러그인 진입 파일을 실제로 require 해서
  * 로드 순서 · 게이트 fail-closed · 레거시 유예 · dev bypass 를 **실행**으로 검증한다.
@@ -15,7 +15,7 @@ require_once __DIR__ . '/wp-stubs.php';
 
 $root = dirname( __DIR__ );
 
-preg_match( '/^\s*\*\s*Version:\s*(.+)$/m', file_get_contents( $root . '/dw-catalog-wp.php' ), $vm );
+preg_match( '/^\s*\*\s*Version:\s*(.+)$/m', file_get_contents( $root . '/dw-wholesale.php' ), $vm );
 $VERSION = trim( $vm[1] );
 
 /** 모든 Strict 게이트. 하나라도 라이선스 없이 열리면 anti-piracy 가 깨진다. */
@@ -45,7 +45,7 @@ function gates_open() {
 echo "=== bootstrap & gates ===\n\n--- load ---\n";
 
 try {
-	require_once $root . '/dw-catalog-wp.php';
+	require_once $root . '/dw-wholesale.php';
 	t( true, '플러그인 진입 파일이 fatal 없이 로드' );
 } catch ( Throwable $e ) {
 	t( false, '플러그인 로드: ' . $e->getMessage() );
@@ -71,7 +71,7 @@ t( false === dwcat_is_licensed(), 'dwcat_is_licensed() false (Loose helper)' );
 // ── 프런트엔드 게이트는 네트워크를 때리지 않는다 ──────────────
 echo "\n--- gates never block the frontend on HTTP (§10.2 / FAQ Q11) ---\n";
 stub_reset();
-$GLOBALS['_options']['dw_license_dw_catalog_wp'] = array(
+$GLOBALS['_options']['dw_license_dw_wholesale'] = array(
 	'key' => 'DW-X', 'status' => 'active', 'domain' => 'canary.example.com',
 );
 gates_open();
@@ -92,13 +92,13 @@ dwcat_legacy_grace_notice();
 t( false !== strpos( ob_get_clean(), '라이선스 인증이 필요합니다' ), '미활성 유예 중에는 안내 표시' );
 
 // 회귀: 유예 중에 활성화를 마쳤는데도 "인증이 필요합니다" 가 계속 뜨던 버그.
-$GLOBALS['_options']['dw_license_dw_catalog_wp'] = array(
+$GLOBALS['_options']['dw_license_dw_wholesale'] = array(
 	'key' => 'DW-X', 'status' => 'active', 'domain' => 'canary.example.com',
 );
 ob_start();
 dwcat_legacy_grace_notice();
 t_eq( '', ob_get_clean(), '활성화 후에는 유예 안내를 숨김' );
-unset( $GLOBALS['_options']['dw_license_dw_catalog_wp'] );
+unset( $GLOBALS['_options']['dw_license_dw_wholesale'] );
 
 echo "\n--- grace is one-shot, and fresh installs get none ---\n";
 $GLOBALS['_options']['dwcat_legacy_grace_until'] = time() - 1;   // 만료 시뮬레이션
@@ -134,7 +134,7 @@ $hashes       = DW_DWCAT_License_Manager::compute_file_hashes();
 if ( $has_manifest ) {
 	t( ! empty( $hashes ), 'integrity.json 존재 시 해시 생성' );
 	$bad_key  = array_filter( array_keys( $hashes ), function ( $k ) {
-		return 0 === strpos( $k, 'wp-plugin/' ) || 0 === strpos( $k, 'dw-catalog-wp/' );
+		return 0 === strpos( $k, 'wp-plugin/' ) || 0 === strpos( $k, 'dw-wholesale/' );
 	} );
 	$bad_hash = array_filter( $hashes, function ( $h ) { return ! preg_match( '/^[0-9a-f]{64}$/', $h ); } );
 	t( empty( $bad_key ), '§7.2.2 규약 1 — 키가 루트상대 (접두사 없음)' );
@@ -146,7 +146,7 @@ if ( $has_manifest ) {
 // ── 진단 스냅샷은 비밀을 노출하지 않는다 (P15/P16) ────────────
 echo "\n--- diagnostics must not leak secrets (P15/P16) ---\n";
 stub_reset();
-$GLOBALS['_options']['dw_license_dw_catalog_wp'] = array(
+$GLOBALS['_options']['dw_license_dw_wholesale'] = array(
 	'key' => 'DW-SUPER-SECRET-KEY', 'status' => 'active', 'domain' => 'canary.example.com', 'tier' => 'pro',
 );
 $GLOBALS['_options']['dwcat_token'] = array(
@@ -160,7 +160,7 @@ t( true === $diag['license_present'], 'license_present boolean 으로만 노출'
 t( true === $diag['token_present'], 'token_present boolean 으로만 노출' );
 t( ! empty( $diag['sdk_class_loaded_from'] ), 'sdk_class_loaded_from 제공 (§3.6)' );
 t( is_array( $diag['sdk_methods_available'] ), 'sdk_methods_available 제공 (§3.6)' );
-t_eq( 'dw-catalog-wp', $diag['sdk_class_loaded_from_plugin'] ?: 'dw-catalog-wp', 'winner plugin slug 제공' );
+t_eq( 'dw-wholesale', $diag['sdk_class_loaded_from_plugin'] ?: 'dw-wholesale', 'winner plugin slug 제공' );
 
 // ── 검색 토큰화 (DWCAT_Store) — 인덱스와 질의가 같은 규칙을 써야 검색이 맞습니다 ──
 echo "\n--- search tokenizer ---\n";
@@ -187,7 +187,7 @@ t_eq( 0, stub_http_count(), 'dev bypass: 네트워크 호출 없음' );
 echo "\n--- forced token request shape ---\n";
 stub_reset();
 $GLOBALS['_is_admin'] = true;
-$GLOBALS['_options']['dw_license_dw_catalog_wp'] = array(
+$GLOBALS['_options']['dw_license_dw_wholesale'] = array(
 	'key' => 'DW-TEST', 'status' => 'active', 'domain' => 'canary.example.com',
 );
 DW_DWCAT_License_Manager::get_token( true );
@@ -196,7 +196,7 @@ if ( $has_manifest ) {
 	$call = stub_last_http();
 	t( false !== strpos( $call['url'], 'api.dasomforge.com' ), 'api.dasomforge.com 호출 (' . $call['url'] . ')' );
 	t( false !== strpos( $call['url'], '/auth/token' ), 'endpoint = /auth/token' );
-	t( 1 === preg_match( '#^DW-dw-catalog-wp/' . preg_quote( $VERSION, '#' ) . ' \(WordPress/6\.7; PHP/#', $call['args']['headers']['User-Agent'] ),
+	t( 1 === preg_match( '#^DW-dw-wholesale/' . preg_quote( $VERSION, '#' ) . ' \(WordPress/6\.7; PHP/#', $call['args']['headers']['User-Agent'] ),
 	   'User-Agent = API-CONTRACT §1.1 형식 (' . $call['args']['headers']['User-Agent'] . ')' );
 } else {
 	t_eq( 'LOCAL_MANIFEST_MISSING', DW_DWCAT_License_Manager::get_last_error()['code'],

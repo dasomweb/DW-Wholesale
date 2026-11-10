@@ -1,6 +1,6 @@
 <?php
 /**
- * DW License Manager — dw-catalog-wp fork (dasomforge-native).
+ * DW License Manager — dw-wholesale fork (dasomforge-native).
  *
  * ── Prefix 배포 전략 (PLUGIN-DEV-GUIDE §3.5 B / SDK-README §Prefix) ──
  * 정본 클래스 `DW_License_Manager` 를 `DW_DWCAT_License_Manager` 로 rename 한 사본.
@@ -372,7 +372,7 @@ class DW_DWCAT_License_Manager {
 		if ( empty( $r['success'] ) ) {
 			$msg = isset( $r['error'] ) && is_string( $r['error'] )
 				? $r['error']
-				: __( '라이선스 활성화에 실패했습니다.', 'dw-catalog-wp' );
+				: __( '라이선스 활성화에 실패했습니다.', 'dw-wholesale' );
 			$this->log_error( 'activate', 'ACTIVATE_REJECTED', $msg );
 			return array( 'success' => false, 'message' => $msg );
 		}
@@ -399,7 +399,7 @@ class DW_DWCAT_License_Manager {
 
 		return array(
 			'success' => true,
-			'message' => isset( $r['message'] ) ? $r['message'] : __( '라이선스가 활성화되었습니다.', 'dw-catalog-wp' ),
+			'message' => isset( $r['message'] ) ? $r['message'] : __( '라이선스가 활성화되었습니다.', 'dw-wholesale' ),
 			'data'    => $r,
 		);
 	}
@@ -421,7 +421,7 @@ class DW_DWCAT_License_Manager {
 		delete_option( $this->opt_offline );
 		delete_transient( $this->opt_token . '_backoff' );
 
-		return array( 'success' => true, 'message' => __( '라이선스를 비활성화했습니다.', 'dw-catalog-wp' ) );
+		return array( 'success' => true, 'message' => __( '라이선스를 비활성화했습니다.', 'dw-wholesale' ) );
 	}
 
 	/** 일일 cron. legacy flat — valid 필드로 판정. */
@@ -924,7 +924,7 @@ class DW_DWCAT_License_Manager {
 		), false );
 
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			error_log( sprintf( '[dw-catalog-wp] %s failed: code=%s %s', $where, $code, $message ) );
+			error_log( sprintf( '[dw-wholesale] %s failed: code=%s %s', $where, $code, $message ) );
 		}
 	}
 
@@ -1006,27 +1006,27 @@ class DW_DWCAT_License_Manager {
 
 	public function translate_error( $code ) {
 		$map = array(
-			'LICENSE_NOT_FOUND'            => __( '라이선스 키가 존재하지 않습니다.', 'dw-catalog-wp' ),
-			'LICENSE_EXPIRED'              => __( '라이선스가 만료되었습니다. 갱신하지 않으면 곧 동작이 중단됩니다.', 'dw-catalog-wp' ),
-			'LICENSE_INVALIDATED'          => __( '라이선스가 무효화되었습니다. 고객지원에 문의해주세요.', 'dw-catalog-wp' ),
-			'LICENSE_FEATURE_NOT_ALLOWED'  => __( '현재 라이선스 등급에서는 사용할 수 없는 기능입니다.', 'dw-catalog-wp' ),
-			'DOMAIN_NOT_AUTHORIZED'        => __( '이 도메인은 라이선스에 등록되지 않았습니다.', 'dw-catalog-wp' ),
-			'DOMAIN_LIMIT_REACHED'         => __( '라이선스의 도메인 한도를 초과했습니다.', 'dw-catalog-wp' ),
-			'TOKEN_EXPIRED'                => __( '인증 토큰이 만료되어 갱신 중입니다.', 'dw-catalog-wp' ),
-			'TOKEN_INVALID'                => __( '인증 정보가 유효하지 않습니다. 라이선스를 재활성화해주세요.', 'dw-catalog-wp' ),
-			'INTEGRITY_MANIFEST_NOT_FOUND' => __( '이 플러그인 버전이 등록되지 않았습니다. 최신 버전으로 업데이트해주세요.', 'dw-catalog-wp' ),
-			'TAMPER_DETECTED'              => __( '플러그인 파일이 변조되었습니다. 정상 버전으로 재설치해주세요.', 'dw-catalog-wp' ),
-			'MANIFEST_INCOMPLETE'          => __( '무결성 정보가 불완전합니다. 정상 버전으로 재설치해주세요.', 'dw-catalog-wp' ),
-			'VERSION_REVOKED'              => __( '이 플러그인 버전은 보안 사유로 지원되지 않습니다. 즉시 업데이트해주세요.', 'dw-catalog-wp' ),
-			'PAYLOAD_TOO_LARGE'            => __( '저장하려는 설정이 너무 큽니다.', 'dw-catalog-wp' ),
-			'RATE_LIMITED'                 => __( '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.', 'dw-catalog-wp' ),
-			'INTERNAL_ERROR'               => __( '서버 오류. 잠시 후 다시 시도해주세요.', 'dw-catalog-wp' ),
-			'SERVICE_UNAVAILABLE'          => __( '서비스 일시 점검 중입니다.', 'dw-catalog-wp' ),
-			'NETWORK_ERROR'                => __( '서버 연결 실패. 인터넷 연결을 확인해주세요.', 'dw-catalog-wp' ),
-			'INVALID_RESPONSE'             => __( '서버 응답 형식 오류. 잠시 후 다시 시도해주세요.', 'dw-catalog-wp' ),
-			'LOCAL_MANIFEST_MISSING'       => __( 'integrity.json 이 없습니다. 정상 릴리스 ZIP 으로 재설치해주세요.', 'dw-catalog-wp' ),
+			'LICENSE_NOT_FOUND'            => __( '라이선스 키가 존재하지 않습니다.', 'dw-wholesale' ),
+			'LICENSE_EXPIRED'              => __( '라이선스가 만료되었습니다. 갱신하지 않으면 곧 동작이 중단됩니다.', 'dw-wholesale' ),
+			'LICENSE_INVALIDATED'          => __( '라이선스가 무효화되었습니다. 고객지원에 문의해주세요.', 'dw-wholesale' ),
+			'LICENSE_FEATURE_NOT_ALLOWED'  => __( '현재 라이선스 등급에서는 사용할 수 없는 기능입니다.', 'dw-wholesale' ),
+			'DOMAIN_NOT_AUTHORIZED'        => __( '이 도메인은 라이선스에 등록되지 않았습니다.', 'dw-wholesale' ),
+			'DOMAIN_LIMIT_REACHED'         => __( '라이선스의 도메인 한도를 초과했습니다.', 'dw-wholesale' ),
+			'TOKEN_EXPIRED'                => __( '인증 토큰이 만료되어 갱신 중입니다.', 'dw-wholesale' ),
+			'TOKEN_INVALID'                => __( '인증 정보가 유효하지 않습니다. 라이선스를 재활성화해주세요.', 'dw-wholesale' ),
+			'INTEGRITY_MANIFEST_NOT_FOUND' => __( '이 플러그인 버전이 등록되지 않았습니다. 최신 버전으로 업데이트해주세요.', 'dw-wholesale' ),
+			'TAMPER_DETECTED'              => __( '플러그인 파일이 변조되었습니다. 정상 버전으로 재설치해주세요.', 'dw-wholesale' ),
+			'MANIFEST_INCOMPLETE'          => __( '무결성 정보가 불완전합니다. 정상 버전으로 재설치해주세요.', 'dw-wholesale' ),
+			'VERSION_REVOKED'              => __( '이 플러그인 버전은 보안 사유로 지원되지 않습니다. 즉시 업데이트해주세요.', 'dw-wholesale' ),
+			'PAYLOAD_TOO_LARGE'            => __( '저장하려는 설정이 너무 큽니다.', 'dw-wholesale' ),
+			'RATE_LIMITED'                 => __( '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.', 'dw-wholesale' ),
+			'INTERNAL_ERROR'               => __( '서버 오류. 잠시 후 다시 시도해주세요.', 'dw-wholesale' ),
+			'SERVICE_UNAVAILABLE'          => __( '서비스 일시 점검 중입니다.', 'dw-wholesale' ),
+			'NETWORK_ERROR'                => __( '서버 연결 실패. 인터넷 연결을 확인해주세요.', 'dw-wholesale' ),
+			'INVALID_RESPONSE'             => __( '서버 응답 형식 오류. 잠시 후 다시 시도해주세요.', 'dw-wholesale' ),
+			'LOCAL_MANIFEST_MISSING'       => __( 'integrity.json 이 없습니다. 정상 릴리스 ZIP 으로 재설치해주세요.', 'dw-wholesale' ),
 		);
-		return isset( $map[ $code ] ) ? $map[ $code ] : __( '알 수 없는 오류가 발생했습니다.', 'dw-catalog-wp' );
+		return isset( $map[ $code ] ) ? $map[ $code ] : __( '알 수 없는 오류가 발생했습니다.', 'dw-wholesale' );
 	}
 
 	// ─────────────────────────────────────────────────────────────
@@ -1136,7 +1136,7 @@ class DW_DWCAT_License_Manager {
 		}
 		add_menu_page(
 			$this->plugin_name . ' License',
-			__( 'DW Catalog', 'dw-catalog-wp' ),
+			__( 'DW Wholesale', 'dw-wholesale' ),
 			'manage_network_options',
 			$this->settings_page,
 			array( $this, 'render_settings_page' ),
@@ -1150,7 +1150,7 @@ class DW_DWCAT_License_Manager {
 		add_submenu_page(
 			$parent,
 			$this->plugin_name . ' License',
-			__( 'License', 'dw-catalog-wp' ),
+			__( 'License', 'dw-wholesale' ),
 			'manage_options',
 			$this->settings_page,
 			array( $this, 'render_settings_page' )
@@ -1184,7 +1184,7 @@ class DW_DWCAT_License_Manager {
 
 	public function handle_admin_post() {
 		if ( ! $this->can_manage_license() ) {
-			wp_die( esc_html__( '권한이 없습니다.', 'dw-catalog-wp' ) );
+			wp_die( esc_html__( '권한이 없습니다.', 'dw-wholesale' ) );
 		}
 		check_admin_referer( $this->cache_prefix . 'license_action' );
 
@@ -1235,26 +1235,26 @@ class DW_DWCAT_License_Manager {
 		$notice = isset( $_GET['dwcat_notice'] ) ? sanitize_key( wp_unslash( $_GET['dwcat_notice'] ) ) : '';
 		$is_on  = ! empty( $d['key'] ) && 'active' === $d['status'];
 		$labels = array(
-			'licensed'        => array( __( '정상', 'dw-catalog-wp' ), '#00a32a' ),
-			'grace'           => array( __( '유예 모드', 'dw-catalog-wp' ), '#dba617' ),
-			'unlicensed'      => array( __( '미활성', 'dw-catalog-wp' ), '#72777c' ),
-			'expired'         => array( __( '만료', 'dw-catalog-wp' ), '#d63638' ),
-			'invalidated'     => array( __( '무효화', 'dw-catalog-wp' ), '#d63638' ),
-			'tamper_detected' => array( __( '파일 변조 감지', 'dw-catalog-wp' ), '#d63638' ),
+			'licensed'        => array( __( '정상', 'dw-wholesale' ), '#00a32a' ),
+			'grace'           => array( __( '유예 모드', 'dw-wholesale' ), '#dba617' ),
+			'unlicensed'      => array( __( '미활성', 'dw-wholesale' ), '#72777c' ),
+			'expired'         => array( __( '만료', 'dw-wholesale' ), '#d63638' ),
+			'invalidated'     => array( __( '무효화', 'dw-wholesale' ), '#d63638' ),
+			'tamper_detected' => array( __( '파일 변조 감지', 'dw-wholesale' ), '#d63638' ),
 		);
 		$li    = isset( $labels[ $status ] ) ? $labels[ $status ] : $labels['unlicensed'];
 		$label = $li[0];
 		$color = $li[1];
 		?>
 		<div class="wrap">
-			<h1><?php echo esc_html( $this->plugin_name ); ?> — <?php esc_html_e( '라이선스', 'dw-catalog-wp' ); ?></h1>
+			<h1><?php echo esc_html( $this->plugin_name ); ?> — <?php esc_html_e( '라이선스', 'dw-wholesale' ); ?></h1>
 
 			<?php if ( 'activated' === $notice ) : ?>
-				<div class="notice notice-success is-dismissible"><p><?php esc_html_e( '라이선스가 활성화되었습니다.', 'dw-catalog-wp' ); ?></p></div>
+				<div class="notice notice-success is-dismissible"><p><?php esc_html_e( '라이선스가 활성화되었습니다.', 'dw-wholesale' ); ?></p></div>
 			<?php elseif ( 'deactivated' === $notice ) : ?>
-				<div class="notice notice-info is-dismissible"><p><?php esc_html_e( '라이선스를 비활성화했습니다.', 'dw-catalog-wp' ); ?></p></div>
+				<div class="notice notice-info is-dismissible"><p><?php esc_html_e( '라이선스를 비활성화했습니다.', 'dw-wholesale' ); ?></p></div>
 			<?php elseif ( 'refreshed' === $notice ) : ?>
-				<div class="notice notice-success is-dismissible"><p><?php esc_html_e( '토큰을 새로 발급받았습니다.', 'dw-catalog-wp' ); ?></p></div>
+				<div class="notice notice-success is-dismissible"><p><?php esc_html_e( '토큰을 새로 발급받았습니다.', 'dw-wholesale' ); ?></p></div>
 			<?php elseif ( 'failed' === $notice || 'refresh_failed' === $notice ) : ?>
 				<?php $e = get_option( $this->opt_error, array() ); ?>
 				<div class="notice notice-error"><p>
@@ -1268,19 +1268,19 @@ class DW_DWCAT_License_Manager {
 			<div style="max-width:720px;background:#fff;border:1px solid #c3c4c7;border-radius:4px;padding:24px;margin-top:20px;">
 				<table class="form-table" role="presentation">
 					<tr>
-						<th scope="row"><?php esc_html_e( '상태', 'dw-catalog-wp' ); ?></th>
+						<th scope="row"><?php esc_html_e( '상태', 'dw-wholesale' ); ?></th>
 						<td>
 							<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:<?php echo esc_attr( $color ); ?>;margin-right:6px;"></span>
 							<strong style="color:<?php echo esc_attr( $color ); ?>"><?php echo esc_html( $label ); ?></strong>
 							<?php if ( ! empty( $d['expires_at'] ) ) : ?>
 								<span style="color:#72777c;margin-left:8px;">
-									(<?php esc_html_e( '만료', 'dw-catalog-wp' ); ?>: <?php echo esc_html( gmdate( 'Y-m-d', (int) strtotime( $d['expires_at'] ) ) ); ?>)
+									(<?php esc_html_e( '만료', 'dw-wholesale' ); ?>: <?php echo esc_html( gmdate( 'Y-m-d', (int) strtotime( $d['expires_at'] ) ) ); ?>)
 								</span>
 							<?php endif; ?>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><?php esc_html_e( '라이선스 키', 'dw-catalog-wp' ); ?></th>
+						<th scope="row"><?php esc_html_e( '라이선스 키', 'dw-wholesale' ); ?></th>
 						<td>
 							<?php if ( $is_on ) : ?>
 								<code style="padding:8px 12px;background:#f0f0f1;border-radius:4px;">
@@ -1292,32 +1292,32 @@ class DW_DWCAT_License_Manager {
 									<input type="hidden" name="action" value="<?php echo esc_attr( $this->cache_prefix . 'license_action' ); ?>" />
 									<input type="hidden" name="dwcat_op" value="activate" />
 									<input type="text" name="license_key" class="regular-text" autocomplete="off" placeholder="DW-XXXX-XXXX-XXXX" required />
-									<button type="submit" class="button button-primary"><?php esc_html_e( '활성화', 'dw-catalog-wp' ); ?></button>
+									<button type="submit" class="button button-primary"><?php esc_html_e( '활성화', 'dw-wholesale' ); ?></button>
 								</form>
 							<?php endif; ?>
 						</td>
 					</tr>
 					<?php if ( $is_on ) : ?>
 					<tr>
-						<th scope="row"><?php esc_html_e( '등급', 'dw-catalog-wp' ); ?></th>
+						<th scope="row"><?php esc_html_e( '등급', 'dw-wholesale' ); ?></th>
 						<td><?php echo esc_html( '' !== $d['tier'] ? $d['tier'] : '—' ); ?></td>
 					</tr>
 					<tr>
-						<th scope="row"><?php esc_html_e( '도메인', 'dw-catalog-wp' ); ?></th>
+						<th scope="row"><?php esc_html_e( '도메인', 'dw-wholesale' ); ?></th>
 						<td>
 							<?php echo esc_html( implode( ', ', (array) $d['active_domains'] ) ); ?>
-							<span style="color:#72777c;"> (<?php echo (int) $d['max_domains']; ?><?php esc_html_e( '개까지', 'dw-catalog-wp' ); ?>)</span>
+							<span style="color:#72777c;"> (<?php echo (int) $d['max_domains']; ?><?php esc_html_e( '개까지', 'dw-wholesale' ); ?>)</span>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><?php esc_html_e( '토큰 만료', 'dw-catalog-wp' ); ?></th>
+						<th scope="row"><?php esc_html_e( '토큰 만료', 'dw-wholesale' ); ?></th>
 						<td style="color:#72777c;">
-							<?php echo esc_html( ! empty( $cache['expires_at'] ) ? $cache['expires_at'] : __( '발급 이력 없음', 'dw-catalog-wp' ) ); ?>
+							<?php echo esc_html( ! empty( $cache['expires_at'] ) ? $cache['expires_at'] : __( '발급 이력 없음', 'dw-wholesale' ) ); ?>
 						</td>
 					</tr>
 					<?php endif; ?>
 					<tr>
-						<th scope="row"><?php esc_html_e( '플러그인 버전', 'dw-catalog-wp' ); ?></th>
+						<th scope="row"><?php esc_html_e( '플러그인 버전', 'dw-wholesale' ); ?></th>
 						<td>
 							<?php echo esc_html( $this->plugin_version ); ?>
 							<?php if ( '' !== $this->manifest_version() && $this->manifest_version() !== $this->plugin_version ) : ?>
@@ -1332,13 +1332,13 @@ class DW_DWCAT_License_Manager {
 						<td>
 							<?php
 							// §11.1.c — 운영자가 검증 직전에 누를 수 있는 단일 트리거.
-							$this->action_form( 'refresh', __( '라이선스 상태 새로고침', 'dw-catalog-wp' ) );
+							$this->action_form( 'refresh', __( '라이선스 상태 새로고침', 'dw-wholesale' ) );
 							if ( $is_on ) {
 								$this->action_form(
 									'deactivate',
-									__( '비활성화', 'dw-catalog-wp' ),
+									__( '비활성화', 'dw-wholesale' ),
 									'button',
-									__( '이 도메인에서 라이선스를 해제할까요?', 'dw-catalog-wp' )
+									__( '이 도메인에서 라이선스를 해제할까요?', 'dw-wholesale' )
 								);
 							}
 							?>
@@ -1349,7 +1349,7 @@ class DW_DWCAT_License_Manager {
 				<?php $err = get_option( $this->opt_error, array() ); ?>
 				<?php if ( ! empty( $err['code'] ) ) : ?>
 					<p style="margin:16px 0 0;padding:12px;background:#fcf9e8;border-left:4px solid #dba617;">
-						<strong><?php esc_html_e( '마지막 오류', 'dw-catalog-wp' ); ?>:</strong>
+						<strong><?php esc_html_e( '마지막 오류', 'dw-wholesale' ); ?>:</strong>
 						<code><?php echo esc_html( $err['where'] . ' → ' . $err['code'] ); ?></code>
 						<span style="color:#72777c;margin-left:8px;">
 							<?php echo esc_html( gmdate( 'Y-m-d H:i', (int) $err['at'] ) . ' UTC' ); ?>
@@ -1392,13 +1392,13 @@ class DW_DWCAT_License_Manager {
 		$tamper = get_option( $this->opt_tamper, array() );
 		if ( ! empty( $tamper ) && ( ! empty( $tamper['files'] ) || ! empty( $tamper['missing'] ) ) ) {
 			echo '<div class="notice notice-error"><p><strong>';
-			echo esc_html( $this->plugin_name . ': ' . __( '플러그인 파일이 변조되었습니다. 정상 버전으로 재설치해주세요.', 'dw-catalog-wp' ) );
+			echo esc_html( $this->plugin_name . ': ' . __( '플러그인 파일이 변조되었습니다. 정상 버전으로 재설치해주세요.', 'dw-wholesale' ) );
 			echo '</strong></p><ul style="margin-left:20px;list-style:disc;">';
 			foreach ( (array) ( isset( $tamper['files'] ) ? $tamper['files'] : array() ) as $f ) {
 				echo '<li><code>' . esc_html( (string) $f ) . '</code></li>';
 			}
 			foreach ( (array) ( isset( $tamper['missing'] ) ? $tamper['missing'] : array() ) as $f ) {
-				echo '<li><code>' . esc_html( (string) $f ) . '</code> — ' . esc_html__( '누락', 'dw-catalog-wp' ) . '</li>';
+				echo '<li><code>' . esc_html( (string) $f ) . '</code> — ' . esc_html__( '누락', 'dw-wholesale' ) . '</li>';
 			}
 			echo '</ul></div>';
 			return;
@@ -1412,8 +1412,8 @@ class DW_DWCAT_License_Manager {
 		if ( 'invalidated' === $d['status'] ) {
 			$this->notice(
 				'error',
-				__( '라이선스가 무효화되었습니다. 고객지원에 문의해주세요.', 'dw-catalog-wp' ),
-				__( '라이선스 설정', 'dw-catalog-wp' )
+				__( '라이선스가 무효화되었습니다. 고객지원에 문의해주세요.', 'dw-wholesale' ),
+				__( '라이선스 설정', 'dw-wholesale' )
 			);
 			return;
 		}
@@ -1424,11 +1424,11 @@ class DW_DWCAT_License_Manager {
 		if ( ! empty( $platform['code'] ) ) {
 			$code = $platform['code'];
 			$hint = array(
-				'INTEGRITY_MANIFEST_NOT_FOUND' => __( '이 버전이 플랫폼에 등록되지 않았습니다. 공급자에게 문의하거나 최신 버전으로 업데이트해주세요.', 'dw-catalog-wp' ),
-				'VERSION_REVOKED'              => __( '이 버전은 보안 사유로 지원 중단되었습니다. 즉시 업데이트해주세요.', 'dw-catalog-wp' ),
-				'DOMAIN_NOT_AUTHORIZED'        => __( '이 도메인이 라이선스에 등록되지 않았습니다. 라이선스를 다시 활성화해주세요.', 'dw-catalog-wp' ),
-				'DOMAIN_LIMIT_REACHED'         => __( '라이선스의 도메인 한도를 초과했습니다. 사용하지 않는 도메인을 해제하거나 상위 플랜이 필요합니다.', 'dw-catalog-wp' ),
-				'LICENSE_NOT_FOUND'            => __( '라이선스 키를 찾을 수 없습니다. 키를 다시 확인해주세요.', 'dw-catalog-wp' ),
+				'INTEGRITY_MANIFEST_NOT_FOUND' => __( '이 버전이 플랫폼에 등록되지 않았습니다. 공급자에게 문의하거나 최신 버전으로 업데이트해주세요.', 'dw-wholesale' ),
+				'VERSION_REVOKED'              => __( '이 버전은 보안 사유로 지원 중단되었습니다. 즉시 업데이트해주세요.', 'dw-wholesale' ),
+				'DOMAIN_NOT_AUTHORIZED'        => __( '이 도메인이 라이선스에 등록되지 않았습니다. 라이선스를 다시 활성화해주세요.', 'dw-wholesale' ),
+				'DOMAIN_LIMIT_REACHED'         => __( '라이선스의 도메인 한도를 초과했습니다. 사용하지 않는 도메인을 해제하거나 상위 플랜이 필요합니다.', 'dw-wholesale' ),
+				'LICENSE_NOT_FOUND'            => __( '라이선스 키를 찾을 수 없습니다. 키를 다시 확인해주세요.', 'dw-wholesale' ),
 			);
 			printf(
 				'<div class="notice notice-error"><p><strong>%s:</strong> %s <code>%s</code> <a href="%s">%s</a></p></div>',
@@ -1436,7 +1436,7 @@ class DW_DWCAT_License_Manager {
 				esc_html( isset( $hint[ $code ] ) ? $hint[ $code ] : $this->translate_error( $code ) ),
 				esc_html( $code ),
 				esc_url( $this->license_page_url() ),
-				esc_html__( '라이선스 설정', 'dw-catalog-wp' )
+				esc_html__( '라이선스 설정', 'dw-wholesale' )
 			);
 			return;
 		}
@@ -1449,11 +1449,11 @@ class DW_DWCAT_License_Manager {
 				$days > 0
 					? sprintf(
 						/* translators: %d: days remaining */
-						__( '라이선스가 만료되었습니다. %d일 후 카탈로그 출력이 중단됩니다.', 'dw-catalog-wp' ),
+						__( '라이선스가 만료되었습니다. %d일 후 카탈로그 출력이 중단됩니다.', 'dw-wholesale' ),
 						$days
 					)
-					: __( '라이선스가 만료되어 카탈로그 출력이 중단되었습니다.', 'dw-catalog-wp' ),
-				__( '라이선스 갱신', 'dw-catalog-wp' )
+					: __( '라이선스가 만료되어 카탈로그 출력이 중단되었습니다.', 'dw-wholesale' ),
+				__( '라이선스 갱신', 'dw-wholesale' )
 			);
 			return;
 		}
@@ -1467,10 +1467,10 @@ class DW_DWCAT_License_Manager {
 				'warning',
 				sprintf(
 					/* translators: %d: hours since last successful contact */
-					__( '라이선스 서버 연결이 %d시간째 끊겨 있습니다. 유예가 끝나면 카탈로그 출력이 중단됩니다.', 'dw-catalog-wp' ),
+					__( '라이선스 서버 연결이 %d시간째 끊겨 있습니다. 유예가 끝나면 카탈로그 출력이 중단됩니다.', 'dw-wholesale' ),
 					$hours
 				),
-				__( '상태 확인', 'dw-catalog-wp' )
+				__( '상태 확인', 'dw-wholesale' )
 			);
 			return;
 		}
@@ -1488,7 +1488,7 @@ class DW_DWCAT_License_Manager {
 			printf(
 				'<div class="notice notice-error"><p><strong>%s:</strong> %s <code>%s</code></p></div>',
 				esc_html( $this->plugin_name ),
-				esc_html__( 'SDK 가 손상되었습니다 (필수 메서드 누락). 정상 버전으로 재설치해주세요.', 'dw-catalog-wp' ),
+				esc_html__( 'SDK 가 손상되었습니다 (필수 메서드 누락). 정상 버전으로 재설치해주세요.', 'dw-wholesale' ),
 				esc_html( implode( ', ', $missing ) )
 			);
 		}

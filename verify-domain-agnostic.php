@@ -20,7 +20,7 @@ $warnings = array();
 
 // Files to check
 $files_to_check = array(
-	'dw-catalog-wp.php',
+	'dw-wholesale.php',
 	'includes/class-pc-github-updater.php',
 	'includes/class-pc-url-helper.php',
 );
@@ -160,7 +160,7 @@ foreach ( $required_functions as $func ) {
 
 // Check for central config
 echo "\nChecking for central configuration...\n";
-$main_file = $plugin_dir . '/dw-catalog-wp.php';
+$main_file = $plugin_dir . '/dw-wholesale.php';
 if ( file_exists( $main_file ) ) {
 	$content = file_get_contents( $main_file );
 	if ( strpos( $content, 'dwcat_get_config' ) !== false ) {

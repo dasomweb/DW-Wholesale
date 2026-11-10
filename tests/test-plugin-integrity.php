@@ -1,6 +1,6 @@
 <?php
 /**
- * DW Catalog WP — Plugin Integrity Tests
+ * DW Wholesale — Plugin Integrity Tests
  *
  * Standalone PHP tests (no WordPress required).
  * Validates: file structure, class definitions, prefix compliance,
@@ -30,14 +30,14 @@ function assert_false( $condition, $message ) {
 	assert_true( ! $condition, $message );
 }
 
-echo "=== DW Catalog WP — Plugin Integrity Tests ===\n\n";
+echo "=== DW Wholesale — Plugin Integrity Tests ===\n\n";
 
 // ─── 1. File Structure ─────────────────────────────────────
 
 echo "--- 1. File Structure ---\n";
 
 $required_files = array(
-	'dw-catalog-wp.php',
+	'dw-wholesale.php',
 	'uninstall.php',
 	// Core (standalone, no WordPress code)
 	'core/bootstrap.php',
@@ -91,11 +91,11 @@ foreach ( $required_files as $file ) {
 
 echo "--- 2. Plugin Header ---\n";
 
-$main_file = file_get_contents( "$plugin_root/dw-catalog-wp.php" );
+$main_file = file_get_contents( "$plugin_root/dw-wholesale.php" );
 
-assert_true( preg_match( '/Plugin Name:\s*DW Catalog WP/', $main_file ), 'Plugin Name header present' );
+assert_true( preg_match( '/Plugin Name:\s*DW Wholesale/', $main_file ), 'Plugin Name header present' );
 assert_true( preg_match( '/Version:\s*[\d.]+(-[0-9A-Za-z.\-]+)?/', $main_file ), 'Version header present' );
-assert_true( preg_match( '/Text Domain:\s*dw-catalog-wp/', $main_file ), 'Text Domain header present' );
+assert_true( preg_match( '/Text Domain:\s*dw-wholesale/', $main_file ), 'Text Domain header present' );
 assert_true( preg_match( '/Update URI:/', $main_file ), 'Update URI header present (WP guideline)' );
 assert_true( preg_match( '/License:/', $main_file ), 'License header present' );
 assert_true( preg_match( '/Requires at least:/', $main_file ), 'Requires at least header present' );
@@ -129,7 +129,7 @@ $php_files = array_merge(
 	glob( "$plugin_root/includes/*.php" ),
 	glob( "$plugin_root/includes/*/*.php" )   // includes/license/gates.php, includes/wp/*
 );
-$php_files[] = "$plugin_root/dw-catalog-wp.php";
+$php_files[] = "$plugin_root/dw-wholesale.php";
 
 $old_prefix_found = false;
 foreach ( $php_files as $file ) {

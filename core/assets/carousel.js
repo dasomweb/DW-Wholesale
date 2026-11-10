@@ -1,5 +1,5 @@
 /**
- * DW Catalog WP — Carousel (vanilla JS, no dependencies)
+ * DW Wholesale — Carousel (vanilla JS, no dependencies)
  */
 (function () {
 	'use strict';

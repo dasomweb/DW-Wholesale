@@ -47,7 +47,7 @@ class FieldConfig {
 				'slug'          => 'product',
 				'singular_name' => 'Product',
 				'plural_name'   => 'Products',
-				'menu_name'     => 'DW Catalog',
+				'menu_name'     => 'DW Wholesale',
 				'has_category'  => true,
 				'has_tag'       => true,
 			),

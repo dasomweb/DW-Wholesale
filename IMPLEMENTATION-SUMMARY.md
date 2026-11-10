@@ -7,7 +7,7 @@ This plugin has been designed from the ground up to be completely domain-agnosti
 ## Files Created
 
 ### 1. Main Plugin File
-**File:** `dw-catalog-wp.php`
+**File:** `dw-wholesale.php`
 
 **Features:**
 - ✅ Central configuration function `pc_get_plugin_config()`
@@ -177,7 +177,7 @@ The plugin can be tested for domain independence by:
 
 These external URLs are present and acceptable:
 - `https://api.github.com` - GitHub API (external service)
-- `https://github.com/dasomweb/dw-catalog-wp` - Repository URL (external)
+- `https://github.com/dasomweb/DW-Wholesale` - Repository URL (external)
 - `https://www.gnu.org/licenses/gpl-2.0.html` - License URL (external)
 
 ## Next Steps

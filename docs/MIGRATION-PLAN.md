@@ -1,4 +1,4 @@
-# dw-catalog-wp 마이그레이션 — 보호 경계 합의서
+# dw-wholesale 마이그레이션 — 보호 경계 합의서
 
 > 본 합의서는 [PLUGIN-AGENT-KICKOFF.md §0](https://github.com/dasomweb/DASOM-Forge/blob/main/docs/platform/PLUGIN-AGENT-KICKOFF.md) 에 따른 의무 산출물입니다.
 > 합의서에 없는 변경은 별도 운영자 합의가 필요합니다.
@@ -11,7 +11,7 @@
 | 대상 버전 | v1.2.1 → **v2.0.0** |
 | 참조 패키지 | dasomforge-plugin-kickoff-2026-08-07-2a7f5e1 (HEAD `2a7f5e1`) |
 | 적용 범위 | **A — 게이트 + 무결성 + ZIP 구조** (런타임 JS 미적용) |
-| 제품 정본 | **`dw-catalog-wp`** (2026-08-20 운영자 결정 — §0.1) |
+| 제품 정본 | **`dw-wholesale`** (2026-08-20 운영자 결정 — §0.1) |
 
 ---
 
@@ -26,17 +26,17 @@ v2.0.0-rc.1 을 게시한 뒤 운영자가 dasomforge 어드민의 SyncRelease �
 확인했는데, 그 화면의 제품이 **우리 repo 가 아니었습니다**. 읽기 전용 조회
 (`GET /integrity/*` — PLUGIN-AGENT-API-CONDUCT 상 안전) 로 확인한 사실:
 
-| | `dasomweb/DW-Product-Catalog` | `dasomweb/dw-catalog-wp` |
+| | `dasomweb/DW-Product-Catalog` | `dasomweb/dw-wholesale` |
 |---|---|---|
 | repo 생성 | 2026-01-23 | 2026-04-14 |
 | main 최신 커밋 | **2026-04-14 에서 멈춤** (v1.8.0) | 활발 (v1.2.1 → v2.0.0-rc.1) |
 | dasomforge 브랜치 | `v2-anti-piracy` | main 에서 직접 |
 | 마이그레이션 릴리스 | v2.0.0-alpha.5 (2026-07-26) | v2.0.0-rc.1 (2026-08-20) |
-| 플랫폼 슬러그 | `dw-product-catalog` — 매니페스트 **200** | `dw-catalog-wp` — **404** |
+| 플랫폼 슬러그 | `dw-product-catalog` — 매니페스트 **200** | `dw-wholesale` — **404** |
 | runtime JS | 적용 (`main.min.js`) | 미적용 (§4.1) |
 | 매니페스트 | 23개 파일 (vendor 없음) | 537개 (dompdf 번들) |
 
-분기점은 커밋 `47b734c "Rename project from DW-Product-Catalog to dw-catalog-wp"`
+분기점은 커밋 `47b734c "Rename project from DW-Product-Catalog to dw-wholesale"`
 (2026-04-14) 입니다. 이름만 바꾼 게 아니라 **이후 코드베이스가 실질적으로
 갈라졌습니다**:
 
@@ -47,7 +47,7 @@ v2.0.0-rc.1 을 게시한 뒤 운영자가 dasomforge 어드민의 SyncRelease �
   `class-dwpc-license-bridge.php` · `class-dwpc-spa-module.php` — 필드 시스템을
   다르게 리팩터링 (`class-pc-config.php` · `class-pc-settings.php` 없음)
 
-### 결정 — **`dw-catalog-wp` 가 정본**
+### 결정 — **`dw-wholesale` 가 정본**
 
 근거:
 1. 저쪽 main 은 2026-04-14 이후 정지, 우리 쪽은 계속 개발 중
@@ -62,7 +62,7 @@ v2.0.0-rc.1 을 게시한 뒤 운영자가 dasomforge 어드민의 SyncRelease �
 | 항목 | 충돌? | 이유 |
 |---|---|---|
 | SDK 클래스 | **안전** | 우리는 `DW_DWCAT_*` (Prefix), 저쪽은 canonical `DW_License_Manager` → §3.5 winner race 없음 |
-| 라이선스 옵션 | 안전 | `dw_license_dw_catalog_wp` vs `dw_license_dw_product_catalog` |
+| 라이선스 옵션 | 안전 | `dw_license_dw_wholesale` vs `dw_license_dw_product_catalog` |
 | 토큰 캐시 · cron | 안전 | 접두사 `dwcat_` vs `dwpc_`, cron 훅에 slug 포함 |
 | **CPT `product`** | **충돌** | 공통 조상이라 **둘 다 `register_post_type('product')`** — 나중에 등록한 쪽이 이기고, 같은 포스트를 서로 다른 필드 스키마로 해석하게 됩니다 |
 
@@ -197,7 +197,7 @@ v2.0.0-rc.5 부터 카탈로그는 독립 코어(`core/`)가 처리하고 WordPr
 | 마이그레이션 전략 | 30일 유예 + 점증 notice, 데이터 변환 없음 |
 | Legacy API grace | `/license/verify` 계속 사용 (일일 cron) |
 
-**v1 옵션 키 보존**: 라이선스 상태는 v1 과 동일한 `dw_license_dw_catalog_wp` 에 저장합니다 —
+**v1 옵션 키 보존**: 라이선스 상태는 v1 과 동일한 `dw_license_dw_wholesale` 에 저장합니다 —
 기존 활성화 사용자는 키 재입력 없이 승계됩니다.
 
 ### 7.1 유예(grace) 창 세 가지 — 사유별로 다릅니다
@@ -235,7 +235,7 @@ KICKOFF FAQ Q9·Q18 이 요구하는 "서로 다른 grace" 를 구분해 구현�
 |---|---|
 | 클래스명 | `DW_DWCAT_License_Manager` · `DW_DWCAT_Forge_Client` |
 | 파일명 | 정본과 동일 (`class-dw-license-manager.php` · `class-dw-forge-client.php`) — rebase 편의 |
-| 선택 이유 | dw-catalog-wp 는 DW Admin SPA 의 **소비자**이지 shared admin surface 제공자가 아니며, 릴리스 주기가 dw-admin 과 독립적. canonical 이면 dw-admin 이 구 SDK winner 일 때 게이트 9개가 전부 조용히 false 로 떨어짐 |
+| 선택 이유 | dw-wholesale 는 DW Admin SPA 의 **소비자**이지 shared admin surface 제공자가 아니며, 릴리스 주기가 dw-admin 과 독립적. canonical 이면 dw-admin 이 구 SDK winner 일 때 게이트 9개가 전부 조용히 false 로 떨어짐 |
 | 대가 | 라이선스 입력 UI · daily verify cron · 토큰 캐시가 이 플러그인 전용 (사용자가 플러그인별로 키 입력) |
 
 **SDK 출처 (중요 — 다음 담당자 필독)**:
@@ -265,7 +265,7 @@ KICKOFF FAQ Q9·Q18 이 요구하는 "서로 다른 grace" 를 구분해 구현�
 ## 9.2 진단 엔드포인트 (§3.6 SHOULD #2)
 
 ```
-GET /wp-json/dw-catalog-wp/v1/license/status
+GET /wp-json/dw-wholesale/v1/license/status
 ```
 
 권한: `manage_options` 또는 `manage_network_options` (Application Password 로도 접근 가능).
@@ -321,9 +321,9 @@ tag v2.0.0 push
 | # | 항목 | 상세 | 왜 에이전트가 못 정하는가 |
 |---|---|---|---|
 | 1 | **`/auth/token` 요청 본문 크기** | **게시된 v2.0.0-rc.1 실물 기준 66.5 KB** (537개 파일 해시). §12.1 lock 수정으로 82.7 → 66.5 KB 로 줄었으나 여전히 큼. 서버 body-parser 한도가 이보다 작으면 매 요청 실패 | 서버 코드 미열람. API-CONTRACT 는 50KB 한도를 `/configs/sign` **payload** 에만 명시하고 `/auth/token` 전체 본문 한도는 규정하지 않음 |
-| 2 | **`dw-catalog-wp` Product 신규 등록** | 확인 완료 — `GET /integrity/dw-catalog-wp/v2.0.0-rc.1` · `v1.2.1` 모두 **404**. 등록된 것은 `dw-product-catalog` 뿐. **Product row 를 새로 만들고 `githubRepo = dasomweb/dw-catalog-wp` 로 지정**해야 합니다 | 운영자 어드민 전용 (FAQ Q13). ※ Product row 자체의 존재 여부는 어드민에서만 확인 가능 — 매니페스트 부재만 확인된 사실 |
+| 2 | **`dw-wholesale` Product 신규 등록** | 확인 완료 — `GET /integrity/dw-wholesale/v2.0.0-rc.1` · `v1.2.1` 모두 **404**. 등록된 것은 `dw-product-catalog` 뿐. **Product row 를 새로 만들고 `githubRepo = dasomweb/dw-wholesale` 로 지정**해야 합니다 | 운영자 어드민 전용 (FAQ Q13). ※ Product row 자체의 존재 여부는 어드민에서만 확인 가능 — 매니페스트 부재만 확인된 사실 |
 | 2b | **`dw-product-catalog` 동결** | §0.1 결정. Product row 비활성화 또는 신규 Sync 중단. `v2-anti-piracy` 브랜치는 runtime JS 참고 자산이므로 **삭제하지 말 것** | 운영자 결정 |
-| 2c | **구 제품 라이선스 이관** | `dw-product-catalog` 슬러그로 이미 발급된 라이선스가 있으면 `dw-catalog-wp` 로 재발급 필요 (토큰 `aud` 가 슬러그에 묶임) | 운영자만 발급 현황을 앎 |
+| 2c | **구 제품 라이선스 이관** | `dw-product-catalog` 슬러그로 이미 발급된 라이선스가 있으면 `dw-wholesale` 로 재발급 필요 (토큰 `aud` 가 슬러그에 묶임) | 운영자만 발급 현황을 앎 |
 | 3 | 카나리 라이선스 발급 | §8 | 운영자 전용 |
 | 4 | `max_domains` (basic) | §6 | 운영자 결정 |
 | 5 | v1.x 활성 라이선스 수 | §7 유예 정책 검증용 | 운영자 데이터 |
@@ -336,8 +336,8 @@ tag v2.0.0 push
 - (b) vendor 를 ZIP 에서 제외 → PDF 내보내기 포기 (기능 손실)
 - (c) 서버가 파일 수 기반 청크 프로토콜 도입 → API-CONTRACT 변경 (v2 엔드포인트)
 
-읽기 전용 확인은 `GET /integrity/dw-catalog-wp/v2.0.0` 로 가능하지만
-(`User-Agent: DW-dev-diag/dw-catalog-wp-agent`), **본문 한도는 그것으로 알 수 없습니다** —
+읽기 전용 확인은 `GET /integrity/dw-wholesale/v2.0.0` 로 가능하지만
+(`User-Agent: DW-dev-diag/dw-wholesale-agent`), **본문 한도는 그것으로 알 수 없습니다** —
 `/auth/token` 은 부작용 있는 endpoint 라 [PLUGIN-AGENT-API-CONDUCT](https://github.com/dasomweb/DASOM-Forge/blob/main/docs/platform/PLUGIN-AGENT-API-CONDUCT.md) §MUST 2 에 따라
 운영자 확인 없이 호출하지 않았습니다.
 

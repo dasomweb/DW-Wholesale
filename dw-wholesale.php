@@ -1,15 +1,15 @@
 <?php
 /**
- * Plugin Name: DW Catalog WP
- * Plugin URI: https://github.com/dasomweb/dw-catalog-wp
+ * Plugin Name: DW Wholesale
+ * Plugin URI: https://github.com/dasomweb/DW-Wholesale
  * Description: Independent product catalog system (own tables, search, filters, variations) placed on WordPress pages by shortcode.
- * Version: 2.0.0-rc.9
+ * Version: 3.0.0
  * Author: Dasom Web
  * Author URI: https://github.com/dasomweb
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Update URI: https://github.com/dasomweb/dw-catalog-wp
- * Text Domain: dw-catalog-wp
+ * Update URI: https://github.com/dasomweb/DW-Wholesale
+ * Text Domain: dw-wholesale
  * Domain Path: /languages
  * Requires at least: 5.5
  * Requires PHP: 7.4
@@ -25,11 +25,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 function dwcat_get_config() {
 	return array(
 		'github_repo_owner'  => 'dasomweb',
-		'github_repo_name'   => 'dw-catalog-wp',
-		'plugin_slug'        => 'dw-catalog-wp',
-		'plugin_version'     => '2.0.0-rc.9',
-		'plugin_name'        => 'DW Catalog WP',
-		'plugin_text_domain' => 'dw-catalog-wp',
+		'github_repo_name'   => 'DW-Wholesale',
+		'plugin_slug'        => 'dw-wholesale',
+		'plugin_version'     => '3.0.0',
+		'plugin_name'        => 'DW Wholesale',
+		'plugin_text_domain' => 'dw-wholesale',
 		'github_branch'      => 'main',
 		'requires_wp'        => '5.5',
 		'requires_php'       => '7.4',
@@ -50,7 +50,7 @@ function dwcat_get_file() {
 
 /*
  * ─── Structure ──────────────────────────────────────────────────────────────
- * core/          DW Catalog core — standalone PHP, no WordPress code (docs/ARCHITECTURE.md)
+ * core/          DW Wholesale core — standalone PHP, no WordPress code (docs/ARCHITECTURE.md)
  * includes/wp/   WordPress adapter: DB connection, host, admin menu, shortcodes, REST
  * includes/      DASOM-Forge license SDK + gates (WordPress distribution)
  */
@@ -79,13 +79,13 @@ require_once dwcat_get_path() . 'includes/wp/class-dwcat-wp-rest.php';
  * plugins_loaded 보다 먼저 등록해야 admin_menu / admin_post 훅을 놓치지 않습니다.
  */
 DW_DWCAT_License_Manager::init( array(
-	'product_slug'    => 'dw-catalog-wp',
+	'product_slug'    => 'dw-wholesale',
 	'cache_prefix'    => 'dwcat_',
 	'plugin_file'     => __FILE__,
 	'plugin_basename' => plugin_basename( __FILE__ ),
-	'plugin_name'     => 'DW Catalog WP',
-	'plugin_version'  => '2.0.0-rc.9',
-	'settings_page'   => 'dw-catalog-license',
+	'plugin_name'     => 'DW Wholesale',
+	'plugin_version'  => '3.0.0',
+	'settings_page'   => 'dw-wholesale-license',
 	'menu_parent'     => DWCAT_WP_Host::ADMIN_PAGE,
 	'public_keys'     => array(
 		dwcat_get_path() . 'includes/keys/dasomforge.pub',
@@ -147,7 +147,7 @@ function dwcat() {
 // Initialize the WordPress adapter
 add_action( 'plugins_loaded', 'dwcat_init', 10 );
 function dwcat_init() {
-	load_plugin_textdomain( 'dw-catalog-wp', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+	load_plugin_textdomain( 'dw-wholesale', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 	new DWCAT_WP_Admin();
 	new DWCAT_WP_Front();
 	new DWCAT_WP_Rest();
@@ -227,7 +227,7 @@ add_action( 'admin_notices', 'dwcat_install_notice' );
 function dwcat_install_notice() {
 	$err = get_option( 'dwcat_install_error' );
 	if ( $err && current_user_can( 'manage_options' ) ) {
-		echo '<div class="notice notice-error"><p><strong>DW Catalog:</strong> ' . esc_html( $err ) . '</p></div>';
+		echo '<div class="notice notice-error"><p><strong>DW Wholesale:</strong> ' . esc_html( $err ) . '</p></div>';
 	}
 }
 

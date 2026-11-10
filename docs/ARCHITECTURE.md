@@ -1,6 +1,6 @@
-# DW Catalog — Architecture
+# DW Wholesale — Architecture
 
-DW Catalog is an **independent catalog system** that ships as a WordPress plugin because that
+DW Wholesale is an **independent catalog system** that ships as a WordPress plugin because that
 is the easiest way to install and run it. WordPress is only the *host*: themes, simple posts and
 page design. Catalog data never lives in WordPress tables.
 
@@ -52,6 +52,6 @@ page design. Catalog data never lives in WordPress tables.
 
 - **Visitor page** with `[dw_catalog]` → adapter checks license gates → `Front\FrontApp::render()`
   → HTML. Detail pages: `/{page}/item/{slug}/`; SEO tags from `Front\Seo` printed in `wp_head`.
-- **Admin** → `DW Catalog` menu → adapter maps the WP user to core capabilities →
+- **Admin** → `DW Wholesale` menu → adapter maps the WP user to core capabilities →
   `Admin\AdminApp::handle()` renders inside the WP admin frame; form posts go through
   `admin-post.php` to the same app.

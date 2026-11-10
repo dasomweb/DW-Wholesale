@@ -1,5 +1,5 @@
 /**
- * DW Catalog — visitor behaviour (no dependencies).
+ * DW Wholesale — visitor behaviour (no dependencies).
  *
  * The catalog works as plain links and GET forms. This upgrades it:
  *  - filter / sort / per-page / view / tab / page changes fetch the same page and swap only the

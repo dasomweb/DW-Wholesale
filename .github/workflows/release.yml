@@ -7,7 +7,7 @@ name: Create Release
 #   ├── manifest.json      ← ZIP **최상위** (폴더 안에 넣으면 legacy fallback)
 #   ├── README.md
 #   └── wp-plugin/         ← 이 디렉터리가 있어야 v3
-#       ├── dw-catalog-wp.php
+#       ├── dw-wholesale.php
 #       ├── integrity.json
 #       └── ...
 #
@@ -64,7 +64,7 @@ jobs:
 
           echo "version=$VERSION"        >> "$GITHUB_OUTPUT"
           echo "epoch=$EPOCH"            >> "$GITHUB_OUTPUT"
-          echo "zip=dw-catalog-wp-${VERSION}.zip" >> "$GITHUB_OUTPUT"
+          echo "zip=dw-wholesale-${VERSION}.zip" >> "$GITHUB_OUTPUT"
           echo "Version: $VERSION / SOURCE_DATE_EPOCH: $EPOCH"
 
       - name: Verify version consistency
@@ -72,8 +72,8 @@ jobs:
           set -euo pipefail
           VERSION="${{ steps.meta.outputs.version }}"
 
-          HEADER="$(grep -oP '^\s*\*\s*Version:\s*\K.+' dw-catalog-wp.php | tr -d '[:space:]')"
-          CONFIG="$(grep -oP "'plugin_version'\s*=>\s*'\K[^']+" dw-catalog-wp.php | head -1)"
+          HEADER="$(grep -oP '^\s*\*\s*Version:\s*\K.+' dw-wholesale.php | tr -d '[:space:]')"
+          CONFIG="$(grep -oP "'plugin_version'\s*=>\s*'\K[^']+" dw-wholesale.php | head -1)"
 
           echo "tag=$VERSION header=$HEADER config=$CONFIG"
 
@@ -142,14 +142,14 @@ jobs:
           files: ${{ steps.meta.outputs.zip }}
           name: Release v${{ steps.meta.outputs.version }}
           body: |
-            ## DW Catalog WP v${{ steps.meta.outputs.version }}
+            ## DW Wholesale v${{ steps.meta.outputs.version }}
 
             ### 배포 방법 (운영자)
 
             이 ZIP 은 dasomforge 플랫폼 표준 구조입니다 — **직접 워드프레스에 업로드하지 마십시오.**
 
-            1. dasomforge 슈퍼어드민 → `/admin/products` → `dw-catalog-wp`
-            2. **Sync Release** 클릭 → `wp-plugin/` 이 `dw-catalog-wp/` 단일 루트로
+            1. dasomforge 슈퍼어드민 → `/admin/products` → `dw-wholesale`
+            2. **Sync Release** 클릭 → `wp-plugin/` 이 `dw-wholesale/` 단일 루트로
                정규화되어 R2 에 올라가고 IntegrityManifest 가 자동 등록됩니다
             3. SyncRelease 응답 박스에 `🔐 IntegrityManifest 등록` 과
                `📦 wp-plugin/: N개 파일` 두 줄이 모두 보이는지 확인
@@ -158,7 +158,7 @@ jobs:
             ### 고객 설치
 
             라이선스가 활성화된 사이트는 워드프레스 자동 업데이트로 수신합니다.
-            설치 경로는 항상 `wp-content/plugins/dw-catalog-wp/`.
+            설치 경로는 항상 `wp-content/plugins/dw-wholesale/`.
 
             ### anti-piracy 관련 변경
 

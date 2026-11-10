@@ -1,6 +1,6 @@
 <?php
 /**
- * DW Catalog WP — DASOM-Forge SDK 동작 테스트
+ * DW Wholesale — DASOM-Forge SDK 동작 테스트
  *
  * PLUGIN-DEV-GUIDE §9.1 이 요구하는 커버리지:
  *   · 토큰 발급/캐시            · 401 자동 재발급 (1회만)
@@ -20,12 +20,12 @@ $root = dirname( __DIR__ );
 require_once $root . '/includes/class-dw-forge-client.php';
 require_once $root . '/includes/class-dw-license-manager.php';
 
-const SLUG = 'dw-catalog-wp';
+const SLUG = 'dw-wholesale';
 const PREF = 'dwcat_';
 
 /** 버전을 하드코딩하지 않는다 — 플러그인 헤더가 유일한 출처. */
 function plugin_version_from_header( $root ) {
-	preg_match( '/^\s*\*\s*Version:\s*(.+)$/m', file_get_contents( $root . '/dw-catalog-wp.php' ), $m );
+	preg_match( '/^\s*\*\s*Version:\s*(.+)$/m', file_get_contents( $root . '/dw-wholesale.php' ), $m );
 	return trim( $m[1] );
 }
 $VERSION = plugin_version_from_header( $root );
@@ -41,7 +41,7 @@ $created_manifest = false;
 if ( ! file_exists( $manifest_path ) ) {
 	file_put_contents( $manifest_path, json_encode( array(
 		'version' => plugin_version_from_header( $root ),
-		'files'   => array( 'dw-catalog-wp.php', 'includes/license/gates.php' ),
+		'files'   => array( 'dw-wholesale.php', 'includes/license/gates.php' ),
 	), JSON_PRETTY_PRINT ) );
 	$created_manifest = true;
 }
@@ -54,18 +54,18 @@ register_shutdown_function( function () use ( $manifest_path, $created_manifest 
 DW_DWCAT_License_Manager::init( array(
 	'product_slug'    => SLUG,
 	'cache_prefix'    => PREF,
-	'plugin_file'     => $root . '/dw-catalog-wp.php',
-	'plugin_basename' => 'dw-catalog-wp/dw-catalog-wp.php',
-	'plugin_name'     => 'DW Catalog WP',
+	'plugin_file'     => $root . '/dw-wholesale.php',
+	'plugin_basename' => 'dw-wholesale/dw-wholesale.php',
+	'plugin_name'     => 'DW Wholesale',
 	'plugin_version'  => $VERSION,
-	'settings_page'   => 'dw-catalog-license',
+	'settings_page'   => 'dw-wholesale-license',
 	'public_keys'     => array( $root . '/includes/keys/dasomforge.pub' ),
 ) );
 
 // ── 테스트 픽스처 ────────────────────────────────────────────
 
 function fixture_license( $status = 'active' ) {
-	$GLOBALS['_options']['dw_license_dw_catalog_wp'] = array(
+	$GLOBALS['_options']['dw_license_dw_wholesale'] = array(
 		'key'    => 'DW-TEST-TEST-TEST',
 		'status' => $status,
 		'domain' => 'canary.example.com',
@@ -110,7 +110,7 @@ function as_admin() {
 }
 
 // ─────────────────────────────────────────────────────────────
-echo "=== DW Catalog WP — SDK behaviour tests ===\n";
+echo "=== DW Wholesale — SDK behaviour tests ===\n";
 
 // ── 1. /license/activate — legacy flat 파싱 + §11.1.a 즉시 토큰 ──
 echo "\n--- 1. activate (legacy flat) + §11.1.a immediate token ---\n";
@@ -208,12 +208,12 @@ t( false === DW_DWCAT_License_Manager::has_valid_token(), 'invalidated: 게이�
 echo "\n--- 7. TAMPER_DETECTED (§11.2.c swallow 금지) ---\n";
 stub_reset(); as_admin(); fixture_license();
 stub_http_queue( array( err( 403, 'TAMPER_DETECTED', array(
-	'mismatched_files' => array( 'dw-catalog-wp.php', 'includes/class-pc-config.php' ),
+	'mismatched_files' => array( 'dw-wholesale.php', 'includes/class-pc-config.php' ),
 ) ) ) );
 DW_DWCAT_License_Manager::get_token( true );
 $tamper = DW_DWCAT_License_Manager::get_tamper_notice();
 t_eq( 2, count( $tamper['files'] ), 'mismatched_files 2건 그대로 보존' );
-t( in_array( 'dw-catalog-wp.php', $tamper['files'], true ), '파일명 원본 유지' );
+t( in_array( 'dw-wholesale.php', $tamper['files'], true ), '파일명 원본 유지' );
 t_eq( 'tamper_detected', DW_DWCAT_License_Manager::get_status(), 'status = tamper_detected' );
 
 // ── 8. MANIFEST_INCOMPLETE — missing_files 보존 ──
@@ -255,7 +255,7 @@ t_eq( 1, stub_http_count(), '어드민: 동기 발급 허용 (§11.1.b)' );
 // ── 11. 요청 shape — UA · synthetic_test 미전송 · 무결성 필드 ──
 echo "\n--- 11. request shape (API-CONTRACT §1.1 / §4.1) ---\n";
 $call = stub_last_http();
-t( 1 === preg_match( '#^DW-dw-catalog-wp/' . preg_quote( $VERSION, '#' ) . ' \(WordPress/6\.7; PHP/#', $call['args']['headers']['User-Agent'] ),
+t( 1 === preg_match( '#^DW-dw-wholesale/' . preg_quote( $VERSION, '#' ) . ' \(WordPress/6\.7; PHP/#', $call['args']['headers']['User-Agent'] ),
    'User-Agent = DW-{slug}/{ver} (WordPress/x; PHP/y) — ' . $call['args']['headers']['User-Agent'] );
 t_eq( 'application/json', $call['args']['headers']['Content-Type'], 'Content-Type: application/json' );
 $body = stub_last_body();
@@ -270,7 +270,7 @@ echo "\n--- 12. compute_file_hashes key convention ---\n";
 $hashes = DW_DWCAT_License_Manager::compute_file_hashes();
 t( ! empty( $hashes ), 'integrity.json 기반 해시 생성' );
 $bad_key  = array_filter( array_keys( $hashes ), function ( $k ) {
-	return 0 === strpos( $k, 'wp-plugin/' ) || 0 === strpos( $k, 'dw-catalog-wp/' );
+	return 0 === strpos( $k, 'wp-plugin/' ) || 0 === strpos( $k, 'dw-wholesale/' );
 } );
 $bad_hash = array_filter( $hashes, function ( $h ) { return ! preg_match( '/^[0-9a-f]{64}$/', $h ); } );
 t( empty( $bad_key ), '규약 1 — 키에 접두사 없음 (루트상대)' );
@@ -343,8 +343,8 @@ if ( null === $kp ) {
 	DW_DWCAT_License_Manager::init( array(
 		'product_slug'    => 'sig-test',
 		'cache_prefix'    => 'sigtest_',
-		'plugin_file'     => $root . '/dw-catalog-wp.php',
-		'plugin_basename' => 'dw-catalog-wp/dw-catalog-wp.php',
+		'plugin_file'     => $root . '/dw-wholesale.php',
+		'plugin_basename' => 'dw-wholesale/dw-wholesale.php',
 		'plugin_name'     => 'Sig Test',
 		'plugin_version'  => '2.0.0',
 		'public_keys'     => array( $pubfile ),
@@ -411,8 +411,8 @@ stub_http_queue( array(
 	ok_token(),
 ) );
 DW_DWCAT_License_Manager::activate( 'DW-NET-KEY', 'canary.example.com' );
-t( isset( $GLOBALS['_net_options']['dw_license_dw_catalog_wp'] ), '멀티사이트: 라이선스가 네트워크 옵션에 저장' );
-t( ! isset( $GLOBALS['_options']['dw_license_dw_catalog_wp'] ), '멀티사이트: 사이트 옵션에는 저장 안 함' );
+t( isset( $GLOBALS['_net_options']['dw_license_dw_wholesale'] ), '멀티사이트: 라이선스가 네트워크 옵션에 저장' );
+t( ! isset( $GLOBALS['_options']['dw_license_dw_wholesale'] ), '멀티사이트: 사이트 옵션에는 저장 안 함' );
 t( isset( $GLOBALS['_options'][ PREF . 'token' ] ), '멀티사이트: 토큰 캐시는 사이트별 (도메인이 다르므로)' );
 $GLOBALS['_is_multisite'] = false;
 
@@ -421,19 +421,19 @@ echo "\n--- 15. /releases/update-check (legacy flat) ---\n";
 stub_reset(); as_admin(); fixture_license();
 stub_http_queue( array( stub_response( 200, array(
 	'update_available' => true,
-	'version'          => '2.1.0',
+	'version'          => '3.1.0',
 	'changelog'        => '- fix',
 	'download_url'     => 'https://r2.example/signed.zip',
 ) ) ) );
 $transient = new stdClass();
-$transient->checked  = array( 'dw-catalog-wp/dw-catalog-wp.php' => '2.0.0' );
+$transient->checked  = array( 'dw-wholesale/dw-wholesale.php' => '2.0.0' );
 $transient->response = array();
 $transient->no_update = array();
 $i = DW_DWCAT_License_Manager::init( array( 'product_slug' => SLUG ) );  // 기존 인스턴스 반환
 $out = $i->check_for_update( $transient );
-t( isset( $out->response['dw-catalog-wp/dw-catalog-wp.php'] ), 'update_available=true → 업데이트 제안' );
-t_eq( '2.1.0', $out->response['dw-catalog-wp/dw-catalog-wp.php']->new_version, '새 버전 파싱' );
-t_eq( 'https://r2.example/signed.zip', $out->response['dw-catalog-wp/dw-catalog-wp.php']->package, 'signed R2 URL 사용' );
+t( isset( $out->response['dw-wholesale/dw-wholesale.php'] ), 'update_available=true → 업데이트 제안' );
+t_eq( '3.1.0', $out->response['dw-wholesale/dw-wholesale.php']->new_version, '새 버전 파싱' );
+t_eq( 'https://r2.example/signed.zip', $out->response['dw-wholesale/dw-wholesale.php']->package, 'signed R2 URL 사용' );
 
 // 라이선스가 없으면 아예 묻지 않는다
 stub_reset(); as_admin();
@@ -446,7 +446,7 @@ echo "\n--- 16. anti-piracy regression (§9.3) ---\n";
 stub_reset();
 $GLOBALS['_is_admin'] = false;
 // (1) 라이선스 옵션만 'active' 로 위조 — 토큰이 없으면 게이트는 열리면 안 된다
-$GLOBALS['_options']['dw_license_dw_catalog_wp'] = array( 'key' => 'FAKE', 'status' => 'active' );
+$GLOBALS['_options']['dw_license_dw_wholesale'] = array( 'key' => 'FAKE', 'status' => 'active' );
 t( false === DW_DWCAT_License_Manager::has_valid_token(),
    'option 만 active 로 위조: 토큰 없으면 has_valid_token() = false' );
 t_eq( 'grace', DW_DWCAT_License_Manager::get_status(),

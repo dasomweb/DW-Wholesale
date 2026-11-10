@@ -1,6 +1,6 @@
 <?php
 /**
- * Uninstall DW Catalog WP
+ * Uninstall DW Wholesale
  *
  * Deleting the plugin removes the catalog: core tables, image files under
  * uploads/dw-catalog/, settings and license data.
@@ -74,7 +74,7 @@ $wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name LI
 
 // ── DASOM-Forge License SDK (DW_DWCAT_License_Manager) ──────────────
 // 옵션 키는 SDK 의 cache_prefix('dwcat_') + product_slug 규약을 따릅니다.
-delete_option( 'dw_license_dw_catalog_wp' );  // 라이선스 상태 (권위 저장소)
+delete_option( 'dw_license_dw_wholesale' );  // 라이선스 상태 (권위 저장소)
 delete_option( 'dwcat_token' );               // JWT 캐시
 delete_option( 'dwcat_tamper_notice' );       // TAMPER_DETECTED mismatched_files
 delete_option( 'dwcat_last_sdk_error' );      // 마지막 SDK 오류 (§3.6)
@@ -84,16 +84,16 @@ delete_option( 'dwcat_legacy_grace_until' );  // v1.x 마이그레이션 유예
 
 // 멀티사이트: 라이선스는 네트워크 옵션에 저장됩니다 (FAQ Q10).
 if ( is_multisite() ) {
-	delete_network_option( null, 'dw_license_dw_catalog_wp' );
+	delete_network_option( null, 'dw_license_dw_wholesale' );
 }
 
 delete_transient( 'dwcat_token_backoff' );
 delete_transient( 'dwcat_update_info' );
 delete_transient( 'dwcat_runtime_manifest' );
 
-wp_clear_scheduled_hook( 'dw_verify_license_dw-catalog-wp' );
+wp_clear_scheduled_hook( 'dw_verify_license_dw-wholesale' );
 wp_clear_scheduled_hook( 'dwcat_refresh_token' );
 wp_clear_scheduled_hook( 'dwcat_migrate_batch' );
 
 // v1.x 잔여물 정리
-delete_transient( 'dw_license_check_dw-catalog-wp' );
+delete_transient( 'dw_license_check_dw-wholesale' );

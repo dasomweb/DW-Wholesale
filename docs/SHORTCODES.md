@@ -78,6 +78,6 @@ Compact blocks for any page (home page highlights, etc.). Cards link to the main
 
 ## Design
 
-`DW Catalog → Design` sets colors, fonts, card style, grid gap and default columns. Values are
+`DW Wholesale → Design` sets colors, fonts, card style, grid gap and default columns. Values are
 applied as CSS custom properties on the catalog root (`--dwcat-*`), so a theme can also
 override them in its own CSS.

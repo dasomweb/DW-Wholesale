@@ -32,9 +32,9 @@
 #### 방법 1: 태그 기반 자동 배포 (가장 간단)
 
 ```bash
-# 1. 버전 번호 업데이트 (dw-catalog-wp.php에서 수동)
+# 1. 버전 번호 업데이트 (dw-wholesale.php에서 수동)
 # 2. 커밋 및 푸시
-git add dw-catalog-wp.php
+git add dw-wholesale.php
 git commit -m "Release version 1.0.1"
 git push origin main
 
@@ -72,7 +72,7 @@ GitHub Release에는 다음이 포함됩니다:
 
 ```
 Release v1.0.1
-├── dw-catalog-wp-1.0.1.zip (자동 생성)
+├── dw-wholesale-1.0.1.zip (자동 생성)
 └── 릴리스 노트
 ```
 
@@ -96,7 +96,7 @@ Release v1.0.1
 릴리스 후 확인사항:
 
 1. **GitHub Releases 페이지**
-   - https://github.com/dasomweb/dw-catalog-wp/releases
+   - https://github.com/dasomweb/DW-Wholesale/releases
    - 최신 릴리스 확인
    - ZIP 파일 다운로드 가능 여부 확인
 
@@ -109,14 +109,14 @@ Release v1.0.1
 
 플러그인 설정이 올바른지 확인:
 
-**파일:** `dw-catalog-wp.php`
+**파일:** `dw-wholesale.php`
 
 ```php
 function pc_get_plugin_config() {
     return array(
         'github_repo_owner' => 'dasomweb',        // ✅ 확인
-        'github_repo_name'  => 'dw-catalog-wp', // ✅ 확인
-        'plugin_slug'       => 'dw-catalog-wp', // ✅ 확인
+        'github_repo_name'  => 'dw-wholesale', // ✅ 확인
+        'plugin_slug'       => 'dw-wholesale', // ✅ 확인
         'plugin_version'    => '1.0.0',            // 릴리스마다 업데이트 필요
         // ...
     );

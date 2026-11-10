@@ -123,10 +123,10 @@ function walk(dir, base = '') {
 
 // ── 버전 결정 ───────────────────────────────────────────────
 function readPluginVersion() {
-  const main = path.join(PLUGIN_ROOT, 'dw-catalog-wp.php');
+  const main = path.join(PLUGIN_ROOT, 'dw-wholesale.php');
   const src = fs.readFileSync(main, 'utf8');
   const m = src.match(/^\s*\*\s*Version:\s*(.+)$/m);
-  if (!m) throw new Error('Version header not found in dw-catalog-wp.php');
+  if (!m) throw new Error('Version header not found in dw-wholesale.php');
   return m[1].trim();
 }
 
