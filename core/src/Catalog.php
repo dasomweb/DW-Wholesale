@@ -5,6 +5,8 @@ use DWCatalog\Db\Connection;
 use DWCatalog\Db\Schema;
 use DWCatalog\Fields\FieldConfig;
 use DWCatalog\Host\Host;
+use DWCatalog\I18n\Languages;
+use DWCatalog\Security\Access;
 use DWCatalog\Query\CatalogQuery;
 use DWCatalog\Repo\Images;
 use DWCatalog\Repo\Items;
@@ -127,6 +129,18 @@ class Catalog {
 	/** Translate (host-provided). */
 	public function t( string $text ): string {
 		return $this->host->translate( $text );
+	}
+
+	/** Widget text: the site's own wording (Settings → Widget text) if set, else the translation. */
+	public function frontText( string $text ): string {
+		$own = Languages::override( $this->settings(), $text );
+		return null !== $own ? $own : $this->host->translate( $text );
+	}
+
+	public function access(): Access {
+		return $this->service( 'access', function () {
+			return new Access( $this->host, $this->settings() );
+		} );
 	}
 
 	private function service( string $name, callable $make ) {

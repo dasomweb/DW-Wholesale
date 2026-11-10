@@ -75,7 +75,7 @@ class FrontApp {
 	}
 
 	private function t( string $s ): string {
-		return $this->c->t( $s );
+		return $this->c->frontText( $s );
 	}
 
 	// ─────────────────────────────────────────────────────────────

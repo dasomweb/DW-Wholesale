@@ -81,15 +81,21 @@ $from = $result['total'] ? ( $result['page'] - 1 ) * $perPage + 1 : 0;
 $to   = min( $result['total'], $result['page'] * $perPage );
 
 $actions = '';
-if ( $host->can( 'catalog.import' ) ) {
+if ( $app->canEdit( 'import_export' ) ) {
 	$actions .= '<a class="dwc-btn" href="' . Html::url( $app->url( array( 'view' => 'import', 'type' => $type ) ) ) . '">' . Html::e( $app->t( 'Import CSV' ) ) . '</a>';
 }
-if ( $host->can( 'catalog.export' ) ) {
+if ( $app->canView( 'import_export' ) ) {
 	$actions .= '<a class="dwc-btn" href="' . Html::url( $app->url( array( 'view' => 'export', 'type' => $type ) ) ) . '">' . Html::e( $app->t( 'Export' ) ) . '</a>';
 }
-$actions .= '<a class="dwc-btn dwc-btn-primary" href="' . Html::url( $app->url( array( 'view' => 'edit', 'type' => $type ) ) ) . '">+ ' . Html::e( $app->t( 'Add item' ) ) . '</a>';
+$canWrite  = $app->canEdit( 'products' );
+$canExport = $app->allowed( 'csv_export' );
+$canDelete = $canWrite && $app->allowed( 'product_delete' );
+$hasBulk   = $canWrite || $canExport;
+if ( $canWrite ) {
+	$actions .= '<a class="dwc-btn dwc-btn-primary" href="' . Html::url( $app->url( array( 'view' => 'edit', 'type' => $type ) ) ) . '">+ ' . Html::e( $app->t( 'Add item' ) ) . '</a>';
+}
 ?>
-<?php echo $app->head( $app->t( 'All Items' ), $actions ); ?>
+<?php echo $app->head( $app->t( 'Products' ), $actions ); ?>
 <?php include __DIR__ . '/_nav.php'; ?>
 
 <div class="dwc-stats">
@@ -162,19 +168,21 @@ $actions .= '<a class="dwc-btn dwc-btn-primary" href="' . Html::url( $app->url( 
 			<input type="hidden" name="back" value="<?php echo Html::attr( $back ); ?>">
 			<div class="dwc-selbar" data-dwc-selbar hidden>
 				<strong><span data-dwc-selcount>0</span> <?php echo Html::e( $app->t( 'selected' ) ); ?></strong>
+				<?php if ( $canWrite ) : ?>
 				<button type="submit" name="bulk" value="publish" class="dwc-btn dwc-btn-outline"><?php echo Html::e( $app->t( 'Set Active' ) ); ?></button>
 				<button type="submit" name="bulk" value="draft" class="dwc-btn dwc-btn-outline"><?php echo Html::e( $app->t( 'Set Inactive' ) ); ?></button>
-				<?php if ( $hasCat && $tree ) : ?>
+				<?php endif; ?>
+				<?php if ( $canWrite && $hasCat && $tree ) : ?>
 					<select name="move_cat" class="dwc-btn-outline" data-dwc-move aria-label="<?php echo Html::attr( $app->t( 'Move to category' ) ); ?>">
 						<option value=""><?php echo Html::e( $app->t( 'Move to category…' ) ); ?></option>
 						<?php echo $catOpts( 0 ); ?>
 					</select>
 					<button type="submit" name="bulk" value="move" hidden data-dwc-move-submit><?php echo Html::e( $app->t( 'Move' ) ); ?></button>
 				<?php endif; ?>
-				<?php if ( $host->can( 'catalog.export' ) ) : ?>
+				<?php if ( $canExport ) : ?>
 					<button type="submit" name="bulk" value="export" class="dwc-btn dwc-btn-outline"><?php echo Html::e( $app->t( 'Export selected' ) ); ?></button>
 				<?php endif; ?>
-				<?php if ( $host->can( 'catalog.delete' ) ) : ?>
+				<?php if ( $canDelete ) : ?>
 					<button type="submit" name="bulk" value="delete" class="dwc-btn dwc-btn-danger" data-dwc-confirm="<?php echo Html::attr( $app->t( 'Delete the selected items? This cannot be undone.' ) ); ?>"><?php echo Html::e( $app->t( 'Delete' ) ); ?></button>
 				<?php endif; ?>
 				<button type="button" class="dwc-link dwc-selbar-clear" data-dwc-clearsel><?php echo Html::e( $app->t( 'Clear selection' ) ); ?></button>
@@ -243,23 +251,26 @@ $actions .= '<a class="dwc-btn dwc-btn-primary" href="' . Html::url( $app->url( 
 								<?php endforeach; ?>
 								<td><?php echo $status_pill( $item['status'] ); ?></td>
 								<td class="dwc-r dwc-nowrap">
-									<a class="dwc-rowlink" href="<?php echo Html::url( $edit ); ?>"><?php echo Html::e( $app->t( 'Edit' ) ); ?></a>
+									<a class="dwc-rowlink" href="<?php echo Html::url( $edit ); ?>"><?php echo Html::e( $canWrite ? $app->t( 'Edit' ) : $app->t( 'Open' ) ); ?></a>
+									<?php if ( $hasBulk ) : ?>
 									<details class="dwc-menu">
 										<summary aria-label="<?php echo Html::attr( sprintf( $app->t( 'More actions for %s' ), $item['title'] ) ); ?>"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg></summary>
 										<div class="dwc-menu-list">
-											<?php if ( 'publish' === $item['status'] ) : ?>
+											<?php if ( ! $canWrite ) : ?>
+											<?php elseif ( 'publish' === $item['status'] ) : ?>
 												<button type="submit" form="dwc-row-form" name="one" value="draft:<?php echo $id; ?>"><?php echo Html::e( $app->t( 'Set Inactive' ) ); ?></button>
 											<?php else : ?>
 												<button type="submit" form="dwc-row-form" name="one" value="publish:<?php echo $id; ?>"><?php echo Html::e( $app->t( 'Set Active' ) ); ?></button>
 											<?php endif; ?>
-											<?php if ( $host->can( 'catalog.export' ) ) : ?>
+											<?php if ( $canExport ) : ?>
 												<button type="submit" form="dwc-row-form" name="one" value="export:<?php echo $id; ?>"><?php echo Html::e( $app->t( 'Export CSV' ) ); ?></button>
 											<?php endif; ?>
-											<?php if ( $host->can( 'catalog.delete' ) ) : ?>
+											<?php if ( $canDelete ) : ?>
 												<button type="submit" form="dwc-row-form" name="one" value="delete:<?php echo $id; ?>" class="dwc-danger" data-dwc-confirm="<?php echo Html::attr( $app->t( 'Delete this item and its images? This cannot be undone.' ) ); ?>"><?php echo Html::e( $app->t( 'Delete' ) ); ?></button>
 											<?php endif; ?>
 										</div>
 									</details>
+									<?php endif; ?>
 								</td>
 							</tr>
 						<?php endforeach; ?>

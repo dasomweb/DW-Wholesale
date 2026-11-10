@@ -66,6 +66,8 @@ require_once dwcat_get_path() . 'includes/class-dwcat-license-rest.php';
 
 require_once dwcat_get_path() . 'includes/wp/class-dwcat-wpdb-connection.php';
 require_once dwcat_get_path() . 'includes/wp/class-dwcat-wp-host.php';
+require_once dwcat_get_path() . 'includes/wp/class-dwcat-wp-i18n.php';
+require_once dwcat_get_path() . 'includes/wp/class-dwcat-wp-access.php';
 require_once dwcat_get_path() . 'includes/wp/class-dwcat-wp-admin.php';
 require_once dwcat_get_path() . 'includes/wp/class-dwcat-wp-front.php';
 require_once dwcat_get_path() . 'includes/wp/class-dwcat-wp-rest.php';
@@ -147,7 +149,10 @@ function dwcat() {
 // Initialize the WordPress adapter
 add_action( 'plugins_loaded', 'dwcat_init', 10 );
 function dwcat_init() {
-	load_plugin_textdomain( 'dw-wholesale', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+	// Translations: the language chosen in DW Wholesale → Settings (admin and site widgets apart),
+	// loaded on `init` from languages/dw-wholesale-{locale}.mo.
+	DWCAT_WP_I18n::init();
+	new DWCAT_WP_Access();     // operator mode (DW Wholesale → Access)
 	new DWCAT_WP_Admin();
 	new DWCAT_WP_Front();
 	new DWCAT_WP_Rest();

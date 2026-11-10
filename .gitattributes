@@ -18,6 +18,7 @@
 *.otf  binary
 *.eot  binary
 *.pdf  binary
+*.mo   binary
 
 # 공개키 PEM — 텍스트지만 LF 로 고정 (해시 안정성)
 *.pub text eol=lf

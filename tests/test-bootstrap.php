@@ -89,7 +89,7 @@ t_eq( count( $GATES ), gates_open(), '유예 중에는 9개 게이트 전부 통
 
 ob_start();
 dwcat_legacy_grace_notice();
-t( false !== strpos( ob_get_clean(), '라이선스 인증이 필요합니다' ), '미활성 유예 중에는 안내 표시' );
+t( false !== strpos( ob_get_clean(), 'License activation required' ), '미활성 유예 중에는 안내 표시' );
 
 // 회귀: 유예 중에 활성화를 마쳤는데도 "인증이 필요합니다" 가 계속 뜨던 버그.
 $GLOBALS['_options']['dw_license_dw_wholesale'] = array(

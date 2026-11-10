@@ -47,7 +47,10 @@ jobs:
       - name: SDK behaviour tests
         run: php tests/test-license-manager.php
 
-  # Catalog core against real databases (MySQL + PostgreSQL), PHP 7.4 and 8.3.
+      - name: Translations (Korean catalogue complete, .mo/.pot up to date)
+        run: php tests/test-i18n.php
+
+  # Catalog core against real databases (MySQL + MariaDB + PostgreSQL), PHP 7.4 and 8.3.
   core-db:
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -66,6 +69,14 @@ jobs:
         ports: [ '3306:3306' ]
         options: >-
           --health-cmd="mysqladmin ping -proot" --health-interval=5s --health-timeout=5s --health-retries=20
+      mariadb:
+        image: mariadb:11
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: dwc_test
+        ports: [ '3307:3306' ]
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized" --health-interval=5s --health-timeout=5s --health-retries=20
       postgres:
         image: postgres:16
         env:
@@ -84,11 +95,14 @@ jobs:
           extensions: pdo_mysql, pdo_pgsql, gd, exif, mbstring
           coverage: none
 
-      - name: Core integration tests (MySQL + PostgreSQL)
+      - name: Core integration tests (MySQL + MariaDB + PostgreSQL)
         env:
           DWC_MYSQL: "mysql:host=127.0.0.1;port=3306;dbname=dwc_test;charset=utf8mb4"
           DWC_MYSQL_USER: root
           DWC_MYSQL_PASS: root
+          DWC_MARIADB: "mysql:host=127.0.0.1;port=3307;dbname=dwc_test;charset=utf8mb4"
+          DWC_MARIADB_USER: root
+          DWC_MARIADB_PASS: root
           DWC_PGSQL: "pgsql:host=127.0.0.1;port=5432;dbname=dwc_test"
           DWC_PGSQL_USER: postgres
           DWC_PGSQL_PASS: postgres

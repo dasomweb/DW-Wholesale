@@ -86,6 +86,7 @@ class DWCAT_WP_Front {
 	// ─────────────────────────────────────────────────────────────
 
 	public function shortcode_catalog( $atts ) {
+		DWCAT_WP_I18n::ensure_front(); // widget language (Settings), before any text
 		// 게이트 1 + 8 — 라이선스 없이는 프런트에 카탈로그를 렌더하지 않습니다.
 		if ( ! dwcat_can_render() || ! dwcat_can_use_shortcode() ) {
 			return dwcat_gate_placeholder();
@@ -106,6 +107,7 @@ class DWCAT_WP_Front {
 	}
 
 	private function block( $atts, $carousel, $tag ) {
+		DWCAT_WP_I18n::ensure_front();
 		// 게이트 1 + 8
 		if ( ! dwcat_can_render() || ! dwcat_can_use_shortcode() ) {
 			return dwcat_gate_placeholder();
