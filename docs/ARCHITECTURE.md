@@ -40,13 +40,15 @@ page design. Catalog data never lives in WordPress tables.
 | Table | Purpose | Key indexes |
 |---|---|---|
 | `settings` | field schema, variation columns, design, misc config (JSON) | PK name |
-| `items` | catalog items: type, slug, title, content, excerpt, status, timestamps | (type, slug) unique · (type, status, created_at) · (type, status, title) |
+| `items` | catalog items: type, slug, title, content, excerpt, status (on the site / hidden), review mark, timestamps | (type, slug) unique · (type, status, created_at) · (type, status, title) |
 | `terms` | categories / tags tree | (type, taxonomy, slug) unique · (type, taxonomy, parent) |
 | `item_terms` | item ↔ term | PK (item_id, term_id) · (term_id, item_id) |
 | `images` | image files per item (+ generated sizes, alt, order) | (item_id, position) |
 | `values` | custom field values | PK (item_id, field_key) · (field_key, value_idx) · (field_key, value_num) |
 | `variations` | variation rows (JSON data + indexed code/price) | (item_id, position) · (item_code) |
 | `search` | word tokens with their source field | PK (token, item_id, source) · (item_id) |
+| `migration` | what a migration created: source record → catalog record, whether it was created (rollback deletes only those), page backups | PK (kind, source_id) · (kind, target_id) |
+| `applications` | wholesale applications: status, contact columns, every form field (JSON), attachment list | (status, created_at) · (email) |
 
 ## Request flow (WordPress)
 
@@ -95,8 +97,36 @@ catalogue (`php build/i18n.php all` checks it against the code and writes the `.
 `DWCAT_WP_I18n` loads the chosen `.mo` into the `dw-wholesale` domain on `init` (admin) or when a
 widget renders (site) — WordPress' own language is untouched.
 
+## Migration (3.0, M1)
+
+`Migration\Migrator` (core) moves an older catalog in through a `Migration\Source` the host supplies
+(`Host::migrationSource()`, WordPress: `DWCAT_WP_Migration_Source` reading DW Product Catalog posts,
+the DW WCM application table and Kadence query blocks with `$wpdb`).
+
+| Step | What happens |
+|---|---|
+| Find | `Source::detect()` — products, categories, applications, registered users |
+| Fields | source field → catalog field (`saveMapping`); a note field is refused for a public field |
+| Groups | groups read from the catalog pages' query blocks; editable; the rest goes under "Uncategorized" |
+| Check | `dryRun()` reads everything, writes nothing; choices for empty status / repeated codes / "-1" addresses; CSV |
+| Run | `batch()` — 50 records, `terms → items → applications`; one batch at a time (atomic lock in `settings`); the screen calls it in a loop and WP-Cron keeps it going when the tab is closed |
+| Finish | query blocks → shortcode (original content kept), 301 from old addresses, closing the old open REST list |
+| Undo | `rollbackBatch()` deletes only records with `created = 1`, restores pages, switches off |
+
+Rules that hold everywhere: the source is only read; `decide()` is the single place that turns a
+source product + the chosen handling into an outcome, used by the dry run and the run alike; every
+created record is in the `migration` table, so a second run updates and a rollback is exact.
+
+Product status (M2) is two things: `items.status` = on the site / hidden, and the status **field**
+(role `status`: active, out of stock, …). The product list tabs (All · Active · No status · Out of
+stock · Hidden · Needs review) combine them; "needs review" = `items.review` set or a shared item code.
+
+Application attachments are copied into `Host::privateDir()` under random names without their
+extension; the directory is denied to the web server. They are never linked by URL.
+
 ## Host interface
 
 `Host` supplies: user id, **roles**, **is administrator**, all roles (for the Access screen),
 per-user preferences, user / site locale, license policy (`allows()`), CSRF secret, translation,
-HTML sanitising, file storage, URLs, cache. Permission decisions are never made by the host.
+HTML sanitising, file storage (public for images, **private** for attachments), the migration
+source, the site's catalog pages, URLs, cache. Permission decisions are never made by the host.

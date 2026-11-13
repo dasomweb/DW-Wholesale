@@ -10,10 +10,10 @@ namespace DWCatalog\Db;
  */
 class Schema {
 
-	const VERSION = 2;
+	const VERSION = 3;
 
 	/** Tables whose primary key is an auto-increment "id". */
-	const AUTO_ID = array( 'items', 'terms', 'images', 'variations' );
+	const AUTO_ID = array( 'items', 'terms', 'images', 'variations', 'applications' );
 
 	public static function hasAutoId( string $table ): bool {
 		return in_array( $table, self::AUTO_ID, true );
@@ -38,6 +38,7 @@ class Schema {
 					'content'    => array( 'text' ),
 					'excerpt'    => array( 'text' ),
 					'status'     => array( 'string:20', 'default' => "'draft'" ),
+					'review'     => array( 'string:40', 'default' => "''" ),
 					'author_id'  => array( 'bigint' ),
 					'created_at' => array( 'datetime' ),
 					'updated_at' => array( 'datetime' ),
@@ -48,6 +49,7 @@ class Schema {
 					'type_status_created' => array( 'type', 'status', 'created_at' ),
 					'type_status_title'   => array( 'type', 'status', 'title(100)' ),
 					'type_status_sort'    => array( 'type', 'status', 'sort_title(100)' ),
+					'type_review'         => array( 'type', 'review' ),
 				),
 			),
 			'terms'      => array(
@@ -126,6 +128,40 @@ class Schema {
 				'primary' => array( 'token', 'item_id', 'source' ),
 				'index'   => array( 'item' => array( 'item_id' ) ),
 			),
+			// What a migration created: source record → catalog record (re-runs update, rollback deletes).
+			'migration'  => array(
+				'columns' => array(
+					'kind'      => array( 'string:20' ),
+					'source_id' => array( 'string:100' ),
+					'target_id' => array( 'bigint' ),
+					'created'   => array( 'smallint' ),
+					'extra'     => array( 'text' ),
+				),
+				'primary' => array( 'kind', 'source_id' ),
+				'index'   => array( 'kind_target' => array( 'kind', 'target_id' ) ),
+			),
+			// Wholesale applications (form entries). Attachments live in the host's private directory.
+			'applications' => array(
+				'columns' => array(
+					'id'         => array( 'id' ),
+					'status'     => array( 'string:20', 'default' => "'new'" ),
+					'email'      => array( 'string:191' ),
+					'company'    => array( 'string:200' ),
+					'name'       => array( 'string:200' ),
+					'phone'      => array( 'string:50' ),
+					'data'       => array( 'text' ),
+					'files'      => array( 'text' ),
+					'note'       => array( 'text' ),
+					'source'     => array( 'string:40' ),
+					'created_at' => array( 'datetime' ),
+					'updated_at' => array( 'datetime' ),
+				),
+				'primary' => array( 'id' ),
+				'index'   => array(
+					'status_created' => array( 'status', 'created_at' ),
+					'email'          => array( 'email(100)' ),
+				),
+			),
 		);
 	}
 
@@ -136,6 +172,9 @@ class Schema {
 		$from = self::installedVersion( $db );
 		if ( $from > 0 && $from < 2 ) {
 			self::upgradeTo2( $db, $prefix );
+		}
+		if ( $from > 0 && $from < 3 ) {
+			self::upgradeTo3( $db, $prefix );
 		}
 		foreach ( self::tables() as $name => $def ) {
 			foreach ( $db->dialect()->createTable( $db->table( $name ), $prefix . $name, $def ) as $sql ) {
@@ -159,6 +198,20 @@ class Schema {
 		}
 		foreach ( $db->select( 'SELECT id, title FROM ' . $table ) as $row ) {
 			$db->execute( 'UPDATE ' . $table . ' SET sort_title = ? WHERE id = ?', array( \DWCatalog\Support\Text::sortKey( (string) $row['title'] ), (int) $row['id'] ) );
+		}
+	}
+
+	/** v3: items.review (why a product needs a look, '' = fine). New tables are created by install(). */
+	private static function upgradeTo3( Connection $db, string $prefix ): void {
+		$table = $db->table( 'items' );
+		if ( ! $db->columnExists( 'items', 'review' ) ) {
+			foreach ( $db->dialect()->addColumn( $table, 'review', array( 'string:40', 'default' => "''" ) ) as $sql ) {
+				$db->execute( $sql );
+			}
+			foreach ( $db->dialect()->addIndex( $table, $prefix . 'items', 'type_review', array( 'type', 'review' ) ) as $sql ) {
+				$db->execute( $sql );
+			}
+			$db->execute( 'UPDATE ' . $table . " SET review = '' WHERE review IS NULL" );
 		}
 	}
 

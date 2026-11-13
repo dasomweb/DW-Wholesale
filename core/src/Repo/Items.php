@@ -131,6 +131,32 @@ class Items {
 		$this->settings->bumpCacheVersion();
 	}
 
+	/** Set one field of many items (bulk action). The value is already cleaned by the caller. */
+	public function setValue( array $ids, string $key, string $value ): void {
+		$this->beginBatch();
+		foreach ( array_filter( array_map( 'intval', $ids ) ) as $id ) {
+			if ( ! $this->get( $id ) ) {
+				continue;
+			}
+			$values         = $this->values( $id );
+			$values[ $key ] = $value;
+			$this->saveValues( $id, $values );
+		}
+		$this->endBatch();
+	}
+
+	/** Mark items for review ('' clears the mark). */
+	public function setReview( array $ids, string $reason ): void {
+		$ids = array_values( array_filter( array_map( 'intval', $ids ) ) );
+		if ( ! $ids ) {
+			return;
+		}
+		$this->db->execute( 'UPDATE ' . $this->db->table( 'items' ) . ' SET review = ? WHERE id IN (?)', array( Text::key( $reason, 40 ), $ids ) );
+		foreach ( $ids as $id ) {
+			unset( $this->items[ $id ] );
+		}
+	}
+
 	public function delete( int $id ): void {
 		foreach ( array( 'values', 'variations', 'search', 'item_terms' ) as $t ) {
 			$this->db->execute( 'DELETE FROM ' . $this->db->table( $t ) . ' WHERE item_id = ?', array( $id ) );

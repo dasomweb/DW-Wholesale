@@ -54,6 +54,26 @@ if ( $dwcat_dir && 'dw-catalog' === basename( $dwcat_dir ) && is_dir( $dwcat_dir
 	@rmdir( $dwcat_dir );
 }
 
+// Private files (application attachments)
+$dwcat_private = realpath( rtrim( $dwcat_upload['basedir'], '/\\' ) . '/dw-wholesale-private' );
+if ( $dwcat_private && 'dw-wholesale-private' === basename( $dwcat_private ) && is_dir( $dwcat_private ) ) {
+	$dwcat_files = new RecursiveIteratorIterator(
+		new RecursiveDirectoryIterator( $dwcat_private, FilesystemIterator::SKIP_DOTS ),
+		RecursiveIteratorIterator::CHILD_FIRST
+	);
+	foreach ( $dwcat_files as $dwcat_file ) {
+		if ( $dwcat_file->isDir() ) {
+			@rmdir( $dwcat_file->getPathname() );
+		} else {
+			@unlink( $dwcat_file->getPathname() );
+		}
+	}
+	@rmdir( $dwcat_private );
+}
+delete_option( 'dwcat_mig_redirects' );
+delete_option( 'dwcat_mig_rest_block' );
+wp_clear_scheduled_hook( 'dwcat_migration_tick' );
+
 // ── Per-user admin language choice (EN / 한국어 buttons) ─────────────
 delete_metadata( 'user', 0, 'dwcat_admin_lang', '', true );
 

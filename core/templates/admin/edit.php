@@ -10,6 +10,7 @@
  * @var array|null $brand     brand field
  * @var array $codeUsed       other items with the same code (id, title)
  * @var string[] $brands      brand suggestions
+ * @var string $oldUrl        address before the migration ('' if not migrated)
  */
 use DWCatalog\Fields\FieldConfig;
 use DWCatalog\Fields\VariationColumns;
@@ -123,6 +124,7 @@ $mainImg = $images ? $images[0] : null;
 					<div class="dwc-field">
 						<label for="dwc-f-<?php echo Html::attr( $codeKey ); ?>"><?php echo $fieldLabel( $code ); ?></label>
 						<?php echo $fieldInput( $code, $val( $codeKey ), ' data-dwc-preview="code" autocomplete="off"' ); ?>
+						<span data-dwc-codecheck="dwc-f-<?php echo Html::attr( $codeKey ); ?>" data-dwc-post="<?php echo Html::url( $c->host()->adminPostUrl() ); ?>" data-dwc-token="<?php echo Html::attr( $c->csrf()->token( 'check_code' ) ); ?>" data-dwc-id="<?php echo $item ? (int) $item['id'] : 0; ?>" data-dwc-type="<?php echo Html::attr( $type ); ?>">
 						<?php if ( $codeUsed ) : ?>
 							<span class="dwc-hint dwc-hint-warn">
 								<?php echo Html::e( $app->t( 'Also used by:' ) ); ?>
@@ -135,6 +137,7 @@ $mainImg = $images ? $images[0] : null;
 						<?php else : ?>
 							<span class="dwc-hint"><?php echo Html::e( $app->t( 'Each item should have its own code.' ) ); ?></span>
 						<?php endif; ?>
+						</span>
 					</div>
 				<?php endif; ?>
 				<?php if ( $brand ) : ?>
@@ -243,6 +246,9 @@ $mainImg = $images ? $images[0] : null;
 				<div class="dwc-field">
 					<label for="dwc-slug"><?php echo Html::e( $app->t( 'URL slug' ) ); ?></label>
 					<input type="text" id="dwc-slug" name="slug" class="dwc-mono" value="<?php echo Html::attr( $item ? $item['slug'] : '' ); ?>" placeholder="<?php echo Html::attr( $app->t( 'from the name' ) ); ?>">
+					<?php if ( '' !== $oldUrl ) : ?>
+						<span class="dwc-hint"><?php echo Html::e( $app->t( 'Old address:' ) ); ?> <span class="dwc-mono"><?php echo Html::e( $oldUrl ); ?></span> → <?php echo Html::e( $app->t( 'this product' ) ); ?></span>
+					<?php endif; ?>
 				</div>
 				<?php if ( $id ) : ?>
 					<span class="dwc-hint"><?php echo Html::e( sprintf( $app->t( 'Last updated %s' ), substr( $item['updated_at'], 0, 16 ) ) ); ?> · #<?php echo $id; ?></span>

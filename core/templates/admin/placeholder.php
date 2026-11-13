@@ -20,14 +20,6 @@ $coming  = array(
 			'Approval creates the account and sends a one-time password link',
 		),
 	),
-	'migration' => array(
-		'Move products, categories, images and applications from DW Product Catalog and DW Wholesale Customer Management.',
-		array(
-			'Finds the previous plugins and their data automatically',
-			'Dry run first: counts, problems and how to handle each one',
-			'Runs in the background in batches, can be resumed and undone',
-		),
-	),
 	'presets' => array(
 		'Ready-made setups for each kind of wholesale business.',
 		array(

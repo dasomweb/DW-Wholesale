@@ -80,11 +80,12 @@ class FieldConfig {
 	}
 
 	/**
-	 * The field playing a role, found by key: 'brand' → *brand*, 'code' → *item_code* / *sku*.
+	 * The field playing a role, found by key: 'brand' → *brand*, 'code' → *item_code* / *sku*,
+	 * 'status' → *status* (the product's own state: active, out of stock, …).
 	 * $publicOnly: visitors only ever see public fields.
 	 */
 	public function roleField( string $type, string $role, bool $publicOnly = true ): ?array {
-		$patterns = array( 'brand' => '/brand/', 'code' => '/item_code|sku/' );
+		$patterns = array( 'brand' => '/brand/', 'code' => '/item_code|sku/', 'status' => '/status/', 'origin' => '/origin|country/' );
 		if ( ! isset( $patterns[ $role ] ) ) {
 			return null;
 		}

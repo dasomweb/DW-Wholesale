@@ -1,7 +1,7 @@
 <?php
 /**
  * Dashboard: catalog counts and the screens this user can open.
- * (Data-quality alerts and catalog-page status arrive with the migration phase.)
+ * Data-quality alerts, catalog pages, and the migration card when an older catalog is found.
  *
  * @var DWCatalog\Admin\AdminApp $app
  * @var DWCatalog\Catalog $c
@@ -9,6 +9,11 @@
  * @var array $counts   total, publish, draft
  * @var array $catStat  top, sub
  * @var array $shared   item code => number of items using it
+ * @var array $quality  ItemStats::quality
+ * @var int $applications
+ * @var array[] $pages  title, url, edit_url, shortcode
+ * @var array|null $migration  what the older catalog on this site holds (null: none, or not allowed)
+ * @var bool $migrated
  */
 use DWCatalog\Admin\AdminApp;
 use DWCatalog\Security\Access;
@@ -19,10 +24,20 @@ $canProducts = $app->canView( 'products' );
 $dupItems    = array_sum( $shared );
 $tiles       = array(
 	array( 'Products', (int) $counts['total'], array( 'view' => 'items' ), '' ),
-	array( 'Active', (int) $counts['publish'], array( 'view' => 'items', 'status' => 'publish' ), 'dwc-ok' ),
-	array( 'Inactive', (int) $counts['draft'], array( 'view' => 'items', 'status' => 'draft' ), '' ),
-	array( 'Needs review', $dupItems, array( 'view' => 'items', 'dup' => 1 ), $dupItems ? 'dwc-warn-text' : '' ),
+	array( 'On the site', (int) $counts['publish'], array( 'view' => 'items' ), 'dwc-ok' ),
+	array( 'Hidden', (int) $quality['hidden'], array( 'view' => 'items', 'tab' => 'hidden' ), '' ),
+	array( 'Needs review', (int) $quality['review'], array( 'view' => 'items', 'tab' => 'review' ), $quality['review'] ? 'dwc-warn-text' : '' ),
 );
+// Data quality: only what needs attention is listed.
+$alerts = array_filter( array(
+	array( $quality['has_status'] ? (int) $quality['no_status'] : 0, $app->t( '%d products have no status.' ), array( 'view' => 'items', 'tab' => 'no_status' ) ),
+	array( (int) $quality['duplicate_codes'], $app->t( '%d item codes are used by more than one product.' ), array( 'view' => 'items', 'tab' => 'review' ) ),
+	array( (int) $quality['no_brand'], $app->t( '%d products have no brand.' ), array( 'view' => 'items' ) ),
+	array( (int) $quality['no_image'], $app->t( '%d products have no photo.' ), array( 'view' => 'items', 'img' => 'no' ) ),
+	array( (int) $quality['empty_categories'], $app->t( '%d categories have no products.' ), array( 'view' => 'categories' ) ),
+), function ( $a ) {
+	return $a[0] > 0;
+} );
 $about = array(
 	'products'      => 'Add and edit products, prices, options and photos.',
 	'categories'    => 'Arrange category groups and categories.',
@@ -58,16 +73,49 @@ $about = array(
 		<span><?php echo Html::e( $app->t( 'Categories' ) ); ?></span><strong><?php echo (int) $catStat['top'] + (int) $catStat['sub']; ?></strong>
 	<?php echo $app->canView( 'categories' ) ? '</a>' : '</div>'; ?>
 	<div class="dwc-stat">
-		<span><?php echo Html::e( $app->t( 'Applications' ) ); ?></span><strong class="dwc-muted">—</strong>
+		<span><?php echo Html::e( $app->t( 'Applications' ) ); ?></span><strong><?php echo (int) $applications; ?></strong>
 	</div>
 </div>
 
-<?php if ( $dupItems && $canProducts ) : ?>
-	<div class="dwc-notice dwc-notice-warn">
-		<?php echo Html::e( sprintf( $app->t( '%d products share an item code with another product.' ), $dupItems ) ); ?>
-		<a href="<?php echo Html::url( $app->url( array( 'view' => 'items', 'type' => $type, 'dup' => 1 ) ) ); ?>"><?php echo Html::e( $app->t( 'Review them' ) ); ?></a>
+<?php if ( $migration && ! empty( $migration['products']['found'] ) && ! $migrated ) : ?>
+	<div class="dwc-notice dwc-notice-info">
+		<?php echo Html::e( sprintf( $app->t( 'An older catalog with %d products was found on this site.' ), (int) $migration['products']['count'] ) ); ?>
+		<a href="<?php echo Html::url( $app->url( array( 'view' => 'migration' ) ) ); ?>"><?php echo Html::e( $app->t( 'Open Migration' ) ); ?></a>
 	</div>
 <?php endif; ?>
+
+<div class="dwc-two">
+	<section class="dwc-panel dwc-pad" aria-labelledby="dwc-quality">
+		<h2 id="dwc-quality"><?php echo Html::e( $app->t( 'Data quality' ) ); ?></h2>
+		<?php if ( ! $alerts ) : ?>
+			<p class="dwc-ok"><?php echo Html::e( $app->t( 'Nothing needs attention.' ) ); ?></p>
+		<?php else : ?>
+			<ul class="dwc-alerts">
+				<?php foreach ( $alerts as $a ) : ?>
+					<li>
+						<?php if ( $canProducts ) : ?>
+							<a href="<?php echo Html::url( $app->url( $a[2] + array( 'type' => $type ) ) ); ?>"><?php echo Html::e( sprintf( $a[1], $a[0] ) ); ?></a>
+						<?php else : ?>
+							<?php echo Html::e( sprintf( $a[1], $a[0] ) ); ?>
+						<?php endif; ?>
+					</li>
+				<?php endforeach; ?>
+			</ul>
+		<?php endif; ?>
+	</section>
+	<section class="dwc-panel dwc-pad" aria-labelledby="dwc-pages">
+		<h2 id="dwc-pages"><?php echo Html::e( $app->t( 'Catalog pages' ) ); ?></h2>
+		<?php if ( ! $pages ) : ?>
+			<p class="dwc-muted"><?php echo Html::e( $app->t( 'No page shows the catalog yet. Put a shortcode on a page to publish it.' ) ); ?></p>
+		<?php else : ?>
+			<ul class="dwc-alerts">
+				<?php foreach ( $pages as $pg ) : ?>
+					<li><a href="<?php echo Html::url( $pg['url'] ); ?>" target="_blank" rel="noopener"><?php echo Html::e( $pg['title'] ); ?></a> <code><?php echo Html::e( $pg['shortcode'] ); ?></code></li>
+				<?php endforeach; ?>
+			</ul>
+		<?php endif; ?>
+	</section>
+</div>
 
 <section class="dwc-launch" aria-label="<?php echo Html::attr( $app->t( 'Your screens' ) ); ?>">
 	<?php foreach ( Access::MENUS as $menu => $spec ) : ?>

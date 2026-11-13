@@ -37,7 +37,7 @@ final class Context {
 	}
 
 	public function listUrl( array $params = array() ): string {
-		return $params ? $this->pageUrl . '?' . http_build_query( $params ) : $this->pageUrl;
+		return $params ? $this->pageUrl . $this->sep() . http_build_query( $params ) : $this->pageUrl;
 	}
 
 	public function itemUrl( string $slug, array $params = array() ): string {
@@ -45,6 +45,11 @@ final class Context {
 			$url = rtrim( $this->itemBase, '/' ) . '/' . rawurlencode( $slug ) . '/';
 			return $params ? $url . '?' . http_build_query( $params ) : $url;
 		}
-		return $this->pageUrl . '?' . http_build_query( array_merge( $params, array( 'dw_item' => $slug ) ) );
+		return $this->pageUrl . $this->sep() . http_build_query( array_merge( $params, array( 'dw_item' => $slug ) ) );
+	}
+
+	/** "?" — or "&" when the page address already has a query (plain permalinks: ?page_id=4). */
+	private function sep(): string {
+		return false === strpos( $this->pageUrl, '?' ) ? '?' : '&';
 	}
 }

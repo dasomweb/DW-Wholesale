@@ -89,6 +89,22 @@ class TestHost implements Host {
 		return 'https://test.example/files';
 	}
 
+	/** @var \DWCatalog\Migration\Source|null */
+	public $source = null;
+	public $pages  = array();
+
+	public function privateDir(): string {
+		return $this->dir . '/private';
+	}
+
+	public function migrationSource(): ?\DWCatalog\Migration\Source {
+		return $this->source;
+	}
+
+	public function catalogPages(): array {
+		return $this->pages;
+	}
+
 	public function adminUrl( array $params = array() ): string {
 		return 'https://test.example/admin?' . http_build_query( array_merge( array( 'page' => 'catalog' ), $params ) );
 	}

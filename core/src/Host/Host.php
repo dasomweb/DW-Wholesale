@@ -62,6 +62,24 @@ interface Host {
 	/** Public URL of storageDir(), no trailing slash. */
 	public function storageUrl(): string;
 
+	/**
+	 * Absolute directory for files that must NOT be reachable by URL (application attachments),
+	 * no trailing slash. The host creates and protects it.
+	 */
+	public function privateDir(): string;
+
+	// ── Site ────────────────────────────────────────────────────
+
+	/** The older catalog on this site to migrate from, or null when the host has none. */
+	public function migrationSource(): ?\DWCatalog\Migration\Source;
+
+	/**
+	 * Site pages that show the catalog.
+	 *
+	 * @return array[] title, url, edit_url, shortcode
+	 */
+	public function catalogPages(): array;
+
 	// ── URLs ────────────────────────────────────────────────────
 
 	/** URL of the admin app with the given query params (GET pages). */
