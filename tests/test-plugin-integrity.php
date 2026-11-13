@@ -53,6 +53,8 @@ $required_files = array(
 	'core/src/I18n/Languages.php',
 	'core/src/I18n/FrontStrings.php',
 	'core/src/Migration/Source.php',
+	'core/src/Front/Widgets.php',
+	'core/src/Front/Design.php',
 	'core/src/Migration/Migrator.php',
 	'core/src/Repo/Applications.php',
 	'core/templates/admin/migration.php',

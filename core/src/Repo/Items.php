@@ -76,7 +76,7 @@ class Items {
 	/**
 	 * Create or update an item. @return int id
 	 *
-	 * @param array $data id?, type, title, slug?, content?, excerpt?, status?, author_id?
+	 * @param array $data id?, type, title, slug?, content?, excerpt?, status?, author_id?, position?
 	 */
 	public function save( array $data ): int {
 		$id   = isset( $data['id'] ) ? (int) $data['id'] : 0;
@@ -101,6 +101,9 @@ class Items {
 			'status'     => $status,
 			'updated_at' => Text::now(),
 		);
+		if ( isset( $data['position'] ) ) {
+			$row['position'] = max( -1000000, min( 1000000, (int) $data['position'] ) );
+		}
 
 		if ( $id && $this->get( $id ) ) {
 			$sets = array();
@@ -248,6 +251,19 @@ class Items {
 			$this->variations[ $id ] = $rows;
 		}
 		return $this->variations[ $id ];
+	}
+
+	/** Lowest option price of many items in one query. @return array item id => price */
+	public function minPrices( array $ids ): array {
+		$ids = array_values( array_filter( array_map( 'intval', $ids ) ) );
+		if ( ! $ids ) {
+			return array();
+		}
+		$out = array();
+		foreach ( $this->db->select( 'SELECT item_id, MIN(price) AS p FROM ' . $this->db->table( 'variations' ) . ' WHERE item_id IN (?) AND price IS NOT NULL GROUP BY item_id', array( $ids ) ) as $r ) {
+			$out[ (int) $r['item_id'] ] = (string) $r['p'];
+		}
+		return $out;
 	}
 
 	/** Replace variation rows (already sanitized against the columns). */

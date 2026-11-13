@@ -6,7 +6,74 @@ in WordPress as usual.
 
 ---
 
-## `[dw_catalog]` — catalog page
+## `[dw_wholesale_catalog]` — catalog page (3.0)
+
+```
+[dw_wholesale_catalog]                                   whole catalog
+[dw_wholesale_catalog group="frozen,dry-goods"]          one or more category groups
+[dw_wholesale_catalog categories="nori,wasabi,gari"]     some categories
+[dw_wholesale_catalog group="frozen" exclude="squid"]    leaving some out
+[dw_wholesale_catalog id="frozen"]                       a saved catalog (DW Wholesale → Shortcodes)
+```
+
+Everything `[dw_catalog]` does (below), plus:
+
+- **Saved catalogs** — set a catalog up once on the Shortcodes screen (products, search, filters
+  and their order, sorting, columns and first count per device, card contents, click target,
+  design) and place it with `id="…"`. The screen lists the pages using each one. Attributes written
+  on the shortcode override the saved settings.
+- **Filters** — categories (with a search box when the list is long), brand, origin, in stock,
+  new in the last 30 days, with photo, and any public field — in the order you choose, in the
+  sidebar or a top bar. Every choice shows how many products you get by ticking it (with the other
+  filters applied); a filter with nothing to offer is hidden. Selected filters appear as chips
+  above the results, each removable, with "Clear all".
+- **Sorting** — name, item code, brand, newest, category, recommended order (the "Recommended
+  order" number on each product), and number fields. Choose which ones visitors see and the default.
+- **Devices** — desktop: columns + sidebar / top bar. Tablet: its own columns, filters slide in
+  from the side. Phone: 1–2 columns of cards (or a list), filters open as a sheet from the bottom,
+  "Load more" instead of page numbers. Tablets and phones first show their own number of products.
+- **Cards** — choose item code, pack size, brand, origin, category badge, price (lowest option
+  price, when the option price column is public) and other public fields; clicking opens the side
+  panel or the product page.
+- Every state (search, filters, sort, view, page) is in the URL, so a link shows the same results.
+  The page costs the same number of database queries whatever the number of products.
+
+| Option | Default | |
+|---|---|---|
+| `id` | — | Saved catalog |
+| `group` / `categories` / `category` | — | Category slugs (comma-separated) the page shows |
+| `exclude` | — | Category slugs left out, with their sub-categories |
+| `title` | — | Heading |
+| `search_size` | `large` | `large` · `small` · `hidden` |
+| `suggest` | — | Suggested search words under the box |
+| `filters` | `category,brand,origin,stock,new,photo` | Filters in order; field keys allowed |
+| `filter_position` | `sidebar` | `sidebar` · `top` |
+| `sorts` | all | Sorts offered: `title_asc` `title_desc` `code_asc` `code_desc` `brand_asc` `date_desc` `date_asc` `category_asc` `manual` `field:{key}:asc\|desc` |
+| `default_sort` | `title_asc` | |
+| `per_page` | `24` | Visitors can pick ×2 and ×4 (24 / 48 / 96) |
+| `columns` / `cols_tablet` / `cols_mobile` | `4` / `3` / `2` | |
+| `per_page_tablet` / `per_page_mobile` | `24` / `12` | Shown at first; "Load more" shows the rest |
+| `mobile_view` | `grid` | `grid` (cards) · `list` (rows) |
+| `card_fields` | `code,pack,brand,origin,category` | Plus `price` and public field keys |
+| `click` | `drawer` | `drawer` (side panel) · `page` (product page) |
+| `design` | — | Design preset |
+
+URL parameters, in addition to the ones below: `dwo[]` = `in_stock` · `new` · `photo`.
+
+---
+
+## `[dw_wholesale_search]` — search box for a header
+
+```
+[dw_wholesale_search placeholder="Search products" size="small" suggest="nori, wasabi"]
+```
+
+Sends visitors to the main catalog page (or `page="123"`) with their search. `size`: `small` ·
+`large`; `suggest` adds autocomplete words; `design` picks a preset.
+
+---
+
+## `[dw_catalog]` — catalog page (2.x, still supported)
 
 ```
 [dw_catalog category="refrigerated" filter_fields="dw_pc_brand_raw"]
@@ -78,6 +145,11 @@ Compact blocks for any page (home page highlights, etc.). Cards link to the main
 
 ## Design
 
-`DW Wholesale → Design` sets colors, fonts, card style, grid gap and default columns. Values are
-applied as CSS custom properties on the catalog root (`--dwcat-*`), so a theme can also
-override them in its own CSS.
+`DW Wholesale → Design`: main color, border color, button style (filled · outline · light
+background), font set (Inter + Noto Sans KR · Noto Sans KR · IBM Plex Sans KR · Nanum Gothic ·
+theme font), text size (S · M · L), corners of cards / buttons / inputs, card shadow (none · soft),
+columns and spacing. A preview shows the result at desktop, tablet and phone width as you change it.
+
+Save the values as the default design or as a named **preset**; a catalog uses a preset with
+`design="slug"` (or by choosing it in a saved catalog). Values reach the page as CSS custom
+properties on the catalog root (`--dwcat-*`), so a theme can still override them in its own CSS.

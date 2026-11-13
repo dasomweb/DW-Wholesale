@@ -43,6 +43,7 @@ class ItemEditor {
 				'content'   => $this->c->host()->sanitizeHtml( isset( $post['content'] ) ? (string) $post['content'] : '' ),
 				'excerpt'   => isset( $post['excerpt'] ) ? $post['excerpt'] : '',
 				'status'    => isset( $post['status'] ) ? $post['status'] : 'draft',
+			'position'  => isset( $post['position'] ) ? (int) $post['position'] : 0,
 				'author_id' => $this->c->host()->userId(),
 			) );
 		} catch ( \InvalidArgumentException $e ) {

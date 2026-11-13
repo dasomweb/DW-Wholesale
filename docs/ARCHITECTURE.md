@@ -124,6 +124,25 @@ stock · Hidden · Needs review) combine them; "needs review" = `items.review` s
 Application attachments are copied into `Host::privateDir()` under random names without their
 extension; the directory is denied to the web server. They are never linked by URL.
 
+## Widgets and design (3.0, M4 · M5)
+
+- `Front\FrontApp::resolve( $atts, $wholesale )` turns a shortcode into one attribute set:
+  defaults < 3.0 defaults (`[dw_wholesale_catalog]`) < saved widget (`id`) < attributes on the page.
+  `[dw_catalog]` keeps its 2.x defaults.
+- `Front\Widgets` — saved catalogs in settings `widgets` [ id => config ], cleaned against the
+  catalog (existing category slugs, top-level groups, public fields, known sorts).
+- `Query\CatalogQuery` builds one WHERE clause (`where()`) shared by the list and by `facets()`:
+  each filter count is computed with every other filter applied, in a constant number of queries,
+  cached until the next catalog write. Scope (`base_cat`), `exclude`, `in_stock` (status field not
+  out of stock / discontinued / inactive), `since` (new), `image`.
+- Sorts: role-based (`code_*`, `brand_asc`), `category_asc` (first category by tree position),
+  `manual` (`items.position`, schema v4).
+- `Front\Design` — default design (`design`) and presets (`design_presets`), validated values →
+  CSS custom properties. `previewSpec()` tells the admin preview how each setting maps to a variable.
+- Device behaviour is CSS container queries (the catalog's own width) plus `catalog.js`: the filter
+  sheet lives under `<body>`; "Load more" first reveals products held back on tablets / phones,
+  then appends the next page; without JS everything is plain links and GET forms.
+
 ## Host interface
 
 `Host` supplies: user id, **roles**, **is administrator**, all roles (for the Access screen),

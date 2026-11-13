@@ -130,6 +130,7 @@ DW Wholesale > Dashboard, Products, Categories, Fields, Customers, Import / Expo
 |---|---|---|
 | 1. 기반 (메뉴 · M8 · M9) | `v3/phase-1-foundation` | 완료 — main 머지, `v3.0.0-alpha.1` 사전 출시 (2026-11-13) |
 | 2. 마이그레이션 (M1 · M2) | `v3/phase-2-migration` | 완료 — 검토 대기 |
+| 3. 숏코드·디자인 (M4 · M5) | `v3/phase-3-widgets` (2단계 브랜치 위) | 완료 — 검토 대기 |
 
 ### 결정 기록
 

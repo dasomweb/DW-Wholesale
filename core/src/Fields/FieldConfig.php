@@ -85,7 +85,7 @@ class FieldConfig {
 	 * $publicOnly: visitors only ever see public fields.
 	 */
 	public function roleField( string $type, string $role, bool $publicOnly = true ): ?array {
-		$patterns = array( 'brand' => '/brand/', 'code' => '/item_code|sku/', 'status' => '/status/', 'origin' => '/origin|country/' );
+		$patterns = array( 'brand' => '/brand/', 'code' => '/item_code|sku/', 'status' => '/status/', 'origin' => '/origin|country/', 'pack' => '/pack|case_size|unit_size/' );
 		if ( ! isset( $patterns[ $role ] ) ) {
 			return null;
 		}

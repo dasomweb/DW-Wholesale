@@ -28,6 +28,10 @@ class DWCAT_WP_Admin {
 		'export'        => 'dwcat_can_export_pdf',
 		'export_csv'    => 'dwcat_can_export_pdf',
 		'save_design'   => 'dwcat_can_save_meta',
+		'create_design' => 'dwcat_can_save_meta',
+		'delete_design' => 'dwcat_can_save_meta',
+		'save_widget'   => 'dwcat_can_save_meta',
+		'delete_widget' => 'dwcat_can_save_meta',
 		'save_settings' => 'dwcat_can_save_meta',
 		'save_access'   => 'dwcat_can_render_admin',
 		'reset_access'  => 'dwcat_can_render_admin',
@@ -164,6 +168,18 @@ class DWCAT_WP_Admin {
 		wp_enqueue_style( 'dwcat-admin-fonts', 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap', array(), null ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion — Google Fonts URL
 		wp_enqueue_style( 'dwcat-admin', $host->assetUrl( 'admin.css' ), array( 'dwcat-admin-fonts' ), $host->version() );
 		wp_enqueue_script( 'dwcat-admin', $host->assetUrl( 'admin.js' ), array(), $host->version(), true );
+		// Design screen: the preview uses the site's own stylesheet and the design's font
+		if ( isset( $_GET['view'] ) && 'design' === $_GET['view'] ) { // phpcs:ignore WordPress.Security.NonceVerification
+			wp_enqueue_style( 'dwcat-front', $host->assetUrl( 'front.css' ), array(), $host->version() );
+			try {
+				$preset = isset( $_GET['preset'] ) ? sanitize_key( wp_unslash( $_GET['preset'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification
+				$font   = \DWCatalog\Front\Design::fontUrl( dwcat()->settings(), $preset );
+				if ( '' !== $font ) {
+					wp_enqueue_style( 'dwcat-preview-font', $font, array(), null ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion — Google Fonts URL
+				}
+			} catch ( \Throwable $e ) { // phpcs:ignore — no preview font
+			}
+		}
 	}
 
 	public function page() {
