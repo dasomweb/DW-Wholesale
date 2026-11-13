@@ -19,6 +19,10 @@
  * @var array $counts      total, publish, draft
  * @var array $catStat     top, sub
  * @var string[] $brands   brand suggestions (text field)
+ * @var string $tab         all | active | no_status | out_of_stock | hidden | review
+ * @var array $quality      tab counts (ItemStats::quality)
+ * @var array|null $pstatus product status field (active, out of stock, …)
+ * @var string $image       '' | yes | no
  */
 use DWCatalog\Fields\FieldConfig;
 use DWCatalog\Support\Html;
@@ -30,20 +34,24 @@ $config   = $c->fields()->type( $type );
 $hasCat   = ! empty( $config['has_category'] );
 $codeKey  = $code ? $code['meta_key'] : '';
 $brandKey = $brand ? $brand['meta_key'] : '';
-$listFields = array_filter( $c->fields()->fields( $type ), function ( $f ) use ( $codeKey ) {
-	return ! empty( $f['show_in_list'] ) && empty( $f['is_title_field'] ) && $f['meta_key'] !== $codeKey;
+$psKey    = $pstatus ? $pstatus['meta_key'] : '';
+// The status field has its own column and tabs, so it is not repeated as a field column / filter.
+$listFields = array_filter( $c->fields()->fields( $type ), function ( $f ) use ( $codeKey, $psKey ) {
+	return ! empty( $f['show_in_list'] ) && empty( $f['is_title_field'] ) && $f['meta_key'] !== $codeKey && $f['meta_key'] !== $psKey;
 } );
-$filterFields = array_filter( $c->fields()->fields( $type ), function ( $f ) use ( $brandKey ) {
-	return 'select' === $f['type'] && ! empty( $f['show_in_list'] ) && $f['meta_key'] !== $brandKey;
+$filterFields = array_filter( $c->fields()->fields( $type ), function ( $f ) use ( $brandKey, $psKey ) {
+	return 'select' === $f['type'] && ! empty( $f['show_in_list'] ) && $f['meta_key'] !== $brandKey && $f['meta_key'] !== $psKey;
 } );
+$tabMeta = $meta;
+unset( $tabMeta[ $psKey ] );
 $state = array_filter( array(
 	'view'    => 'items',
 	'type'    => $type,
 	's'       => isset( $q['s'] ) ? (string) $q['s'] : '',
 	'cat'     => ! empty( $q['cat'] ) ? (int) $q['cat'] : '',
-	'status'  => 'any' !== $status ? $status : '',
-	'f'       => array_map( 'reset', $meta ),
-	'dup'     => $dup ? 1 : '',
+	'tab'     => 'all' !== $tab ? $tab : '',
+	'img'     => $image,
+	'f'       => array_map( 'reset', $tabMeta ),
 	'orderby' => $orderby,
 	'order'   => $orderby ? $order : '',
 	'n'       => 20 !== $perPage ? $perPage : '',
@@ -51,7 +59,7 @@ $state = array_filter( array(
 	return '' !== $v && array() !== $v;
 } );
 $back     = http_build_query( array_merge( $state, array( 'paged' => $result['page'] > 1 ? $result['page'] : null ) ) );
-$filtered = ! empty( $q['s'] ) || ! empty( $q['cat'] ) || $meta || 'any' !== $status || $dup;
+$filtered = ! empty( $q['s'] ) || ! empty( $q['cat'] ) || $tabMeta || '' !== $image;
 $link     = function ( array $over ) use ( $app, $state ) {
 	return Html::url( $app->url( array_merge( $state, $over ) ) );
 };
@@ -72,11 +80,25 @@ $catOpts = function ( $selected ) use ( $tree ) {
 	$walk( 0, 0 );
 	return $html;
 };
-$status_pill = function ( $s ) use ( $app ) {
-	return 'publish' === $s
-		? '<span class="dwc-pill dwc-pill-on"><span aria-hidden="true"></span>' . Html::e( $app->t( 'Active' ) ) . '</span>'
-		: '<span class="dwc-pill dwc-pill-off"><span aria-hidden="true"></span>' . Html::e( $app->t( 'Inactive' ) ) . '</span>';
+// One status cell: the product's own status, "Hidden" when it is not on the site, and the review mark.
+$status_pill = function ( array $item, string $value ) use ( $app, $pstatus ) {
+	$html = '';
+	if ( $pstatus && '' !== $value ) {
+		$html .= '<span class="dwc-pill ' . ( 'active' === $value ? 'dwc-pill-on' : 'dwc-pill-off' ) . '"><span aria-hidden="true"></span>' . Html::e( FieldConfig::display( $pstatus, $value ) ) . '</span>';
+	} elseif ( $pstatus ) {
+		$html .= '<span class="dwc-muted">' . Html::e( $app->t( 'No status' ) ) . '</span>';
+	} elseif ( 'publish' === $item['status'] ) {
+		$html .= '<span class="dwc-pill dwc-pill-on"><span aria-hidden="true"></span>' . Html::e( $app->t( 'On the site' ) ) . '</span>';
+	}
+	if ( 'publish' !== $item['status'] ) {
+		$html .= ' <span class="dwc-pill dwc-pill-off"><span aria-hidden="true"></span>' . Html::e( $app->t( 'Hidden' ) ) . '</span>';
+	}
+	if ( ! empty( $item['review'] ) ) {
+		$html .= ' <em class="dwc-tag dwc-tag-warn">' . Html::e( $app->t( 'Review' ) ) . '</em>';
+	}
+	return $html;
 };
+$tabCount = array( 'all' => $quality['total'], 'active' => $quality['active'], 'no_status' => $quality['no_status'], 'out_of_stock' => $quality['out_of_stock'], 'hidden' => $quality['hidden'], 'review' => $quality['review'] );
 $from = $result['total'] ? ( $result['page'] - 1 ) * $perPage + 1 : 0;
 $to   = min( $result['total'], $result['page'] * $perPage );
 
@@ -98,21 +120,16 @@ if ( $canWrite ) {
 <?php echo $app->head( $app->t( 'Products' ), $actions ); ?>
 <?php include __DIR__ . '/_nav.php'; ?>
 
-<div class="dwc-stats">
-	<a class="dwc-stat" href="<?php echo Html::url( $app->url( array( 'view' => 'items', 'type' => $type ) ) ); ?>"><span><?php echo Html::e( $app->t( 'Total items' ) ); ?></span><strong><?php echo (int) $counts['total']; ?></strong></a>
-	<a class="dwc-stat" href="<?php echo Html::url( $app->url( array( 'view' => 'items', 'type' => $type, 'status' => 'publish' ) ) ); ?>"><span><?php echo Html::e( $app->t( 'Active' ) ); ?></span><strong class="dwc-ok"><?php echo (int) $counts['publish']; ?></strong></a>
-	<a class="dwc-stat" href="<?php echo Html::url( $app->url( array( 'view' => 'items', 'type' => $type, 'status' => 'draft' ) ) ); ?>"><span><?php echo Html::e( $app->t( 'Inactive' ) ); ?></span><strong><?php echo (int) $counts['draft']; ?></strong></a>
-	<?php if ( $hasCat ) : ?>
-		<a class="dwc-stat" href="<?php echo Html::url( $app->url( array( 'view' => 'categories', 'type' => $type ) ) ); ?>"><span><?php echo Html::e( $app->t( 'Categories' ) ); ?></span><strong><?php echo (int) $catStat['top']; ?> <small><?php echo Html::e( sprintf( $app->t( '/ %d sub' ), $catStat['sub'] ) ); ?></small></strong></a>
-	<?php endif; ?>
-	<?php if ( $code ) : ?>
-		<?php if ( $shared ) : ?>
-			<a class="dwc-stat dwc-stat-warn<?php echo $dup ? ' is-active' : ''; ?>" href="<?php echo Html::url( $app->url( array( 'view' => 'items', 'type' => $type, 'dup' => 1 ) ) ); ?>"><span><?php echo Html::e( $app->t( 'Needs review' ) ); ?></span><strong><?php echo count( $shared ); ?> <small><?php echo Html::e( sprintf( $app->t( 'shared %s' ), Text::lower( $code['label'] ) ) ); ?></small></strong></a>
-		<?php else : ?>
-			<div class="dwc-stat"><span><?php echo Html::e( $code['label'] ); ?></span><strong class="dwc-ok"><small><?php echo Html::e( $app->t( 'All unique' ) ); ?></small></strong></div>
-		<?php endif; ?>
-	<?php endif; ?>
-</div>
+<nav class="dwc-statustabs" aria-label="<?php echo Html::attr( $app->t( 'Product status' ) ); ?>">
+	<?php foreach ( DWCatalog\Admin\AdminApp::TABS as $key => $label ) : ?>
+		<?php
+		if ( ! $pstatus && in_array( $key, array( 'active', 'no_status', 'out_of_stock' ), true ) ) {
+			continue;
+		}
+		?>
+		<a class="<?php echo $tab === $key ? 'is-on' : ''; ?><?php echo 'review' === $key && $tabCount[ $key ] ? ' is-warn' : ''; ?>" href="<?php echo $link( array( 'tab' => 'all' === $key ? null : $key, 'paged' => null ) ); ?>"<?php echo $tab === $key ? ' aria-current="page"' : ''; ?>><?php echo Html::e( $app->t( $label ) ); ?> <span><?php echo (int) $tabCount[ $key ]; ?></span></a>
+	<?php endforeach; ?>
+</nav>
 
 <div class="dwc-panel">
 	<?php echo $app->getForm( array( 'view' => 'items', 'type' => $type ), 'class="dwc-filterbar" id="dwc-list-filter" data-dwc-autosubmit' ); ?>
@@ -120,8 +137,8 @@ if ( $canWrite ) {
 			<input type="hidden" name="orderby" value="<?php echo Html::attr( $orderby ); ?>">
 			<input type="hidden" name="order" value="<?php echo Html::attr( $order ); ?>">
 		<?php endif; ?>
-		<?php if ( $dup ) : ?>
-			<input type="hidden" name="dup" value="1">
+		<?php if ( 'all' !== $tab ) : ?>
+			<input type="hidden" name="tab" value="<?php echo Html::attr( $tab ); ?>">
 		<?php endif; ?>
 		<label class="dwc-search">
 			<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
@@ -150,10 +167,10 @@ if ( $canWrite ) {
 				<?php endforeach; ?>
 			</select>
 		<?php endif; ?>
-		<select name="status" aria-label="<?php echo Html::attr( $app->t( 'Status' ) ); ?>">
-			<option value=""><?php echo Html::e( $app->t( 'Any status' ) ); ?></option>
-			<option value="publish" <?php echo 'publish' === $status ? 'selected' : ''; ?>><?php echo Html::e( $app->t( 'Active' ) ); ?></option>
-			<option value="draft" <?php echo 'draft' === $status ? 'selected' : ''; ?>><?php echo Html::e( $app->t( 'Inactive' ) ); ?></option>
+		<select name="img" aria-label="<?php echo Html::attr( $app->t( 'Photo' ) ); ?>">
+			<option value=""><?php echo Html::e( $app->t( 'With or without photo' ) ); ?></option>
+			<option value="yes" <?php echo 'yes' === $image ? 'selected' : ''; ?>><?php echo Html::e( $app->t( 'Has a photo' ) ); ?></option>
+			<option value="no" <?php echo 'no' === $image ? 'selected' : ''; ?>><?php echo Html::e( $app->t( 'No photo' ) ); ?></option>
 		</select>
 		<button type="submit" class="dwc-btn"><?php echo Html::e( $app->t( 'Filter' ) ); ?></button>
 		<?php if ( $filtered ) : ?>
@@ -169,8 +186,28 @@ if ( $canWrite ) {
 			<div class="dwc-selbar" data-dwc-selbar hidden>
 				<strong><span data-dwc-selcount>0</span> <?php echo Html::e( $app->t( 'selected' ) ); ?></strong>
 				<?php if ( $canWrite ) : ?>
-				<button type="submit" name="bulk" value="publish" class="dwc-btn dwc-btn-outline"><?php echo Html::e( $app->t( 'Set Active' ) ); ?></button>
-				<button type="submit" name="bulk" value="draft" class="dwc-btn dwc-btn-outline"><?php echo Html::e( $app->t( 'Set Inactive' ) ); ?></button>
+					<?php if ( $pstatus ) : ?>
+						<select name="pstatus_value" class="dwc-btn-outline" data-dwc-bulkpick="pstatus" aria-label="<?php echo Html::attr( $app->t( 'Change status' ) ); ?>">
+							<option value=""><?php echo Html::e( $app->t( 'Change status…' ) ); ?></option>
+							<?php foreach ( Text::parseOptions( $pstatus['options'] ) as $val => $label ) : ?>
+								<option value="<?php echo Html::attr( $val ); ?>"><?php echo Html::e( $label ); ?></option>
+							<?php endforeach; ?>
+						</select>
+					<?php endif; ?>
+				<button type="submit" name="bulk" value="publish" class="dwc-btn dwc-btn-outline"><?php echo Html::e( $app->t( 'Show on site' ) ); ?></button>
+				<button type="submit" name="bulk" value="draft" class="dwc-btn dwc-btn-outline"><?php echo Html::e( $app->t( 'Hide from site' ) ); ?></button>
+					<?php if ( $brand ) : ?>
+						<span class="dwc-bulk-brand">
+							<input type="text" name="brand_value" <?php echo $brands ? 'list="dwc-bulk-brands"' : ''; ?> placeholder="<?php echo Html::attr( $app->t( 'Brand…' ) ); ?>" aria-label="<?php echo Html::attr( $app->t( 'Brand for the selected products' ) ); ?>">
+							<?php if ( $brands ) : ?>
+								<datalist id="dwc-bulk-brands"><?php foreach ( $brands as $b ) : ?><option value="<?php echo Html::attr( $b ); ?>"></option><?php endforeach; ?></datalist>
+							<?php endif; ?>
+							<button type="submit" name="bulk" value="brand" class="dwc-btn dwc-btn-outline"><?php echo Html::e( $app->t( 'Set brand' ) ); ?></button>
+						</span>
+					<?php endif; ?>
+					<?php if ( 'review' === $tab ) : ?>
+						<button type="submit" name="bulk" value="reviewed" class="dwc-btn dwc-btn-outline"><?php echo Html::e( $app->t( 'Mark as reviewed' ) ); ?></button>
+					<?php endif; ?>
 				<?php endif; ?>
 				<?php if ( $canWrite && $hasCat && $tree ) : ?>
 					<select name="move_cat" class="dwc-btn-outline" data-dwc-move aria-label="<?php echo Html::attr( $app->t( 'Move to category' ) ); ?>">
@@ -249,7 +286,7 @@ if ( $canWrite ) {
 									<?php $v = FieldConfig::display( $field, $c->items()->value( $id, $field['meta_key'] ) ); ?>
 									<td class="<?php echo FieldConfig::mono( $field ) ? 'dwc-mono dwc-nowrap' : ''; ?>"><?php echo Html::e( '' !== $v ? $v : '—' ); ?></td>
 								<?php endforeach; ?>
-								<td><?php echo $status_pill( $item['status'] ); ?></td>
+								<td class="dwc-nowrap"><?php echo $status_pill( $item, $psKey ? $c->items()->value( $id, $psKey ) : '' ); ?></td>
 								<td class="dwc-r dwc-nowrap">
 									<a class="dwc-rowlink" href="<?php echo Html::url( $edit ); ?>"><?php echo Html::e( $canWrite ? $app->t( 'Edit' ) : $app->t( 'Open' ) ); ?></a>
 									<?php if ( $hasBulk ) : ?>
@@ -258,9 +295,9 @@ if ( $canWrite ) {
 										<div class="dwc-menu-list">
 											<?php if ( ! $canWrite ) : ?>
 											<?php elseif ( 'publish' === $item['status'] ) : ?>
-												<button type="submit" form="dwc-row-form" name="one" value="draft:<?php echo $id; ?>"><?php echo Html::e( $app->t( 'Set Inactive' ) ); ?></button>
+												<button type="submit" form="dwc-row-form" name="one" value="draft:<?php echo $id; ?>"><?php echo Html::e( $app->t( 'Hide from site' ) ); ?></button>
 											<?php else : ?>
-												<button type="submit" form="dwc-row-form" name="one" value="publish:<?php echo $id; ?>"><?php echo Html::e( $app->t( 'Set Active' ) ); ?></button>
+												<button type="submit" form="dwc-row-form" name="one" value="publish:<?php echo $id; ?>"><?php echo Html::e( $app->t( 'Show on site' ) ); ?></button>
 											<?php endif; ?>
 											<?php if ( $canExport ) : ?>
 												<button type="submit" form="dwc-row-form" name="one" value="export:<?php echo $id; ?>"><?php echo Html::e( $app->t( 'Export CSV' ) ); ?></button>

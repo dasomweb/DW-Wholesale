@@ -71,6 +71,8 @@ require_once dwcat_get_path() . 'includes/wp/class-dwcat-wp-access.php';
 require_once dwcat_get_path() . 'includes/wp/class-dwcat-wp-admin.php';
 require_once dwcat_get_path() . 'includes/wp/class-dwcat-wp-front.php';
 require_once dwcat_get_path() . 'includes/wp/class-dwcat-wp-rest.php';
+require_once dwcat_get_path() . 'includes/wp/class-dwcat-wp-migration-source.php';
+require_once dwcat_get_path() . 'includes/wp/class-dwcat-wp-migration.php';
 
 /**
  * DASOM-Forge License SDK.
@@ -156,6 +158,7 @@ function dwcat_init() {
 	new DWCAT_WP_Admin();
 	new DWCAT_WP_Front();
 	new DWCAT_WP_Rest();
+	new DWCAT_WP_Migration();   // background run, old-URL redirects, closing the old open REST list
 	new DWCAT_License_REST();   // §3.6 SHOULD #2 진단 엔드포인트
 }
 

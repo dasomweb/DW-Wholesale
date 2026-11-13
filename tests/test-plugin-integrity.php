@@ -52,6 +52,10 @@ $required_files = array(
 	'core/src/Security/Access.php',
 	'core/src/I18n/Languages.php',
 	'core/src/I18n/FrontStrings.php',
+	'core/src/Migration/Source.php',
+	'core/src/Migration/Migrator.php',
+	'core/src/Repo/Applications.php',
+	'core/templates/admin/migration.php',
 	'core/templates/admin/dashboard.php',
 	'core/templates/admin/settings.php',
 	'core/templates/admin/access.php',
@@ -68,6 +72,8 @@ $required_files = array(
 	'includes/wp/class-dwcat-wp-admin.php',
 	'includes/wp/class-dwcat-wp-i18n.php',
 	'includes/wp/class-dwcat-wp-access.php',
+	'includes/wp/class-dwcat-wp-migration-source.php',
+	'includes/wp/class-dwcat-wp-migration.php',
 	'includes/wp/class-dwcat-wp-front.php',
 	// Translations (M9) — Korean shipped, English is the source language
 	'languages/dw-wholesale.pot',
@@ -192,6 +198,8 @@ $expected_classes = array(
 	'DWCAT_WP_Admin'           => 'wp/class-dwcat-wp-admin.php',
 	'DWCAT_WP_I18n'            => 'wp/class-dwcat-wp-i18n.php',
 	'DWCAT_WP_Access'          => 'wp/class-dwcat-wp-access.php',
+	'DWCAT_WP_Migration_Source' => 'wp/class-dwcat-wp-migration-source.php',
+	'DWCAT_WP_Migration'       => 'wp/class-dwcat-wp-migration.php',
 	'DWCAT_WP_Front'           => 'wp/class-dwcat-wp-front.php',
 	'DWCAT_WP_Rest'            => 'wp/class-dwcat-wp-rest.php',
 );
@@ -338,6 +346,22 @@ assert_true( strpos( $main_file, 'class-dw-license-manager.php' ) !== false, 'Ma
 assert_true( strpos( $main_file, 'class-dw-forge-client.php' ) !== false, 'Main file loads Forge Client' );
 assert_true( strpos( $main_file, 'license/gates.php' ) !== false, 'Main file loads license gates' );
 assert_true( strpos( $main_file, 'DW_DWCAT_License_Manager::init' ) !== false, 'Main file calls DW_DWCAT_License_Manager::init()' );
+
+// Migration (M1) — safety properties that must not regress
+$mig_core = (string) file_get_contents( "$plugin_root/core/src/Migration/Migrator.php" );
+$mig_src  = (string) file_get_contents( "$plugin_root/includes/wp/class-dwcat-wp-migration-source.php" );
+$mig_wp   = (string) file_get_contents( "$plugin_root/includes/wp/class-dwcat-wp-migration.php" );
+$wp_admin = (string) file_get_contents( "$plugin_root/includes/wp/class-dwcat-wp-admin.php" );
+$wp_host  = (string) file_get_contents( "$plugin_root/includes/wp/class-dwcat-wp-host.php" );
+assert_true( ! preg_match( '/\b(wp_delete_post|wp_delete_term|wp_delete_attachment|delete_post_meta|update_post_meta|wp_trash_post|DROP\s+TABLE|DELETE\s+FROM|UPDATE\s+\{|\$wpdb->(delete|update|insert|replace)\b)/i', $mig_src ), 'migration source never deletes or changes the original data' );
+assert_true( 2 === substr_count( $mig_src, 'wp_update_post(' ), 'migration source writes only in replacePage / restorePage' );
+assert_true( false === strpos( $mig_core, 'wpdb' ) && false === strpos( $mig_core, 'get_option' ), 'migrator (core) is WordPress-free' );
+assert_true( false !== strpos( $wp_admin, "'migrate'       => 'dwcat_can_bulk_import'" ), 'migration actions are behind the import license gate' );
+assert_true( false !== strpos( $mig_wp, 'dwcat_can_bulk_import()' ), 'background migration tick checks the license gate' );
+assert_true( false !== strpos( $mig_wp, "current_user_can( 'edit_posts' )" ) && false !== strpos( $mig_wp, 'rest_pre_dispatch' ), 'old open REST list is closed to visitors' );
+assert_true( false !== strpos( $wp_host, 'Require all denied' ) && false !== strpos( $wp_host, 'dw-wholesale-private' ), 'private directory is protected' );
+assert_true( false !== strpos( (string) file_get_contents( "$plugin_root/core/src/Repo/Applications.php" ), "random_bytes( 20 ) ) . '.bin'" ), 'attachments are stored under random names without their extension' );
+assert_true( false !== strpos( (string) file_get_contents( "$plugin_root/uninstall.php" ), 'dw-wholesale-private' ), 'uninstall removes the private files' );
 
 // SPA Integration
 $spa_file = file_get_contents( "$plugin_root/includes/wp/class-dwcat-wp-rest.php" );

@@ -66,7 +66,7 @@ class AdminApp {
 	);
 
 	/** Screens of later phases (shown as a short "coming" card until built). */
-	const PLACEHOLDERS = array( 'customers', 'migration', 'presets' );
+	const PLACEHOLDERS = array( 'customers', 'presets' );
 
 	/**
 	 * do => [ menu, minimum level, action permission or '', host feature ].
@@ -88,6 +88,18 @@ class AdminApp {
 		'save_access'   => array( 'access', Access::EDIT, '', 'admin' ),
 		'reset_access'  => array( 'access', Access::EDIT, '', 'admin' ),
 		'set_lang'      => array( '', Access::VIEW, '', 'admin' ),
+		'migrate'       => array( 'migration', Access::EDIT, '', 'import' ), // op = see migrate()
+		'check_code'    => array( 'products', Access::VIEW, '', 'admin' ),
+	);
+
+	/** Product list tabs (M2). */
+	const TABS = array(
+		'all'          => 'All',
+		'active'       => 'Active',
+		'no_status'    => 'No status',
+		'out_of_stock' => 'Out of stock',
+		'hidden'       => 'Hidden',
+		'review'       => 'Needs review',
 	);
 
 	const NOTICES = array(
@@ -96,6 +108,7 @@ class AdminApp {
 		'imported'  => 'Import finished.',
 		'not_found' => 'Item not found.',
 		'invalid'   => 'Please check the form — some values were not accepted.',
+		'rolled'    => 'The migration was undone. The original data was not touched.',
 	);
 
 	public function __construct( Catalog $c ) {
@@ -156,6 +169,9 @@ class AdminApp {
 			case 'items':
 				$vars += $this->itemsData( $type, $q );
 				break;
+			case 'migration':
+				$vars += $this->migrationData( $q );
+				break;
 			case 'edit':
 				$id   = isset( $q['id'] ) ? (int) $q['id'] : 0;
 				$item = $id ? $this->c->items()->get( $id ) : null;
@@ -184,11 +200,36 @@ class AdminApp {
 	private function dashboardData( string $type ): array {
 		$stats = new ItemStats( $this->c );
 		$code  = $this->c->fields()->roleField( $type, 'code', false );
+		$migrator = $this->access()->canView( 'migration' ) ? $this->c->migrator() : null;
 		return array(
-			'counts'  => $stats->counts( $type ),
-			'catStat' => $stats->categoryCounts( $type ),
-			'shared'  => $code ? $stats->shared( $type, $code['meta_key'] ) : array(),
+			'counts'       => $stats->counts( $type ),
+			'catStat'      => $stats->categoryCounts( $type ),
+			'shared'       => $code ? $stats->shared( $type, $code['meta_key'] ) : array(),
+			'quality'      => $stats->quality( $type ),
+			'applications' => $this->c->applications()->count(),
+			'pages'        => $this->c->host()->catalogPages(),
+			'migration'    => $migrator ? $migrator->source()->detect() : null,
+			'migrated'     => $migrator ? $migrator->hasData() : false,
 		);
+	}
+
+	/** Which step of the migration screen to show, and what it needs. */
+	private function migrationData( array $q ): array {
+		$m = $this->c->migrator();
+		if ( ! $m ) {
+			return array( 'm' => null, 'step' => 'detect' );
+		}
+		$steps = array( 'detect', 'mapping', 'groups', 'check', 'run', 'finish', 'rollback' );
+		$step  = isset( $q['step'] ) && in_array( $q['step'], $steps, true ) ? $q['step'] : 'detect';
+		$vars  = array( 'm' => $m, 'step' => $step, 'steps' => $steps, 'state' => $m->state(), 'detect' => $m->source()->detect() );
+		if ( 'check' === $step ) {
+			$vars['report'] = $m->dryRun();
+		} elseif ( 'run' === $step && 'done' === $vars['state']['run']['status'] ) {
+			$vars['compare'] = $m->compare();
+		} elseif ( 'finish' === $step ) {
+			$vars['pages'] = $m->pages();
+		}
+		return $vars;
 	}
 
 	const PER_PAGE = array( 10, 20, 50, 100 );
@@ -211,19 +252,39 @@ class AdminApp {
 			$sort = 'date_desc';
 		}
 		$status  = isset( $q['status'] ) && in_array( $q['status'], array( 'publish', 'draft' ), true ) ? $q['status'] : 'any';
+		// Tabs. Older links (?dup=1, ?status=draft) open the matching tab.
+		$tab = isset( $q['tab'] ) && isset( self::TABS[ $q['tab'] ] ) ? $q['tab'] : 'all';
+		if ( 'all' === $tab && ! empty( $q['dup'] ) ) {
+			$tab = 'review';
+		} elseif ( 'all' === $tab && 'draft' === $status ) {
+			$tab = 'hidden';
+		}
+		$pstatus = $this->c->fields()->roleField( $type, 'status', false );
+		$empty   = array();
+		if ( $pstatus && in_array( $tab, array( 'active', 'out_of_stock' ), true ) ) {
+			$meta[ $pstatus['meta_key'] ] = array( $tab );
+		} elseif ( $pstatus && 'no_status' === $tab ) {
+			$empty[] = $pstatus['meta_key'];
+		} elseif ( 'hidden' === $tab ) {
+			$status = 'draft';
+		}
+		$image = isset( $q['img'] ) && in_array( $q['img'], array( 'yes', 'no' ), true ) ? $q['img'] : '';
 		$perPage = isset( $q['n'] ) && in_array( (int) $q['n'], self::PER_PAGE, true ) ? (int) $q['n'] : 20;
 		$code    = $this->c->fields()->roleField( $type, 'code', false );
 		$brand   = $this->c->fields()->roleField( $type, 'brand', false );
 		$stats   = new ItemStats( $this->c );
 		$shared  = $code ? $stats->shared( $type, $code['meta_key'] ) : array();
-		$dup     = $code && ! empty( $q['dup'] );
+		$dup     = 'review' === $tab;
 		$result  = $this->c->query()->run( $type, array(
 			'search'   => isset( $q['s'] ) ? (string) $q['s'] : '',
 			'cats'     => ! empty( $q['cat'] ) ? array( (int) $q['cat'] ) : array(),
 			'meta'     => $meta,
 			'sort'     => $sort,
 			'status'   => $status,
-			'shared'   => $dup ? $code['meta_key'] : '',
+			'shared'   => $dup && $code ? $code['meta_key'] : '',
+			'review'   => $dup,
+			'empty'    => $empty,
+			'image'    => $image,
 			'page'     => isset( $q['paged'] ) ? (int) $q['paged'] : 1,
 			'per_page' => $perPage,
 		) );
@@ -245,6 +306,10 @@ class AdminApp {
 			'counts'  => $stats->counts( $type ),
 			'catStat' => $stats->categoryCounts( $type ),
 			'brands'  => $brand && 'select' !== $brand['type'] ? $stats->distinct( $type, $brand['meta_key'] ) : array(),
+			'tab'     => $tab,
+			'quality' => $stats->quality( $type ),
+			'pstatus' => $pstatus,
+			'image'   => $image,
 		);
 	}
 
@@ -258,6 +323,7 @@ class AdminApp {
 			'code'     => $code,
 			'brand'    => $brand,
 			'codeUsed' => $code ? $stats->usedBy( $type, $code['meta_key'], $value, $id ) : array(),
+			'oldUrl'   => $this->oldUrl( $id ),
 			'brands'   => $brand && 'select' !== $brand['type'] ? $stats->distinct( $type, $brand['meta_key'] ) : array(),
 		);
 	}
@@ -351,6 +417,15 @@ class AdminApp {
 			case 'reset_access':
 				$access->reset();
 				return $this->redirect( array( 'view' => 'access', 'msg' => 'saved' ) );
+			case 'migrate':
+				return $this->migrate( $post );
+			case 'check_code':
+				$field = $this->c->fields()->roleField( $type, 'code', false );
+				$value = Text::line( isset( $post['code'] ) ? $post['code'] : '', 191 );
+				$used  = $field ? ( new ItemStats( $this->c ) )->usedBy( $type, $field['meta_key'], $value, isset( $post['id'] ) ? (int) $post['id'] : 0 ) : array();
+				return array( 'json' => array( 'used' => array_map( function ( $r ) use ( $type ) {
+					return array( 'title' => (string) $r['title'], 'url' => $this->url( array( 'view' => 'edit', 'type' => $type, 'id' => (int) $r['id'] ) ) );
+				}, $used ) ) );
 			case 'set_lang':
 				$lang = isset( $post['lang'] ) && is_string( $post['lang'] ) && isset( Languages::AVAILABLE[ $post['lang'] ] ) ? $post['lang'] : '';
 				$this->c->host()->setUserMeta( Languages::USER_PREF, $lang );
@@ -359,7 +434,87 @@ class AdminApp {
 		throw new Forbidden( 'Unknown action.' );
 	}
 
-	/** Bulk / row actions on the item list: publish, draft, move, export, delete. */
+	/** Address this product had before the migration ('' when it was not migrated). */
+	private function oldUrl( int $id ): string {
+		$m    = $id ? $this->c->migrator() : null;
+		$slug = $m ? $m->oldSlugOf( $id ) : '';
+		return '' !== $slug ? $m->source()->oldUrl( $slug ) : '';
+	}
+
+	/**
+	 * Migration steps. op: mapping · groups · reset_groups · choices · csv · start · batch · pause ·
+	 * resume · pages · flags · rollback. batch / rollback answer JSON (the screen calls them in a loop).
+	 */
+	private function migrate( array $post ): array {
+		$m = $this->c->migrator();
+		if ( ! $m ) {
+			throw new Forbidden( $this->t( 'There is nothing to migrate on this site.' ) );
+		}
+		$op   = isset( $post['op'] ) && is_string( $post['op'] ) ? $post['op'] : '';
+		$arr  = function ( string $key ) use ( $post ) {
+			return isset( $post[ $key ] ) && is_array( $post[ $key ] ) ? $post[ $key ] : array();
+		};
+		$step = function ( string $step, string $msg = 'saved' ) {
+			return $this->redirect( array( 'view' => 'migration', 'step' => $step, 'msg' => $msg ) );
+		};
+		switch ( $op ) {
+			case 'mapping':
+				$warnings = $m->saveMapping( $arr( 'map' ) );
+				if ( $warnings ) {
+					$this->flash( $warnings );
+					return $step( 'mapping', 'invalid' );
+				}
+				return $step( 'groups' );
+			case 'groups':
+				$m->saveGroups( $arr( 'names' ), $arr( 'assign' ) );
+				return $step( empty( $post['stay'] ) ? 'check' : 'groups' );
+			case 'reset_groups':
+				$m->resetGroups();
+				return $step( 'groups' );
+			case 'choices':
+				$m->saveChoices( $arr( 'choices' ) );
+				return $step( 'check' );
+			case 'csv':
+				return array( 'download' => array( 'migration-check.csv', 'text/csv; charset=utf-8', $m->dryRunCsv() ) );
+			case 'start':
+				$m->start();
+				return $step( 'run', '' );
+			case 'pause':
+				$m->pause();
+				return array( 'json' => $this->runJson( $m->state()['run'] ) );
+			case 'resume':
+				$m->resume();
+				return array( 'json' => $this->runJson( $m->state()['run'] ) );
+			case 'batch':
+				return array( 'json' => $this->runJson( $m->batch() ) );
+			case 'pages':
+				$m->replacePages( $arr( 'pages' ) );
+				return $step( 'finish' );
+			case 'flags':
+				$m->setFinish( 'redirects', ! empty( $post['redirects'] ) );
+				$m->setFinish( 'rest_block', ! empty( $post['rest_block'] ) );
+				return $step( 'finish' );
+			case 'rollback':
+				$left = $m->rollbackBatch();
+				return array( 'json' => array( 'left' => $left, 'done' => 0 === $left ) );
+		}
+		throw new Forbidden( 'Unknown action.' );
+	}
+
+	/** Run state for the progress screen (no internal id lists). */
+	private function runJson( array $run ): array {
+		return array(
+			'status' => $run['status'],
+			'stage'  => $run['stage'],
+			'done'   => (int) $run['done'],
+			'total'  => (int) $run['total'],
+			'counts' => $run['counts'],
+			'errors' => array_slice( $run['errors'], -20 ),
+			'busy'   => ! empty( $run['busy'] ),
+		);
+	}
+
+	/** Bulk / row actions on the item list: status, visibility, category, brand, export, delete. */
 	private function bulk( string $type, array $post ): array {
 		$action = isset( $post['bulk'] ) ? (string) $post['bulk'] : '';
 		$ids    = isset( $post['ids'] ) ? (array) $post['ids'] : array();
@@ -384,6 +539,19 @@ class AdminApp {
 			case 'publish':
 			case 'draft':
 				$this->c->items()->setStatus( $valid, $action );
+				break;
+			case 'pstatus':
+			case 'brand':
+				$field = $this->c->fields()->roleField( $type, 'pstatus' === $action ? 'status' : 'brand', false );
+				$value = $field ? FieldConfig::sanitizeValue( $field, isset( $post[ $action . '_value' ] ) ? $post[ $action . '_value' ] : '' ) : '';
+				if ( ! $field || '' === $value ) {
+					$msg = 'invalid';
+					break;
+				}
+				$this->c->items()->setValue( $valid, $field['meta_key'], $value );
+				break;
+			case 'reviewed':
+				$this->c->items()->setReview( $valid, '' );
 				break;
 			case 'move':
 				$term = $this->c->terms()->get( $type, isset( $post['move_cat'] ) ? (int) $post['move_cat'] : 0 );
@@ -422,7 +590,7 @@ class AdminApp {
 	private function listState( string $qs, string $type ): array {
 		parse_str( $qs, $in );
 		$out = array( 'view' => 'items', 'type' => $type );
-		foreach ( array( 's', 'cat', 'status', 'orderby', 'order', 'n', 'paged', 'dup' ) as $k ) {
+		foreach ( array( 's', 'cat', 'status', 'orderby', 'order', 'n', 'paged', 'dup', 'tab', 'img' ) as $k ) {
 			if ( isset( $in[ $k ] ) && is_scalar( $in[ $k ] ) && '' !== (string) $in[ $k ] ) {
 				$out[ $k ] = Text::line( (string) $in[ $k ], 100 );
 			}
@@ -591,6 +759,13 @@ class AdminApp {
 			'Optimizing photos…',
 			'%1$d photo(s): %2$s → %3$s',
 			'Preset removed. Saved fields are unchanged.',
+			'Also used by:',
+			'Unique — no other item uses this code.',
+			'Paused.',
+			'Working…',
+			'Finished.',
+			'Something went wrong. Reload the page and continue — nothing is lost.',
+			'Undoing… %d left',
 			'%1$s: %2$d fields added, %3$d already existed, %4$d variation columns added. Pick another type to switch, or click it again to undo. Click "Save fields" to keep.',
 		) as $s ) {
 			$out[ $s ] = $this->t( $s );

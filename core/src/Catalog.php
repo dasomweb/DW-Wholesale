@@ -96,6 +96,20 @@ class Catalog {
 		} );
 	}
 
+	public function applications(): Repo\Applications {
+		return $this->service( 'applications', function () {
+			return new Repo\Applications( $this->db, $this->host );
+		} );
+	}
+
+	/** Migration from the older catalog on this site; null when the host has no source. */
+	public function migrator(): ?Migration\Migrator {
+		return $this->service( 'migrator', function () {
+			$source = $this->host->migrationSource();
+			return $source ? new Migration\Migrator( $this, $source ) : false;
+		} ) ?: null;
+	}
+
 	public function query(): CatalogQuery {
 		return $this->service( 'query', function () {
 			return new CatalogQuery( $this->db, $this->fields(), $this->items(), $this->terms(), $this->settings(), $this->host );

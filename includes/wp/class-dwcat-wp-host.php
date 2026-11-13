@@ -137,6 +137,43 @@ class DWCAT_WP_Host implements \DWCatalog\Host\Host {
 		return rtrim( set_url_scheme( $up['baseurl'] ), '/' ) . '/dw-catalog';
 	}
 
+	/**
+	 * Files that must not be reachable by URL (application attachments). Web servers are told to
+	 * refuse the directory, and the files themselves carry random names without their extension, so
+	 * a server that ignores .htaccess still gives nothing away.
+	 */
+	public function privateDir(): string {
+		$up  = wp_upload_dir( null, false );
+		$dir = rtrim( $up['basedir'], '/\\' ) . '/dw-wholesale-private';
+		if ( ! is_dir( $dir ) ) {
+			wp_mkdir_p( $dir );
+		}
+		if ( is_dir( $dir ) && ! is_file( $dir . '/.htaccess' ) ) {
+			@file_put_contents( $dir . '/.htaccess', "Require all denied\n<IfModule !mod_authz_core.c>\nDeny from all\n</IfModule>\n" ); // phpcs:ignore
+			@file_put_contents( $dir . '/index.html', '' ); // phpcs:ignore
+			@file_put_contents( $dir . '/web.config', '<?xml version="1.0"?><configuration><system.web><authorization><deny users="*"/></authorization></system.web></configuration>' ); // phpcs:ignore
+		}
+		return $dir;
+	}
+
+	/** The older catalog on this site (DW Product Catalog posts), if there is one. */
+	public function migrationSource(): ?\DWCatalog\Migration\Source {
+		return DWCAT_WP_Migration_Source::exists() ? new DWCAT_WP_Migration_Source() : null;
+	}
+
+	/** Pages that carry a catalog shortcode. */
+	public function catalogPages(): array {
+		global $wpdb;
+		$out  = array();
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT ID, post_title, post_content FROM {$wpdb->posts} WHERE post_type IN ('page','post') AND post_status = 'publish' AND post_content LIKE %s ORDER BY menu_order ASC, ID ASC LIMIT 30", '%' . $wpdb->esc_like( '[dw_catalog' ) . '%' ) );
+		foreach ( (array) $rows as $row ) {
+			if ( preg_match( '/\[dw_catalog[^\]]*\]/', (string) $row->post_content, $m ) ) {
+				$out[] = array( 'title' => (string) $row->post_title, 'url' => (string) get_permalink( (int) $row->ID ), 'edit_url' => (string) get_edit_post_link( (int) $row->ID, 'raw' ), 'shortcode' => $m[0] );
+			}
+		}
+		return $out;
+	}
+
 	public function adminUrl( array $params = array() ): string {
 		$params = array_filter( $params, function ( $v ) {
 			return null !== $v && '' !== $v;

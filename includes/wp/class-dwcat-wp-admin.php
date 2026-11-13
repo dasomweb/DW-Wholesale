@@ -32,6 +32,8 @@ class DWCAT_WP_Admin {
 		'save_access'   => 'dwcat_can_render_admin',
 		'reset_access'  => 'dwcat_can_render_admin',
 		'set_lang'      => 'dwcat_can_render_admin',
+		'migrate'       => 'dwcat_can_bulk_import',
+		'check_code'    => 'dwcat_can_render_admin',
 	);
 
 	/** @var string hook suffix of the plugin page */
@@ -197,6 +199,13 @@ class DWCAT_WP_Admin {
 			$result = dwcat()->admin()->handle( wp_unslash( $_POST ), $_FILES ); // phpcs:ignore WordPress.Security.NonceVerification
 		} catch ( \DWCatalog\Admin\Forbidden $e ) {
 			wp_die( esc_html( $e->getMessage() ), 403 );
+		}
+		if ( 'migrate' === $do ) {
+			DWCAT_WP_Migration::after_action(); // mirror the switches, keep the background run going
+		}
+		if ( isset( $result['json'] ) ) {
+			nocache_headers();
+			wp_send_json( $result['json'] );
 		}
 		if ( isset( $result['download'] ) ) {
 			list( $name, $mime, $body ) = $result['download'];

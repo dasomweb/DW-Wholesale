@@ -54,7 +54,10 @@ class CatalogQuery {
 	/**
 	 * @param array $f search, cats[], base_cat, meta[key => values[]], sort, public, status
 	 *                 ('publish' | 'draft' | 'any'), page, per_page, ids[],
-	 *                 shared (admin only: field key — items whose value is used by another item too)
+	 *                 shared (admin only: field key — items whose value is used by another item too),
+	 *                 empty[] (admin only: field keys that must have no value),
+	 *                 review (admin only: flagged for review, or sharing the `shared` field's value),
+	 *                 image ('yes' | 'no': has / has no photo)
 	 * @return array rows, total, pages, page
 	 */
 	public function run( string $type, array $f ): array {
@@ -70,6 +73,9 @@ class CatalogQuery {
 			'per_page' => 20,
 			'ids'      => array(),
 			'shared'   => '',
+			'empty'    => array(),
+			'review'   => false,
+			'image'    => '',
 		), $f );
 
 		$public  = (bool) $f['public'];
@@ -127,12 +133,26 @@ class CatalogQuery {
 
 		// Values shared by several items of this type (e.g. duplicate item codes) — admin review
 		if ( ! $public && '' !== (string) $f['shared'] && isset( $allowed[ $f['shared'] ] ) ) {
-			$where[]  = 'i.id IN (SELECT v.item_id FROM ' . $t( 'values' ) . ' v WHERE v.field_key = ? AND v.value_idx IN ('
+			$sharedSql = 'i.id IN (SELECT v.item_id FROM ' . $t( 'values' ) . ' v WHERE v.field_key = ? AND v.value_idx IN ('
 				. 'SELECT d.value_idx FROM ' . $t( 'values' ) . ' d INNER JOIN ' . $t( 'items' ) . ' di ON di.id = d.item_id AND di.type = ?'
 				. ' WHERE d.field_key = ? GROUP BY d.value_idx HAVING COUNT(*) > 1))';
-			$params[] = $f['shared'];
-			$params[] = $type;
-			$params[] = $f['shared'];
+			$where[]   = $f['review'] ? "(i.review <> '' OR $sharedSql)" : $sharedSql;
+			$params[]  = $f['shared'];
+			$params[]  = $type;
+			$params[]  = $f['shared'];
+		} elseif ( ! $public && $f['review'] ) {
+			$where[] = "i.review <> ''";
+		}
+		if ( ! $public ) {
+			foreach ( array_slice( (array) $f['empty'], 0, 5 ) as $key ) {
+				if ( isset( $allowed[ $key ] ) ) {
+					$where[]  = 'i.id NOT IN (SELECT item_id FROM ' . $t( 'values' ) . ' WHERE field_key = ?)';
+					$params[] = $key;
+				}
+			}
+		}
+		if ( 'yes' === $f['image'] || 'no' === $f['image'] ) {
+			$where[] = 'i.id ' . ( 'no' === $f['image'] ? 'NOT ' : '' ) . 'IN (SELECT item_id FROM ' . $t( 'images' ) . ')';
 		}
 
 		$whereSql = ' WHERE ' . implode( ' AND ', $where );

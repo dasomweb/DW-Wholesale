@@ -1097,6 +1097,498 @@ msgstr ""
 msgid "License"
 msgstr ""
 
+msgid "%d products have no status."
+msgstr ""
+
+msgid "%d item codes are used by more than one product."
+msgstr ""
+
+msgid "%d products have no brand."
+msgstr ""
+
+msgid "%d products have no photo."
+msgstr ""
+
+msgid "%d categories have no products."
+msgstr ""
+
+msgid "On the site"
+msgstr ""
+
+msgid "Data quality"
+msgstr ""
+
+msgid "Catalog pages"
+msgstr ""
+
+msgid "No page shows the catalog yet. Put a shortcode on a page to publish it."
+msgstr ""
+
+msgid "Paused."
+msgstr ""
+
+msgid "Working…"
+msgstr ""
+
+msgid "Finished."
+msgstr ""
+
+msgid "Something went wrong. Reload the page and continue — nothing is lost."
+msgstr ""
+
+msgid "Undoing… %d left"
+msgstr ""
+
+msgid "Product status"
+msgstr ""
+
+msgid "No status"
+msgstr ""
+
+msgid "Out of stock"
+msgstr ""
+
+msgid "Photo"
+msgstr ""
+
+msgid "With or without photo"
+msgstr ""
+
+msgid "Has a photo"
+msgstr ""
+
+msgid "No photo"
+msgstr ""
+
+msgid "Change status"
+msgstr ""
+
+msgid "Change status…"
+msgstr ""
+
+msgid "Show on site"
+msgstr ""
+
+msgid "Hide from site"
+msgstr ""
+
+msgid "Brand…"
+msgstr ""
+
+msgid "Brand for the selected products"
+msgstr ""
+
+msgid "Set brand"
+msgstr ""
+
+msgid "Find"
+msgstr ""
+
+msgid "Groups"
+msgstr ""
+
+msgid "Check"
+msgstr ""
+
+msgid "Run"
+msgstr ""
+
+msgid "Finish"
+msgstr ""
+
+msgid "There is nothing to migrate on this site."
+msgstr ""
+
+msgid "The migration was undone. The original data was not touched."
+msgstr ""
+
+msgid "Migration steps"
+msgstr ""
+
+msgid "The original products, categories and applications are only read. Nothing of the original is changed or deleted, and everything this migration creates can be undone."
+msgstr ""
+
+msgid "What was found on this site"
+msgstr ""
+
+msgid "Source"
+msgstr ""
+
+msgid "Found"
+msgstr ""
+
+msgid "Count"
+msgstr ""
+
+msgid "Products (DW Product Catalog)"
+msgstr ""
+
+msgid "%1$d visible, %2$d hidden, %3$d with a photo"
+msgstr ""
+
+msgid "Applications (DW Wholesale Customer Management)"
+msgstr ""
+
+msgid "Registered users (DW Admin)"
+msgstr ""
+
+msgid "Listed here only. Accounts are connected to customers in the customer phase."
+msgstr ""
+
+msgid "Yes"
+msgstr ""
+
+msgid "No"
+msgstr ""
+
+msgid "Next: fields"
+msgstr ""
+
+msgid "Where each field goes"
+msgstr ""
+
+msgid "Each field of the older catalog is copied into the field you pick. Fields marked Private are never shown on the site."
+msgstr ""
+
+msgid "Old field"
+msgstr ""
+
+msgid "Goes into"
+msgstr ""
+
+msgid "— Do not import —"
+msgstr ""
+
+msgid "Private"
+msgstr ""
+
+msgid "Product description (always copied)"
+msgstr ""
+
+msgid "Main photo"
+msgstr ""
+
+msgid "Product photo, converted to WebP where the server can"
+msgstr ""
+
+msgid "Save and continue"
+msgstr ""
+
+msgid "Category groups"
+msgstr ""
+
+msgid "Groups were read from the filter settings of the catalog pages. A category in no group is placed under \"Uncategorized\". Change anything that is not right."
+msgstr ""
+
+msgid "Group name"
+msgstr ""
+
+msgid "%d categories"
+msgstr ""
+
+msgid "New group"
+msgstr ""
+
+msgid "Add a group…"
+msgstr ""
+
+msgid "Group"
+msgstr ""
+
+msgid "Group of %s"
+msgstr ""
+
+msgid "Uncategorized"
+msgstr ""
+
+msgid "Read the groups from the pages again"
+msgstr ""
+
+msgid "Products with no status"
+msgstr ""
+
+msgid "Leave empty"
+msgstr ""
+
+msgid "Set to Active"
+msgstr ""
+
+msgid "Hide from the site"
+msgstr ""
+
+msgid "Products sharing an item code"
+msgstr ""
+
+msgid "Keep all and mark for review"
+msgstr ""
+
+msgid "Keep only the latest"
+msgstr ""
+
+msgid "Addresses ending in \"-1\""
+msgstr ""
+
+msgid "Leave as they are"
+msgstr ""
+
+msgid "Tidy with the item code"
+msgstr ""
+
+msgid "No brand"
+msgstr ""
+
+msgid "Hidden in the old catalog"
+msgstr ""
+
+msgid "In no category"
+msgstr ""
+
+msgid "Categories with no products"
+msgstr ""
+
+msgid "Categories in no group"
+msgstr ""
+
+msgid "Will be moved"
+msgstr ""
+
+msgid "Will be skipped"
+msgstr ""
+
+msgid "in %d groups"
+msgstr ""
+
+msgid "Photos"
+msgstr ""
+
+msgid "Check before anything is written"
+msgstr ""
+
+msgid "Nothing has been written yet. Choose how each problem is handled; the numbers above follow your choices."
+msgstr ""
+
+msgid "Problem"
+msgstr ""
+
+msgid "What to do"
+msgstr ""
+
+msgid "Moved as it is — fix later in Products"
+msgstr ""
+
+msgid "Apply choices"
+msgstr ""
+
+msgid "Download the check as CSV"
+msgstr ""
+
+msgid "Start the migration with these choices?"
+msgstr ""
+
+msgid "Run again (updates, no duplicates)"
+msgstr ""
+
+msgid "Start the migration"
+msgstr ""
+
+msgid "Products per category"
+msgstr ""
+
+msgid "Old catalog"
+msgstr ""
+
+msgid "Created"
+msgstr ""
+
+msgid "Updated"
+msgstr ""
+
+msgid "Skipped"
+msgstr ""
+
+msgid "Photo problems"
+msgstr ""
+
+msgid "Attachments"
+msgstr ""
+
+msgid "50 records at a time. You can pause, close this page and continue later — it goes on in the background and never creates a record twice."
+msgstr ""
+
+msgid "Migration progress"
+msgstr ""
+
+msgid "Result: old catalog and new catalog side by side"
+msgstr ""
+
+msgid "Expected"
+msgstr ""
+
+msgid "Moved"
+msgstr ""
+
+msgid "Same"
+msgstr ""
+
+msgid "Different"
+msgstr ""
+
+msgid "Next: finish"
+msgstr ""
+
+msgid "Open Products"
+msgstr ""
+
+msgid "1. Replace the page blocks"
+msgstr ""
+
+msgid "Each catalog page gets a shortcode in place of its query block. The page as it is now is kept, and Undo puts it back."
+msgstr ""
+
+msgid "Page"
+msgstr ""
+
+msgid "Shortcode it gets"
+msgstr ""
+
+msgid "State"
+msgstr ""
+
+msgid "%d block(s) to replace"
+msgstr ""
+
+msgid "Replace the blocks on the selected pages?"
+msgstr ""
+
+msgid "Replace on the selected pages"
+msgstr ""
+
+msgid "Replaced"
+msgstr ""
+
+msgid "No page with a query block was found."
+msgstr ""
+
+msgid "2. Old addresses and the open product list"
+msgstr ""
+
+msgid "Send old product addresses to the new ones (301)"
+msgstr ""
+
+msgid "Visitors and search engines following an old link land on the same product."
+msgstr ""
+
+msgid "Close the open product list of the old catalog"
+msgstr ""
+
+msgid "Until now anyone could read every product through the site's data address. Only signed-in staff can after this."
+msgstr ""
+
+msgid "3. Switch off the older plugins"
+msgstr ""
+
+msgid "When the pages look right, switch off DW Product Catalog and DW Wholesale Customer Management on the Plugins screen. Do not delete them until you are sure: Undo needs their data to still be there."
+msgstr ""
+
+msgid "Undo the migration"
+msgstr ""
+
+msgid "This deletes the products, photos, categories and applications this migration created, puts the replaced pages back, and switches the redirects off. Products you added yourself and the original data stay."
+msgstr ""
+
+msgid "Undo the migration? Everything it created is deleted."
+msgstr ""
+
+msgid "There is nothing to undo."
+msgstr ""
+
+msgid "Review"
+msgstr ""
+
+msgid "Mark as reviewed"
+msgstr ""
+
+msgid "Old address:"
+msgstr ""
+
+msgid "this product"
+msgstr ""
+
+msgid "%s holds internal notes, so it cannot go into a field visitors can see. It is not imported until you pick a private field."
+msgstr ""
+
+msgid "%1$d created, %2$d updated, %3$d skipped, %4$d failed."
+msgstr ""
+
+msgid "An older catalog with %d products was found on this site."
+msgstr ""
+
+msgid "CSV must contain a \"title\" or \"slug\" column."
+msgstr ""
+
+msgid "Continue"
+msgstr ""
+
+msgid "Could not open file."
+msgstr ""
+
+msgid "Could not read CSV headers."
+msgstr ""
+
+msgid "File upload failed."
+msgstr ""
+
+msgid "Go to the check"
+msgstr ""
+
+msgid "No products of the older catalog were found, so there is nothing to move."
+msgstr ""
+
+msgid "Nothing needs attention."
+msgstr ""
+
+msgid "Open Migration"
+msgstr ""
+
+msgid "Pause"
+msgstr ""
+
+msgid "Row %d: %s"
+msgstr ""
+
+msgid "Row %d: image skipped — %s"
+msgstr ""
+
+msgid "Row %d: slug or title is required."
+msgstr ""
+
+msgid "Sorry, you are not allowed to do that."
+msgstr ""
+
+msgid "Stopped after %d rows — split larger files."
+msgstr ""
+
+msgid "The migration has not been started. Go through the check first."
+msgstr ""
+
+msgid "Image file is missing."
+msgstr ""
+
+msgid "Application not found."
+msgstr ""
+
+msgid "This file type is not accepted."
+msgstr ""
+
+msgid "The file is missing or too large (max 15 MB)."
+msgstr ""
+
+msgid "Could not store the file."
+msgstr ""
+
+msgid "Storage directory is not writable."
+msgstr ""
+
 #. License SDK (Korean source)
 msgid "SDK 가 손상되었습니다 (필수 메서드 누락). 정상 버전으로 재설치해주세요."
 msgstr ""

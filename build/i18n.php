@@ -68,10 +68,13 @@ function dwcat_i18n_extract( ?array $files = null ): array {
 	$wpx  = '/\b_x\(\s*' . $lit . '\s*,\s*' . $lit . '\s*,\s*[\'"]' . DWCAT_I18N_DOMAIN . '[\'"]/s';
 	$wpn  = '/\b_n\(\s*' . $lit . '\s*,\s*' . $lit . '\s*,/s';
 	$core = '/(?:->t|->translate|->frontText|\bT)\(\s*' . $lit . '\s*[,)]/s';
+	// Shorthand  $t( '…' )  (templates: Html::e( $app->t( … ) ); Importer: [ $catalog, 't' ]).
+	$tpl  = '/\$t\(\s*' . $lit . '\s*[,)]/s';
 	foreach ( null === $files ? dwcat_i18n_files() : $files as $file ) {
 		$src = (string) file_get_contents( $file );
 		$rel = ltrim( str_replace( '\\', '/', substr( $file, strlen( $root ) ) ), '/' );
-		foreach ( array( $wp, $wpx, $wpn, $core ) as $re ) {
+		// CatalogQuery's $t is table(), not a translator.
+		foreach ( array_merge( array( $wp, $wpx, $wpn, $core ), 'CatalogQuery.php' === basename( $file ) ? array() : array( $tpl ) ) as $re ) {
 			if ( ! preg_match_all( $re, $src, $m, PREG_OFFSET_CAPTURE ) ) {
 				continue;
 			}

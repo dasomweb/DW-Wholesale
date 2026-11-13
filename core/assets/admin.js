@@ -680,3 +680,204 @@
 		result.hidden = false;
 	}
 })();
+
+/**
+ * Phase 2 — screens that talk to the server without leaving the page:
+ *   [data-dwc-migrate]   migration run: batches until done, pause / continue
+ *   [data-dwc-rollback]  undo, batch by batch
+ *   [data-dwc-codecheck] item code: checked against other products while typing
+ *   [data-dwc-bulkpick]  bulk bar select that submits its own action
+ */
+(function () {
+	'use strict';
+
+	var strings = {};
+	var root = document.querySelector('.dwc-admin[data-dwc-i18n]');
+	try {
+		strings = root ? JSON.parse(root.getAttribute('data-dwc-i18n')) || {} : {};
+	} catch (e) {
+		strings = {};
+	}
+	function T(text, n) {
+		return (strings[text] || text).replace('%d', n);
+	}
+
+	function post(box, action, fields) {
+		var body = new URLSearchParams();
+		body.set('do', action);
+		body.set('_dwcat_token', box.getAttribute('data-dwc-token'));
+		Object.keys(fields).forEach(function (k) {
+			body.set(k, fields[k]);
+		});
+		return fetch(box.getAttribute('data-dwc-post'), {
+			method: 'POST',
+			credentials: 'same-origin',
+			headers: { 'X-Requested-With': 'XMLHttpRequest' },
+			body: body
+		}).then(function (r) {
+			if (!r.ok) {
+				throw new Error('HTTP ' + r.status);
+			}
+			return r.json();
+		});
+	}
+
+	// ── Migration run ──
+	var runBox = document.querySelector('[data-dwc-migrate]');
+	if (runBox && runBox.querySelector('[data-dwc-bar]')) {
+		var statusEl = runBox.querySelector('[data-dwc-status]');
+		var pauseBtn = runBox.querySelector('[data-dwc-pause]');
+		var resumeBtn = runBox.querySelector('[data-dwc-resume]');
+		var state = runBox.getAttribute('data-dwc-migrate');
+		var failures = 0;
+
+		var show = function (run) {
+			var pct = run.total ? Math.min(100, Math.floor((100 * run.done) / run.total)) : 0;
+			runBox.querySelector('[data-dwc-bar]').style.width = pct + '%';
+			runBox.querySelector('.dwc-progress').setAttribute('aria-valuenow', pct);
+			runBox.querySelector('[data-dwc-done]').textContent = run.done;
+			runBox.querySelector('[data-dwc-total]').textContent = run.total;
+			Object.keys(run.counts || {}).forEach(function (k) {
+				var el = runBox.querySelector('[data-dwc-count="' + k + '"]');
+				if (el) {
+					el.textContent = run.counts[k];
+				}
+			});
+			var list = runBox.querySelector('[data-dwc-errors]');
+			list.textContent = '';
+			(run.errors || []).forEach(function (line) {
+				var li = document.createElement('li');
+				li.textContent = line;
+				list.appendChild(li);
+			});
+			state = run.status;
+			if (pauseBtn) {
+				pauseBtn.hidden = state !== 'running';
+				resumeBtn.hidden = state !== 'paused';
+			}
+			statusEl.textContent = state === 'running' ? T('Working…') : state === 'paused' ? T('Paused.') : state === 'done' ? T('Finished.') : '';
+		};
+
+		var next = function () {
+			if (state !== 'running') {
+				return;
+			}
+			post(runBox, 'migrate', { op: 'batch' }).then(function (run) {
+				failures = 0;
+				show(run);
+				if (run.status === 'done') {
+					window.location.href = runBox.getAttribute('data-dwc-done-url');
+				} else if (run.status === 'running') {
+					window.setTimeout(next, run.busy ? 1500 : 50);
+				}
+			}).catch(function () {
+				failures++;
+				if (failures < 5) {
+					window.setTimeout(next, 3000);
+				} else {
+					statusEl.textContent = T('Something went wrong. Reload the page and continue — nothing is lost.');
+				}
+			});
+		};
+
+		if (pauseBtn) {
+			pauseBtn.addEventListener('click', function () {
+				state = 'paused';
+				post(runBox, 'migrate', { op: 'pause' }).then(show);
+			});
+			resumeBtn.addEventListener('click', function () {
+				post(runBox, 'migrate', { op: 'resume' }).then(function (run) {
+					show(run);
+					next();
+				});
+			});
+		}
+		if (state === 'running') {
+			statusEl.textContent = T('Working…');
+			next();
+		}
+	}
+
+	// ── Undo ──
+	var undoBox = document.querySelector('[data-dwc-rollback]');
+	var undoBtn = undoBox && undoBox.querySelector('[data-dwc-rollback-start]');
+	if (undoBtn) {
+		undoBtn.addEventListener('click', function () {
+			if (!window.confirm(undoBtn.getAttribute('data-dwc-confirm-text'))) {
+				return;
+			}
+			undoBtn.disabled = true;
+			var status = undoBox.querySelector('[data-dwc-status]');
+			var step = function () {
+				post(undoBox, 'migrate', { op: 'rollback' }).then(function (res) {
+					if (res.done) {
+						window.location.href = undoBox.getAttribute('data-dwc-done-url');
+						return;
+					}
+					status.textContent = T('Undoing… %d left', res.left);
+					window.setTimeout(step, 50);
+				}).catch(function () {
+					status.textContent = T('Something went wrong. Reload the page and continue — nothing is lost.');
+					undoBtn.disabled = false;
+				});
+			};
+			step();
+		});
+	}
+
+	// ── Item code: is it already in use? ──
+	var check = document.querySelector('[data-dwc-codecheck]');
+	var codeInput = check && document.getElementById(check.getAttribute('data-dwc-codecheck'));
+	if (codeInput) {
+		var timer = 0;
+		var seq = 0;
+		codeInput.addEventListener('input', function () {
+			window.clearTimeout(timer);
+			timer = window.setTimeout(function () {
+				var value = codeInput.value.trim();
+				var mine = ++seq;
+				if (!value) {
+					check.textContent = '';
+					return;
+				}
+				post(check, 'check_code', { code: value, id: check.getAttribute('data-dwc-id'), type: check.getAttribute('data-dwc-type') }).then(function (res) {
+					if (mine !== seq) {
+						return; // an older answer arriving late
+					}
+					var hint = document.createElement('span');
+					check.textContent = '';
+					if (res.used && res.used.length) {
+						hint.className = 'dwc-hint dwc-hint-warn';
+						hint.appendChild(document.createTextNode(T('Also used by:') + ' '));
+						res.used.forEach(function (item, i) {
+							var a = document.createElement('a');
+							a.href = item.url;
+							a.textContent = item.title;
+							if (i) {
+								hint.appendChild(document.createTextNode(', '));
+							}
+							hint.appendChild(a);
+						});
+					} else {
+						hint.className = 'dwc-hint dwc-hint-ok';
+						hint.textContent = T('Unique — no other item uses this code.');
+					}
+					check.appendChild(hint);
+				}).catch(function () {});
+			}, 350);
+		});
+	}
+
+	// ── Bulk bar: a select that is its own action ──
+	document.addEventListener('change', function (e) {
+		var pick = e.target.closest && e.target.closest('[data-dwc-bulkpick]');
+		if (pick && pick.value) {
+			var hidden = document.createElement('input');
+			hidden.type = 'hidden';
+			hidden.name = 'bulk';
+			hidden.value = pick.getAttribute('data-dwc-bulkpick');
+			pick.form.appendChild(hidden);
+			pick.form.submit();
+		}
+	});
+})();
