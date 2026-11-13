@@ -5,6 +5,7 @@ use DWCatalog\Catalog;
 use DWCatalog\Fields\FieldConfig;
 use DWCatalog\Fields\VariationColumns;
 use DWCatalog\Front\Design;
+use DWCatalog\Front\Widgets;
 use DWCatalog\I18n\Languages;
 use DWCatalog\Security\Access;
 use DWCatalog\Security\Csrf;
@@ -84,6 +85,10 @@ class AdminApp {
 		'export'        => array( 'import_export', Access::VIEW, '', 'export' ),
 		'export_csv'    => array( 'import_export', Access::VIEW, 'csv_export', 'export' ),
 		'save_design'   => array( 'design', Access::EDIT, '', 'save' ),
+		'create_design' => array( 'design', Access::EDIT, '', 'save' ),
+		'delete_design' => array( 'design', Access::EDIT, '', 'save' ),
+		'save_widget'   => array( 'shortcodes', Access::EDIT, '', 'save' ),
+		'delete_widget' => array( 'shortcodes', Access::EDIT, '', 'save' ),
 		'save_settings' => array( 'settings', Access::EDIT, '', 'save' ),
 		'save_access'   => array( 'access', Access::EDIT, '', 'admin' ),
 		'reset_access'  => array( 'access', Access::EDIT, '', 'admin' ),
@@ -159,6 +164,7 @@ class AdminApp {
 		$type              = $this->type( $q );
 		$this->currentType = isset( $q['type'] ) ? $type : '';
 		$this->currentId   = isset( $q['id'] ) ? (int) $q['id'] : 0;
+		$this->currentQuery = $q;
 		$vars              = array( 'type' => $type, 'q' => $q, 'readonly' => $this->readonly );
 		$template          = in_array( $view, self::PLACEHOLDERS, true ) ? 'placeholder' : $view;
 
@@ -171,6 +177,18 @@ class AdminApp {
 				break;
 			case 'migration':
 				$vars += $this->migrationData( $q );
+				break;
+			case 'shortcodes':
+				$editing = isset( $q['widget'] ) && is_string( $q['widget'] ) ? Text::slug( $q['widget'], 40 ) : '';
+				$vars   += array(
+					'widgets' => Widgets::all( $this->c ),
+					'editing' => '' !== $editing ? ( 'new' === $editing ? 'new' : ( Widgets::get( $this->c, $editing ) ? $editing : '' ) ) : '',
+				);
+				break;
+			case 'design':
+				$presets = Design::presets( $this->c->settings() );
+				$preset  = isset( $q['preset'] ) && is_string( $q['preset'] ) && isset( $presets[ $q['preset'] ] ) ? $q['preset'] : 'default';
+				$vars   += array( 'presets' => $presets, 'preset' => $preset );
 				break;
 			case 'edit':
 				$id   = isset( $q['id'] ) ? (int) $q['id'] : 0;
@@ -188,7 +206,14 @@ class AdminApp {
 		return $this->wrap( $notice . $flash . $ro . $this->template( $template, $vars ) );
 	}
 
-	/** @var string view being rendered */
+	/** @var array query of the screen being rendered (for the language switch's way back) */
+	private $currentQuery = array();
+
+	private function currentExtra( string $key ): string {
+		return isset( $this->currentQuery[ $key ] ) && is_string( $this->currentQuery[ $key ] ) ? Text::key( $this->currentQuery[ $key ], 40 ) : '';
+	}
+
+		/** @var string view being rendered */
 	private $view = '';
 	/** @var bool the current screen is view-only for this user */
 	private $readonly = false;
@@ -406,8 +431,22 @@ class AdminApp {
 			case 'export_csv':
 				return ( new CsvExporter( $this->c ) )->run( $type, $post );
 			case 'save_design':
-				Design::save( $this->c->settings(), isset( $post['design'] ) && is_array( $post['design'] ) ? $post['design'] : array() );
-				return $this->redirect( array( 'view' => 'design', 'type' => $type, 'msg' => 'saved' ) );
+				$preset = isset( $post['preset'] ) && is_string( $post['preset'] ) ? $post['preset'] : '';
+				Design::save( $this->c->settings(), isset( $post['design'] ) && is_array( $post['design'] ) ? $post['design'] : array(), $preset );
+				return $this->redirect( array( 'view' => 'design', 'preset' => 'default' !== $preset ? $preset : null, 'msg' => 'saved' ) );
+			case 'create_design':
+				$slug = Design::create( $this->c->settings(), isset( $post['name'] ) ? (string) $post['name'] : '', isset( $post['design'] ) && is_array( $post['design'] ) ? $post['design'] : Design::get( $this->c->settings(), isset( $post['from'] ) ? (string) $post['from'] : '' ) );
+				return $this->redirect( array( 'view' => 'design', 'preset' => '' !== $slug ? $slug : null, 'msg' => '' !== $slug ? 'saved' : 'invalid' ) );
+			case 'delete_design':
+				Design::deletePreset( $this->c->settings(), isset( $post['preset'] ) ? (string) $post['preset'] : '' );
+				return $this->redirect( array( 'view' => 'design', 'msg' => 'deleted' ) );
+			case 'save_widget':
+				$in = isset( $post['widget'] ) && is_array( $post['widget'] ) ? $post['widget'] : array();
+				$id = Widgets::save( $this->c, isset( $post['id'] ) ? (string) $post['id'] : '', $in );
+				return $this->redirect( array( 'view' => 'shortcodes', 'widget' => '' !== $id ? $id : 'new', 'msg' => '' !== $id ? 'saved' : 'invalid' ) );
+			case 'delete_widget':
+				Widgets::delete( $this->c, isset( $post['id'] ) ? (string) $post['id'] : '' );
+				return $this->redirect( array( 'view' => 'shortcodes', 'msg' => 'deleted' ) );
 			case 'save_settings':
 				Languages::save( $this->c->settings(), isset( $post['i18n'] ) && is_array( $post['i18n'] ) ? $post['i18n'] : array() );
 				return $this->redirect( array( 'view' => 'settings', 'msg' => 'saved' ) );
@@ -645,9 +684,9 @@ class AdminApp {
 	private function backUrl( string $qs ): string {
 		parse_str( $qs, $in );
 		$out = array();
-		foreach ( array( 'view', 'type', 'id' ) as $k ) {
+		foreach ( array( 'view', 'type', 'id', 'widget', 'preset', 'step' ) as $k ) {
 			if ( isset( $in[ $k ] ) && is_scalar( $in[ $k ] ) && '' !== (string) $in[ $k ] ) {
-				$out[ $k ] = 'id' === $k ? (int) $in[ $k ] : Text::key( (string) $in[ $k ], 20 );
+				$out[ $k ] = 'id' === $k ? (int) $in[ $k ] : Text::key( (string) $in[ $k ], 40 );
 			}
 		}
 		return $this->url( $out );
@@ -736,7 +775,7 @@ class AdminApp {
 		$html = '<div class="dwc-topbar"><span class="dwc-kicker">DW WHOLESALE</span>';
 		if ( $this->c->host()->userId() > 0 && '' !== $this->access()->firstMenu() ) {
 			$cur   = $this->language();
-			$back  = http_build_query( array_filter( array( 'view' => $this->view, 'type' => $this->currentType, 'id' => $this->currentId ) ) );
+			$back  = http_build_query( array_filter( array( 'view' => $this->view, 'type' => $this->currentType, 'id' => $this->currentId, 'widget' => $this->currentExtra( 'widget' ), 'preset' => $this->currentExtra( 'preset' ), 'step' => $this->currentExtra( 'step' ) ) ) );
 			$html .= '<form class="dwc-lang" method="post" action="' . Html::url( $this->c->host()->adminPostUrl() ) . '">'
 				. '<input type="hidden" name="do" value="set_lang">'
 				. '<input type="hidden" name="back" value="' . Html::attr( $back ) . '">'

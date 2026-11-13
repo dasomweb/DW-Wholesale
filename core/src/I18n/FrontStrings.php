@@ -34,5 +34,13 @@ class FrontStrings {
 		'Copy %s',
 		'Copied',
 		'This item is not available.',
+		'Load more',
+		'Show only',
+		'In stock',
+		'New in the last 30 days',
+		'With photo',
+		'Clear all',
+		'Show results',
+		'Popular:',
 	);
 }

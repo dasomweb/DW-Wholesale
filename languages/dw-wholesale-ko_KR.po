@@ -1591,3 +1591,387 @@ msgstr "파일을 저장할 수 없습니다."
 
 msgid "Storage directory is not writable."
 msgstr "저장 폴더에 쓸 수 없습니다."
+
+msgid "Visibility"
+msgstr "공개 여부"
+
+msgid "Shown on the site"
+msgstr "사이트에 노출"
+
+msgid "Hidden from the site"
+msgstr "사이트에서 숨김"
+
+msgid "Recommended order"
+msgstr "추천 순서"
+
+msgid "Lower numbers come first when a catalog is sorted by \"Recommended order\"."
+msgstr "카탈로그를 \"추천 순서\"로 정렬하면 숫자가 작은 상품이 먼저 나옵니다."
+
+msgid "New catalog"
+msgstr "새 카탈로그"
+
+msgid "Saved catalogs"
+msgstr "저장한 카탈로그"
+
+msgid "Set up a catalog once — which products, filters, sorting, columns per device, card contents and design — then put its shortcode on any page."
+msgstr "보여줄 상품, 필터, 정렬, 기기별 열 수, 카드 내용, 디자인을 한 번 설정해 두고 숏코드를 원하는 페이지에 넣으세요."
+
+msgid "No saved catalog yet."
+msgstr "저장한 카탈로그가 아직 없습니다."
+
+msgid "Whole catalog"
+msgstr "전체 카탈로그"
+
+msgid "One or more groups"
+msgstr "그룹 하나 또는 여러 개"
+
+msgid "Some categories, leaving others out"
+msgstr "일부 카테고리 (일부 제외)"
+
+msgid "A saved catalog"
+msgstr "저장한 카탈로그"
+
+msgid "Search box for the site header"
+msgstr "사이트 헤더용 검색창"
+
+msgid "Grid / carousel of products (2.x, still supported)"
+msgstr "상품 그리드 / 슬라이드 (2.x, 계속 지원)"
+
+msgid "Pages made with [dw_catalog] keep working as before."
+msgstr "[dw_catalog]로 만든 페이지는 그대로 동작합니다."
+
+msgid "[dw_wholesale_catalog] options"
+msgstr "[dw_wholesale_catalog] 옵션"
+
+msgid "A saved catalog. Other options on the shortcode override its settings."
+msgstr "저장한 카탈로그. 숏코드에 함께 적은 옵션이 저장된 설정보다 우선합니다."
+
+msgid "Category slugs (comma-separated). Empty = the whole catalog."
+msgstr "카테고리 슬러그 (쉼표로 구분). 비우면 전체 카탈로그."
+
+msgid "Category slugs left out, with their sub-categories."
+msgstr "제외할 카테고리 슬러그 (하위 카테고리 포함)."
+
+msgid "Suggested search words, comma-separated."
+msgstr "추천 검색어 (쉼표로 구분)."
+
+msgid "field keys — in this order"
+msgstr "필드 키 — 적은 순서대로"
+
+msgid "Columns on each device (4 / 3 / 2)."
+msgstr "기기별 열 수 (4 / 3 / 2)."
+
+msgid "Products shown at first on tablets and phones; \"Load more\" shows the rest."
+msgstr "태블릿·모바일에서 처음에 보여줄 상품 수. 나머지는 \"더 보기\"로 보여줍니다."
+
+msgid "field keys"
+msgstr "필드 키"
+
+msgid "drawer (side panel) · page (product page)"
+msgstr "drawer (사이드 패널) · page (상품 페이지)"
+
+msgid "A design preset (Design screen)."
+msgstr "디자인 프리셋 (디자인 화면)."
+
+msgid "[dw_wholesale_search] options"
+msgstr "[dw_wholesale_search] 옵션"
+
+msgid "page ID of the catalog it searches; default: the main catalog page"
+msgstr "검색할 카탈로그 페이지 ID. 기본값은 메인 카탈로그 페이지"
+
+msgid "Filled"
+msgstr "채움"
+
+msgid "Outline"
+msgstr "외곽선"
+
+msgid "Light background"
+msgstr "연한 배경"
+
+msgid "Small"
+msgstr "작게"
+
+msgid "Medium"
+msgstr "보통"
+
+msgid "Large"
+msgstr "크게"
+
+msgid "None"
+msgstr "없음"
+
+msgid "Soft"
+msgstr "연하게"
+
+msgid "Theme font"
+msgstr "테마 폰트 따름"
+
+msgid "Colors and buttons"
+msgstr "색상과 버튼"
+
+msgid "Main color"
+msgstr "메인 색상"
+
+msgid "Button style"
+msgstr "버튼 스타일"
+
+msgid "Font"
+msgstr "폰트"
+
+msgid "Text size"
+msgstr "글자 크기"
+
+msgid "Corners and shadow"
+msgstr "모서리와 그림자"
+
+msgid "Card corners (px)"
+msgstr "카드 모서리 (px)"
+
+msgid "Button corners (px)"
+msgstr "버튼 모서리 (px)"
+
+msgid "Input corners (px)"
+msgstr "입력창 모서리 (px)"
+
+msgid "Card shadow"
+msgstr "카드 그림자"
+
+msgid "More"
+msgstr "더 보기"
+
+msgid "Card background"
+msgstr "카드 배경"
+
+msgid "Extra card padding (px)"
+msgstr "카드 안쪽 여백 추가 (px)"
+
+msgid "Designs"
+msgstr "디자인"
+
+msgid "Default design"
+msgstr "기본 디자인"
+
+msgid "Save \"%s\""
+msgstr "\"%s\" 저장"
+
+msgid "Save as a new preset"
+msgstr "새 프리셋으로 저장"
+
+msgid "Keeps the values above under a name. A catalog then uses it with design=\"…\" or by picking it in a saved catalog."
+msgstr "위 값을 이름을 붙여 보관합니다. 카탈로그에서 design=\"…\"으로 쓰거나 저장한 카탈로그에서 고를 수 있습니다."
+
+msgid "Preset name"
+msgstr "프리셋 이름"
+
+msgid "e.g. Frozen page"
+msgstr "예: 냉동 페이지"
+
+msgid "Save as preset"
+msgstr "프리셋으로 저장"
+
+msgid "Preview"
+msgstr "미리보기"
+
+msgid "Preview width"
+msgstr "미리보기 너비"
+
+msgid "Desktop"
+msgstr "데스크톱"
+
+msgid "Tablet"
+msgstr "태블릿"
+
+msgid "Phone"
+msgstr "모바일"
+
+msgid "%s: low → high"
+msgstr "%s: 낮은 순"
+
+msgid "%s: high → low"
+msgstr "%s: 높은 순"
+
+msgid "In stock"
+msgstr "재고 있음"
+
+msgid "Load more"
+msgstr "더 보기"
+
+msgid "The preview follows the form as you change it. Nothing is saved until you click Save."
+msgstr "값을 바꾸면 미리보기에 바로 반영됩니다. 저장을 누르기 전에는 저장되지 않습니다."
+
+msgid "New in the last 30 days"
+msgstr "최근 30일 신상품"
+
+msgid "With photo"
+msgstr "사진 있음"
+
+msgid "Show results"
+msgstr "결과 보기"
+
+msgid "Selected filters"
+msgstr "선택한 필터"
+
+msgid "Remove %s"
+msgstr "%s 해제"
+
+msgid "Clear all"
+msgstr "전체 해제"
+
+msgid "Shows"
+msgstr "보여주는 상품"
+
+msgid "Shortcode"
+msgstr "숏코드"
+
+msgid "Used on"
+msgstr "사용 페이지"
+
+msgid "Not on a page yet"
+msgstr "아직 페이지에 없음"
+
+msgid "Brand"
+msgstr "브랜드"
+
+msgid "Origin"
+msgstr "원산지"
+
+msgid "Item code"
+msgstr "품목코드"
+
+msgid "Pack size"
+msgstr "팩 사이즈"
+
+msgid "Category badge"
+msgstr "카테고리 배지"
+
+msgid "Price (lowest option price)"
+msgstr "가격 (옵션 최저가)"
+
+msgid "All saved catalogs"
+msgstr "저장한 카탈로그 목록"
+
+msgid "Name (for you)"
+msgstr "이름 (관리용)"
+
+msgid "ID in the shortcode"
+msgstr "숏코드에 쓸 ID"
+
+msgid "Heading above the catalog (optional)"
+msgstr "카탈로그 위 제목 (선택)"
+
+msgid "Which products"
+msgstr "보여줄 상품"
+
+msgid "Groups (when \"Category groups\")"
+msgstr "그룹 (\"카테고리 그룹\"일 때)"
+
+msgid "Categories (when \"Categories\")"
+msgstr "카테고리 (\"카테고리\"일 때)"
+
+msgid "Leave out"
+msgstr "제외"
+
+msgid "Suggested words (comma-separated)"
+msgstr "추천 검색어 (쉼표로 구분)"
+
+msgid "e.g. nori, wasabi, sushi rice"
+msgstr "예: 김, 와사비, 초밥용 쌀"
+
+msgid "Tick the filters to show and use the arrows to set their order. A filter with nothing to offer is hidden on its own."
+msgstr "보여줄 필터를 체크하고 화살표로 순서를 정하세요. 고를 값이 없는 필터는 자동으로 숨겨집니다."
+
+msgid "Where the filters go"
+msgstr "필터 위치"
+
+msgid "Sidebar"
+msgstr "사이드바"
+
+msgid "Top bar"
+msgstr "상단"
+
+msgid "Sorting"
+msgstr "정렬"
+
+msgid "Default sort"
+msgstr "기본 정렬"
+
+msgid "Products per page"
+msgstr "페이지당 상품 수"
+
+msgid "Devices"
+msgstr "기기별 설정"
+
+msgid "Columns"
+msgstr "열 수"
+
+msgid "Filters in the sidebar or top bar."
+msgstr "필터는 사이드바 또는 상단에 표시됩니다."
+
+msgid "Products shown at first"
+msgstr "처음에 보여줄 상품 수"
+
+msgid "Filters slide in from the side."
+msgstr "필터가 옆에서 밀려 나오는 패널로 열립니다."
+
+msgid "Cards"
+msgstr "카드"
+
+msgid "Filters open as a sheet from the bottom; \"Load more\" instead of page numbers."
+msgstr "필터가 아래에서 올라오는 시트로 열리고, 페이지 번호 대신 \"더 보기\"가 나옵니다."
+
+msgid "Only fields marked Public are ever shown. Prices by customer group come with customer accounts."
+msgstr "공개로 표시한 필드만 보여줍니다. 거래처 그룹별 가격은 거래처 기능과 함께 제공됩니다."
+
+msgid "Clicking a card opens"
+msgstr "카드를 누르면"
+
+msgid "A side panel over the list"
+msgstr "목록 위 사이드 패널"
+
+msgid "The product page"
+msgstr "상품 페이지"
+
+msgid "Save catalog"
+msgstr "카탈로그 저장"
+
+msgid "Shortcode:"
+msgstr "숏코드:"
+
+msgid "Delete this saved catalog? Pages using its shortcode will show the whole catalog instead."
+msgstr "저장한 카탈로그를 삭제할까요? 이 숏코드를 쓰는 페이지에는 대신 전체 카탈로그가 나옵니다."
+
+msgid "Delete this saved catalog"
+msgstr "이 카탈로그 삭제"
+
+msgid "Delete this preset? Catalogs using it go back to the default design."
+msgstr "이 프리셋을 삭제할까요? 이 프리셋을 쓰던 카탈로그는 기본 디자인으로 돌아갑니다."
+
+msgid "Delete this preset"
+msgstr "이 프리셋 삭제"
+
+msgid "Show only"
+msgstr "보기 조건"
+
+msgid "Popular:"
+msgstr "추천 검색어:"
+
+msgid "Search %s"
+msgstr "%s 검색"
+
+msgid "Categories:"
+msgstr "카테고리:"
+
+msgid "From"
+msgstr "최저가"
+
+msgid "Groups:"
+msgstr "그룹:"
+
+msgid "Sample product %d"
+msgstr "샘플 상품 %d"
+
+msgid "without %d"
+msgstr "%d개 제외"
+
+msgid "Other settings"
+msgstr "기타 설정"

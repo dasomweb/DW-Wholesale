@@ -14,6 +14,7 @@
 require dirname( __DIR__, 2 ) . '/core/bootstrap.php';
 require __DIR__ . '/TestHost.php';
 require __DIR__ . '/migration.php';
+require __DIR__ . '/widgets.php';
 
 use DWCatalog\Admin\Forbidden;
 use DWCatalog\Catalog;
@@ -418,6 +419,7 @@ function run_suite( Catalog $c, TestHost $host, string $driver ) {
 	eq( 0, $left, 'all rows of a deleted item removed' );
 
 	run_migration_suite( $c, $host, $type );
+	run_widgets_suite( $c, $host, $type );
 }
 
 /** M8 — role × menu levels, action permissions, operator mode, hidden screens refused. */

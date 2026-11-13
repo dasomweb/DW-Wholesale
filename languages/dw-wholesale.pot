@@ -1589,6 +1589,390 @@ msgstr ""
 msgid "Storage directory is not writable."
 msgstr ""
 
+msgid "Visibility"
+msgstr ""
+
+msgid "Shown on the site"
+msgstr ""
+
+msgid "Hidden from the site"
+msgstr ""
+
+msgid "Recommended order"
+msgstr ""
+
+msgid "Lower numbers come first when a catalog is sorted by \"Recommended order\"."
+msgstr ""
+
+msgid "New catalog"
+msgstr ""
+
+msgid "Saved catalogs"
+msgstr ""
+
+msgid "Set up a catalog once — which products, filters, sorting, columns per device, card contents and design — then put its shortcode on any page."
+msgstr ""
+
+msgid "No saved catalog yet."
+msgstr ""
+
+msgid "Whole catalog"
+msgstr ""
+
+msgid "One or more groups"
+msgstr ""
+
+msgid "Some categories, leaving others out"
+msgstr ""
+
+msgid "A saved catalog"
+msgstr ""
+
+msgid "Search box for the site header"
+msgstr ""
+
+msgid "Grid / carousel of products (2.x, still supported)"
+msgstr ""
+
+msgid "Pages made with [dw_catalog] keep working as before."
+msgstr ""
+
+msgid "[dw_wholesale_catalog] options"
+msgstr ""
+
+msgid "A saved catalog. Other options on the shortcode override its settings."
+msgstr ""
+
+msgid "Category slugs (comma-separated). Empty = the whole catalog."
+msgstr ""
+
+msgid "Category slugs left out, with their sub-categories."
+msgstr ""
+
+msgid "Suggested search words, comma-separated."
+msgstr ""
+
+msgid "field keys — in this order"
+msgstr ""
+
+msgid "Columns on each device (4 / 3 / 2)."
+msgstr ""
+
+msgid "Products shown at first on tablets and phones; \"Load more\" shows the rest."
+msgstr ""
+
+msgid "field keys"
+msgstr ""
+
+msgid "drawer (side panel) · page (product page)"
+msgstr ""
+
+msgid "A design preset (Design screen)."
+msgstr ""
+
+msgid "[dw_wholesale_search] options"
+msgstr ""
+
+msgid "page ID of the catalog it searches; default: the main catalog page"
+msgstr ""
+
+msgid "Filled"
+msgstr ""
+
+msgid "Outline"
+msgstr ""
+
+msgid "Light background"
+msgstr ""
+
+msgid "Small"
+msgstr ""
+
+msgid "Medium"
+msgstr ""
+
+msgid "Large"
+msgstr ""
+
+msgid "None"
+msgstr ""
+
+msgid "Soft"
+msgstr ""
+
+msgid "Theme font"
+msgstr ""
+
+msgid "Colors and buttons"
+msgstr ""
+
+msgid "Main color"
+msgstr ""
+
+msgid "Button style"
+msgstr ""
+
+msgid "Font"
+msgstr ""
+
+msgid "Text size"
+msgstr ""
+
+msgid "Corners and shadow"
+msgstr ""
+
+msgid "Card corners (px)"
+msgstr ""
+
+msgid "Button corners (px)"
+msgstr ""
+
+msgid "Input corners (px)"
+msgstr ""
+
+msgid "Card shadow"
+msgstr ""
+
+msgid "More"
+msgstr ""
+
+msgid "Card background"
+msgstr ""
+
+msgid "Extra card padding (px)"
+msgstr ""
+
+msgid "Designs"
+msgstr ""
+
+msgid "Default design"
+msgstr ""
+
+msgid "Save \"%s\""
+msgstr ""
+
+msgid "Save as a new preset"
+msgstr ""
+
+msgid "Keeps the values above under a name. A catalog then uses it with design=\"…\" or by picking it in a saved catalog."
+msgstr ""
+
+msgid "Preset name"
+msgstr ""
+
+msgid "e.g. Frozen page"
+msgstr ""
+
+msgid "Save as preset"
+msgstr ""
+
+msgid "Preview"
+msgstr ""
+
+msgid "Preview width"
+msgstr ""
+
+msgid "Desktop"
+msgstr ""
+
+msgid "Tablet"
+msgstr ""
+
+msgid "Phone"
+msgstr ""
+
+msgid "%s: low → high"
+msgstr ""
+
+msgid "%s: high → low"
+msgstr ""
+
+msgid "In stock"
+msgstr ""
+
+msgid "Load more"
+msgstr ""
+
+msgid "The preview follows the form as you change it. Nothing is saved until you click Save."
+msgstr ""
+
+msgid "New in the last 30 days"
+msgstr ""
+
+msgid "With photo"
+msgstr ""
+
+msgid "Show results"
+msgstr ""
+
+msgid "Selected filters"
+msgstr ""
+
+msgid "Remove %s"
+msgstr ""
+
+msgid "Clear all"
+msgstr ""
+
+msgid "Shows"
+msgstr ""
+
+msgid "Shortcode"
+msgstr ""
+
+msgid "Used on"
+msgstr ""
+
+msgid "Not on a page yet"
+msgstr ""
+
+msgid "Brand"
+msgstr ""
+
+msgid "Origin"
+msgstr ""
+
+msgid "Item code"
+msgstr ""
+
+msgid "Pack size"
+msgstr ""
+
+msgid "Category badge"
+msgstr ""
+
+msgid "Price (lowest option price)"
+msgstr ""
+
+msgid "All saved catalogs"
+msgstr ""
+
+msgid "Name (for you)"
+msgstr ""
+
+msgid "ID in the shortcode"
+msgstr ""
+
+msgid "Heading above the catalog (optional)"
+msgstr ""
+
+msgid "Which products"
+msgstr ""
+
+msgid "Groups (when \"Category groups\")"
+msgstr ""
+
+msgid "Categories (when \"Categories\")"
+msgstr ""
+
+msgid "Leave out"
+msgstr ""
+
+msgid "Suggested words (comma-separated)"
+msgstr ""
+
+msgid "e.g. nori, wasabi, sushi rice"
+msgstr ""
+
+msgid "Tick the filters to show and use the arrows to set their order. A filter with nothing to offer is hidden on its own."
+msgstr ""
+
+msgid "Where the filters go"
+msgstr ""
+
+msgid "Sidebar"
+msgstr ""
+
+msgid "Top bar"
+msgstr ""
+
+msgid "Sorting"
+msgstr ""
+
+msgid "Default sort"
+msgstr ""
+
+msgid "Products per page"
+msgstr ""
+
+msgid "Devices"
+msgstr ""
+
+msgid "Columns"
+msgstr ""
+
+msgid "Filters in the sidebar or top bar."
+msgstr ""
+
+msgid "Products shown at first"
+msgstr ""
+
+msgid "Filters slide in from the side."
+msgstr ""
+
+msgid "Cards"
+msgstr ""
+
+msgid "Filters open as a sheet from the bottom; \"Load more\" instead of page numbers."
+msgstr ""
+
+msgid "Only fields marked Public are ever shown. Prices by customer group come with customer accounts."
+msgstr ""
+
+msgid "Clicking a card opens"
+msgstr ""
+
+msgid "A side panel over the list"
+msgstr ""
+
+msgid "The product page"
+msgstr ""
+
+msgid "Save catalog"
+msgstr ""
+
+msgid "Shortcode:"
+msgstr ""
+
+msgid "Delete this saved catalog? Pages using its shortcode will show the whole catalog instead."
+msgstr ""
+
+msgid "Delete this saved catalog"
+msgstr ""
+
+msgid "Delete this preset? Catalogs using it go back to the default design."
+msgstr ""
+
+msgid "Delete this preset"
+msgstr ""
+
+msgid "Show only"
+msgstr ""
+
+msgid "Popular:"
+msgstr ""
+
+msgid "Search %s"
+msgstr ""
+
+msgid "Categories:"
+msgstr ""
+
+msgid "From"
+msgstr ""
+
+msgid "Groups:"
+msgstr ""
+
+msgid "Sample product %d"
+msgstr ""
+
+msgid "without %d"
+msgstr ""
+
+msgid "Other settings"
+msgstr ""
+
 #. License SDK (Korean source)
 msgid "SDK 가 손상되었습니다 (필수 메서드 누락). 정상 버전으로 재설치해주세요."
 msgstr ""

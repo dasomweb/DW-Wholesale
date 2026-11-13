@@ -165,10 +165,13 @@ class DWCAT_WP_Host implements \DWCatalog\Host\Host {
 	public function catalogPages(): array {
 		global $wpdb;
 		$out  = array();
-		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT ID, post_title, post_content FROM {$wpdb->posts} WHERE post_type IN ('page','post') AND post_status = 'publish' AND post_content LIKE %s ORDER BY menu_order ASC, ID ASC LIMIT 30", '%' . $wpdb->esc_like( '[dw_catalog' ) . '%' ) );
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT ID, post_title, post_content FROM {$wpdb->posts} WHERE post_type IN ('page','post') AND post_status = 'publish' AND ( post_content LIKE %s OR post_content LIKE %s ) ORDER BY menu_order ASC, ID ASC LIMIT 30", '%' . $wpdb->esc_like( '[dw_catalog' ) . '%', '%' . $wpdb->esc_like( '[dw_wholesale_catalog' ) . '%' ) );
 		foreach ( (array) $rows as $row ) {
-			if ( preg_match( '/\[dw_catalog[^\]]*\]/', (string) $row->post_content, $m ) ) {
-				$out[] = array( 'title' => (string) $row->post_title, 'url' => (string) get_permalink( (int) $row->ID ), 'edit_url' => (string) get_edit_post_link( (int) $row->ID, 'raw' ), 'shortcode' => $m[0] );
+			// Every catalog shortcode of the page (2.x [dw_catalog] and 3.0 [dw_wholesale_catalog])
+			if ( preg_match_all( '/\[(?:dw_wholesale_catalog|dw_catalog)(?=[\s\]])[^\]]*\]/', (string) $row->post_content, $m ) ) {
+				foreach ( $m[0] as $code ) {
+					$out[] = array( 'title' => (string) $row->post_title, 'url' => (string) get_permalink( (int) $row->ID ), 'edit_url' => (string) get_edit_post_link( (int) $row->ID, 'raw' ), 'shortcode' => $code );
+				}
 			}
 		}
 		return $out;

@@ -29,6 +29,9 @@ class CatalogQuery {
 	const MAX_VALUES   = 50;
 	const MAX_PER_PAGE = 100;
 
+	/** Status values that are not "in stock". */
+	const NOT_IN_STOCK = array( 'out_of_stock', 'discontinued', 'inactive' );
+
 	/** @var Connection */
 	private $db;
 	/** @var FieldConfig */
@@ -58,10 +61,11 @@ class CatalogQuery {
 	 *                 empty[] (admin only: field keys that must have no value),
 	 *                 review (admin only: flagged for review, or sharing the `shared` field's value),
 	 *                 image ('yes' | 'no': has / has no photo)
-	 * @return array rows, total, pages, page
+	 *                 exclude (category refs left out, with sub-categories), in_stock (bool),
+	 *                 since ('Y-m-d H:i:s': created at or after)
 	 */
-	public function run( string $type, array $f ): array {
-		$f = array_merge( array(
+	private function defaults( array $f ): array {
+		return array_merge( array(
 			'search'   => '',
 			'cats'     => array(),
 			'base_cat' => '',
@@ -76,11 +80,15 @@ class CatalogQuery {
 			'empty'    => array(),
 			'review'   => false,
 			'image'    => '',
+			'exclude'  => '',
+			'in_stock' => false,
+			'since'    => '',
 		), $f );
+	}
 
+	/** WHERE clause for a filter set. @return array [ ' WHERE …', params ] */
+	private function where( string $type, array $f ): array {
 		$public  = (bool) $f['public'];
-		$perPage = max( 1, min( self::MAX_PER_PAGE, (int) $f['per_page'] ) );
-		$page    = max( 1, (int) $f['page'] );
 		$t       = array( $this->db, 'table' );
 
 		$where  = array( 'i.type = ?' );
@@ -155,7 +163,38 @@ class CatalogQuery {
 			$where[] = 'i.id ' . ( 'no' === $f['image'] ? 'NOT ' : '' ) . 'IN (SELECT item_id FROM ' . $t( 'images' ) . ')';
 		}
 
-		$whereSql = ' WHERE ' . implode( ' AND ', $where );
+		// Categories left out of the page (with their sub-categories)
+		$out = $this->terms->resolve( $type, (string) $f['exclude'] );
+		if ( $out ) {
+			$where[]  = 'i.id NOT IN (SELECT item_id FROM ' . $t( 'item_terms' ) . ' WHERE term_id IN (?))';
+			$params[] = $this->terms->withDescendants( $type, $out );
+		}
+		// In stock: the status field does not say out of stock / discontinued / inactive
+		$status = $this->fields->roleField( $type, 'status', $public );
+		if ( $f['in_stock'] && $status ) {
+			$where[]  = 'i.id NOT IN (SELECT item_id FROM ' . $t( 'values' ) . ' WHERE field_key = ? AND value_idx IN (?))';
+			$params[] = $status['meta_key'];
+			$params[] = self::NOT_IN_STOCK;
+		}
+		// New: created since a moment (visitors: "last 30 days")
+		if ( preg_match( '/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', (string) $f['since'] ) ) {
+			$where[]  = 'i.created_at >= ?';
+			$params[] = $f['since'];
+		}
+
+		return array( ' WHERE ' . implode( ' AND ', $where ), $params );
+	}
+
+	/** @return array rows, total, pages, page */
+	public function run( string $type, array $f ): array {
+		$f       = $this->defaults( $f );
+		$public  = (bool) $f['public'];
+		$perPage = max( 1, min( self::MAX_PER_PAGE, (int) $f['per_page'] ) );
+		$page    = max( 1, (int) $f['page'] );
+		$t       = array( $this->db, 'table' );
+		$ids     = array_values( array_filter( array_map( 'intval', (array) $f['ids'] ) ) );
+		list( $whereSql, $params ) = $this->where( $type, $f );
+
 		$total    = (int) $this->db->selectValue( 'SELECT COUNT(*) FROM ' . $t( 'items' ) . ' i' . $whereSql, $params );
 
 		// Sort
@@ -168,6 +207,11 @@ class CatalogQuery {
 				$case .= ' WHEN ' . (int) $id . ' THEN ' . (int) $pos;
 			}
 			$order = $case . ' END';
+		} elseif ( 'manual' === $sort['special'] ) {
+			$order = 'i.position ASC, i.sort_title ASC, i.id ASC';
+		} elseif ( 'category' === $sort['special'] ) {
+			// First category of each item by its place in the tree, then by name
+			$order = 'COALESCE((SELECT MIN(ct.position * 1000000 + ct.id) FROM ' . $t( 'item_terms' ) . ' cit INNER JOIN ' . $t( 'terms' ) . " ct ON ct.id = cit.term_id AND ct.taxonomy = 'category' WHERE cit.item_id = i.id), 999999999999) ASC, i.sort_title ASC, i.id ASC";
 		} elseif ( $sort['field'] ) {
 			$join         = ' LEFT JOIN ' . $t( 'values' ) . ' sv ON sv.item_id = i.id AND sv.field_key = ?';
 			$joinParams[] = $sort['field'];
@@ -193,28 +237,56 @@ class CatalogQuery {
 
 	/** @return array key => label (number fields get low/high entries; public ones on the site) */
 	public function sortOptions( string $type, bool $public = true ): array {
-		$o = array(
-			'date_desc'  => $this->host->translate( 'Newest' ),
-			'date_asc'   => $this->host->translate( 'Oldest' ),
-			'title_asc'  => $this->host->translate( 'Name: A → Z' ),
-			'title_desc' => $this->host->translate( 'Name: Z → A' ),
+		$tr = array( $this->host, 'translate' );
+		$o  = array(
+			'date_desc'  => $tr( 'Newest' ),
+			'date_asc'   => $tr( 'Oldest' ),
+			'title_asc'  => $tr( 'Name: A → Z' ),
+			'title_desc' => $tr( 'Name: Z → A' ),
 		);
+		$code = $this->fields->roleField( $type, 'code', $public );
+		if ( $code ) {
+			$o['code_asc']  = sprintf( $tr( '%s: low → high' ), $code['label'] );
+			$o['code_desc'] = sprintf( $tr( '%s: high → low' ), $code['label'] );
+		}
+		$brand = $this->fields->roleField( $type, 'brand', $public );
+		if ( $brand ) {
+			$o['brand_asc'] = $brand['label'];
+		}
+		$config = $this->fields->type( $type );
+		if ( ! empty( $config['has_category'] ) ) {
+			$o['category_asc'] = $tr( 'Category' );
+		}
+		$o['manual'] = $tr( 'Recommended order' );
 		foreach ( $this->fields->fieldsByKey( $type, $public ) as $key => $field ) {
 			if ( 'number' === $field['type'] ) {
-				$o[ "field:$key:asc" ]  = $field['label'] . ': ' . $this->host->translate( 'Low → High' );
-				$o[ "field:$key:desc" ] = $field['label'] . ': ' . $this->host->translate( 'High → Low' );
+				$o[ "field:$key:asc" ]  = $field['label'] . ': ' . $tr( 'Low → High' );
+				$o[ "field:$key:desc" ] = $field['label'] . ': ' . $tr( 'High → Low' );
 			}
 		}
 		return $o;
 	}
 
-	/** @return array column|field, dir, numeric */
+	/** @return array column|field|special, dir, numeric */
 	public function resolveSort( string $type, string $sort, bool $public ): array {
+		$none = array( 'column' => '', 'field' => '', 'special' => '', 'dir' => 'ASC', 'numeric' => false );
 		if ( preg_match( '/^field:([a-z0-9_]+):(asc|desc)$/', $sort, $m ) ) {
 			$allowed = $this->fields->fieldsByKey( $type, $public );
 			if ( isset( $allowed[ $m[1] ] ) ) {
-				return array( 'column' => '', 'field' => $m[1], 'dir' => strtoupper( $m[2] ), 'numeric' => 'number' === $allowed[ $m[1] ]['type'] );
+				return array( 'field' => $m[1], 'dir' => strtoupper( $m[2] ), 'numeric' => 'number' === $allowed[ $m[1] ]['type'] ) + $none;
 			}
+		}
+		if ( preg_match( '/^(code|brand)_(asc|desc)$/', $sort, $m ) ) {
+			$f = $this->fields->roleField( $type, $m[1], $public );
+			if ( $f ) {
+				return array( 'field' => $f['meta_key'], 'dir' => strtoupper( $m[2] ), 'numeric' => 'number' === $f['type'] ) + $none;
+			}
+		}
+		if ( 'category_asc' === $sort ) {
+			return array( 'special' => 'category' ) + $none;
+		}
+		if ( 'manual' === $sort ) {
+			return array( 'special' => 'manual' ) + $none;
 		}
 		$map = array(
 			'date_desc'     => array( 'created_at', 'DESC' ),
@@ -225,7 +297,54 @@ class CatalogQuery {
 			'modified_asc'  => array( 'updated_at', 'ASC' ),
 		);
 		$pick = isset( $map[ $sort ] ) ? $map[ $sort ] : $map['date_desc'];
-		return array( 'column' => $pick[0], 'field' => '', 'dir' => $pick[1], 'numeric' => false );
+		return array( 'column' => $pick[0], 'dir' => $pick[1] ) + $none;
+	}
+
+	/**
+	 * Counts for the filter panel, each computed with every OTHER filter applied (so a count is what
+	 * the visitor gets by ticking it). A constant number of queries, whatever the catalog size;
+	 * cached until the next catalog write.
+	 *
+	 * @param array $facets list of: 'category' | 'flag:in_stock' | 'flag:new' | 'flag:photo' | field key
+	 * @return array facet => [ value => count ] (flags: [ 1 => count ]; category: [ term id => count ])
+	 */
+	public function facets( string $type, array $f, array $facets ): array {
+		$f   = $this->defaults( $f );
+		$key = 'dwcat_fa_' . md5( $type . '|' . json_encode( array( $f, $facets ) ) . '|' . $this->settings->cacheVersion() );
+		return $this->host->remember( $key, 43200, function () use ( $type, $f, $facets ) {
+			$t   = array( $this->db, 'table' );
+			$out = array();
+			foreach ( $facets as $facet ) {
+				$g = $f;
+				if ( 'category' === $facet ) {
+					$g['cats'] = array();
+					list( $w, $p ) = $this->where( $type, $g );
+					$rows = $this->db->select( 'SELECT it.term_id AS k, COUNT(DISTINCT i.id) AS n FROM ' . $t( 'items' ) . ' i INNER JOIN ' . $t( 'item_terms' ) . ' it ON it.item_id = i.id' . $w . ' GROUP BY it.term_id', $p );
+				} elseif ( 0 === strpos( $facet, 'flag:' ) ) {
+					$flag = substr( $facet, 5 );
+					if ( 'in_stock' === $flag ) {
+						$g['in_stock'] = true;
+					} elseif ( 'new' === $flag ) {
+						$g['since'] = gmdate( 'Y-m-d H:i:s', time() - 30 * 86400 );
+					} else {
+						$g['image'] = 'yes';
+					}
+					list( $w, $p ) = $this->where( $type, $g );
+					$rows = array( array( 'k' => 1, 'n' => $this->db->selectValue( 'SELECT COUNT(*) FROM ' . $t( 'items' ) . ' i' . $w, $p ) ) );
+				} else {
+					unset( $g['meta'][ $facet ] );
+					list( $w, $p ) = $this->where( $type, $g );
+					$rows = $this->db->select( 'SELECT v.value_idx AS k, COUNT(DISTINCT i.id) AS n FROM ' . $t( 'items' ) . ' i INNER JOIN ' . $t( 'values' ) . ' v ON v.item_id = i.id AND v.field_key = ? AND v.value_idx <> ?' . $w . ' GROUP BY v.value_idx ORDER BY v.value_idx ASC LIMIT 300', array_merge( array( $facet, '' ), $p ) );
+				}
+				$out[ $facet ] = array();
+				foreach ( $rows as $r ) {
+					if ( (int) $r['n'] > 0 ) {
+						$out[ $facet ][ (string) $r['k'] ] = (int) $r['n'];
+					}
+				}
+			}
+			return $out;
+		} );
 	}
 
 	/**

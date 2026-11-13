@@ -881,3 +881,135 @@
 		}
 	});
 })();
+
+/**
+ * Phase 3 — Design screen: live preview (desktop / tablet / phone widths), color pickers, and a
+ * new preset that starts from the values on screen.
+ */
+(function () {
+	'use strict';
+
+	var frame = document.querySelector('[data-dwc-preview-frame]');
+	var form = document.querySelector('[data-dwc-design]');
+	if (!frame || !form) {
+		return;
+	}
+	var spec = {};
+	try {
+		spec = JSON.parse(frame.getAttribute('data-dwc-design-spec')) || {};
+	} catch (e) {
+		spec = {};
+	}
+	var root = frame.querySelector('[data-dwc-preview-root]');
+	var loaded = {};
+
+	function font(set) {
+		var url = spec.fonts && spec.fonts[set];
+		if (url && !loaded[url]) {
+			loaded[url] = true;
+			var link = document.createElement('link');
+			link.rel = 'stylesheet';
+			link.href = url;
+			document.head.appendChild(link);
+		}
+	}
+
+	function apply(el) {
+		var key = el.getAttribute('data-dwc-dkey');
+		var value = el.value;
+		if (spec.enums && spec.enums[key] && spec.enums[key][value]) {
+			var vars = spec.enums[key][value];
+			Object.keys(vars).forEach(function (v) {
+				root.style.setProperty(v, vars[v]);
+			});
+			if (key === 'font_set') {
+				font(value);
+			}
+		} else if (spec.direct && spec.direct[key] && value !== '') {
+			var d = spec.direct[key];
+			if (d[1] === 'px' && isNaN(parseFloat(value))) {
+				return;
+			}
+			root.style.setProperty(d[0], value + d[1]);
+		}
+		if (key === 'columns') {
+			Array.prototype.forEach.call(root.querySelectorAll('.dwcat-grid'), function (g) {
+				g.style.setProperty('--dwcat-cols', value);
+			});
+		}
+	}
+
+	form.addEventListener('input', function (e) {
+		var t = e.target;
+		if (t.matches('[data-dwc-colorpick]')) {
+			var text = t.parentNode.querySelector('[data-dwc-dkey]');
+			text.value = t.value;
+			apply(text);
+		} else if (t.matches('[data-dwc-dkey]')) {
+			apply(t);
+			var pick = t.parentNode.querySelector('[data-dwc-colorpick]');
+			if (pick && /^#[0-9a-f]{6}$/i.test(t.value)) {
+				pick.value = t.value;
+			}
+		}
+	});
+	form.addEventListener('change', function (e) {
+		if (e.target.matches('select[data-dwc-dkey]')) {
+			apply(e.target);
+		}
+	});
+	var current = form.querySelector('[data-dwc-dkey="font_set"]');
+	if (current) {
+		font(current.value);
+	}
+
+	// The preview is laid out at the real device width and scaled down to fit the panel
+	var stage = frame.querySelector('[data-dwc-preview-stage]');
+	var width = 1200;
+	function fit() {
+		if (!stage) {
+			return;
+		}
+		stage.style.width = width + 'px';
+		var scale = Math.min(1, frame.clientWidth / width);
+		stage.style.transform = 'scale(' + scale + ')';
+		stage.style.left = Math.max(0, Math.floor((frame.clientWidth - width * scale) / 2)) + 'px';
+		frame.style.height = Math.ceil(stage.offsetHeight * scale) + 'px';
+	}
+	window.addEventListener('resize', fit);
+	if (window.ResizeObserver && stage) {
+		new ResizeObserver(fit).observe(stage);
+	}
+	fit();
+
+	document.addEventListener('click', function (e) {
+		var b = e.target.closest('[data-dwc-preview-width]');
+		if (!b) {
+			return;
+		}
+		e.preventDefault();
+		width = parseInt(b.getAttribute('data-dwc-preview-width'), 10) || 1200;
+		fit();
+		Array.prototype.forEach.call(b.parentNode.children, function (x) {
+			x.classList.toggle('is-active', x === b);
+		});
+	});
+
+	// "Save as preset": take the values currently on screen, not the saved ones
+	var copy = document.querySelector('[data-dwc-design-copy]');
+	if (copy) {
+		copy.addEventListener('submit', function () {
+			Array.prototype.forEach.call(copy.querySelectorAll('input[data-dwc-copied]'), function (x) {
+				x.remove();
+			});
+			Array.prototype.forEach.call(form.querySelectorAll('[name^="design["]'), function (el) {
+				var h = document.createElement('input');
+				h.type = 'hidden';
+				h.name = el.name;
+				h.value = el.value;
+				h.setAttribute('data-dwc-copied', '');
+				copy.appendChild(h);
+			});
+		});
+	}
+})();

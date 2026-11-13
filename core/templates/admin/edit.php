@@ -237,10 +237,10 @@ $mainImg = $images ? $images[0] : null;
 			<h2><?php echo Html::e( $app->t( 'Publish' ) ); ?></h2>
 			<div class="dwc-card-body dwc-stack">
 				<div class="dwc-field">
-					<label for="dwc-status"><?php echo Html::e( $app->t( 'Status' ) ); ?></label>
+					<label for="dwc-status"><?php echo Html::e( $app->t( 'Visibility' ) ); ?></label>
 					<select id="dwc-status" name="status">
-						<option value="publish" <?php echo ! $item || 'publish' === $item['status'] ? 'selected' : ''; ?>><?php echo Html::e( $app->t( 'Active — visible on catalog' ) ); ?></option>
-						<option value="draft" <?php echo $item && 'draft' === $item['status'] ? 'selected' : ''; ?>><?php echo Html::e( $app->t( 'Inactive — hidden' ) ); ?></option>
+						<option value="publish" <?php echo ! $item || 'publish' === $item['status'] ? 'selected' : ''; ?>><?php echo Html::e( $app->t( 'Shown on the site' ) ); ?></option>
+						<option value="draft" <?php echo $item && 'draft' === $item['status'] ? 'selected' : ''; ?>><?php echo Html::e( $app->t( 'Hidden from the site' ) ); ?></option>
 					</select>
 				</div>
 				<div class="dwc-field">
@@ -249,6 +249,11 @@ $mainImg = $images ? $images[0] : null;
 					<?php if ( '' !== $oldUrl ) : ?>
 						<span class="dwc-hint"><?php echo Html::e( $app->t( 'Old address:' ) ); ?> <span class="dwc-mono"><?php echo Html::e( $oldUrl ); ?></span> → <?php echo Html::e( $app->t( 'this product' ) ); ?></span>
 					<?php endif; ?>
+				</div>
+				<div class="dwc-field">
+					<label for="dwc-position"><?php echo Html::e( $app->t( 'Recommended order' ) ); ?></label>
+					<input type="number" id="dwc-position" name="position" class="dwc-narrow-number" step="1" value="<?php echo Html::attr( $item && isset( $item['position'] ) ? (int) $item['position'] : 0 ); ?>">
+					<span class="dwc-hint"><?php echo Html::e( $app->t( 'Lower numbers come first when a catalog is sorted by "Recommended order".' ) ); ?></span>
 				</div>
 				<?php if ( $id ) : ?>
 					<span class="dwc-hint"><?php echo Html::e( sprintf( $app->t( 'Last updated %s' ), substr( $item['updated_at'], 0, 16 ) ) ); ?> · #<?php echo $id; ?></span>

@@ -1,6 +1,7 @@
 <?php
 /**
- * WordPress front-end integration: shortcodes, pretty item URLs (/{page}/item/{slug}/),
+ * WordPress front-end integration: shortcodes ([dw_wholesale_catalog], [dw_wholesale_search], and the
+ * 2.x [dw_catalog] / [dw_catalog_grid] / [dw_catalog_carousel]), pretty item URLs (/{page}/item/{slug}/),
  * SEO tags for item pages, XML sitemap of items, assets.
  *
  * The page is designed in WordPress; everything inside the shortcode comes from the core.
@@ -21,6 +22,8 @@ class DWCAT_WP_Front {
 
 	public function __construct() {
 		add_action( 'init', array( $this, 'endpoint' ) );
+		add_shortcode( 'dw_wholesale_catalog', array( $this, 'shortcode_wholesale' ) );
+		add_shortcode( 'dw_wholesale_search', array( $this, 'shortcode_search' ) );
 		add_shortcode( 'dw_catalog', array( $this, 'shortcode_catalog' ) );
 		add_shortcode( 'dw_catalog_grid', array( $this, 'shortcode_grid' ) );
 		add_shortcode( 'dw_catalog_carousel', array( $this, 'shortcode_carousel' ) );
@@ -53,13 +56,17 @@ class DWCAT_WP_Front {
 		}
 		global $wpdb;
 		$best = 0;
-		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT ID, post_content FROM {$wpdb->posts} WHERE post_type = 'page' AND post_status = 'publish' AND post_content LIKE %s ORDER BY menu_order ASC, ID ASC LIMIT 50", '%' . $wpdb->esc_like( '[dw_catalog' ) . '%' ) );
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT ID, post_content FROM {$wpdb->posts} WHERE post_type = 'page' AND post_status = 'publish' AND ( post_content LIKE %s OR post_content LIKE %s ) ORDER BY menu_order ASC, ID ASC LIMIT 50", '%' . $wpdb->esc_like( '[dw_catalog' ) . '%', '%' . $wpdb->esc_like( '[dw_wholesale_catalog' ) . '%' ) );
 		foreach ( $rows as $row ) {
-			if ( ! has_shortcode( $row->post_content, 'dw_catalog' ) ) {
+			if ( ! self::has_catalog( $row->post_content ) ) {
 				continue;
 			}
-			$atts = self::shortcode_atts_in( $row->post_content );
-			if ( empty( $atts['category'] ) ) {
+			try {
+				$atts = self::shortcode_atts_in( $row->post_content );
+			} catch ( \Throwable $e ) {
+				$atts = array();
+			}
+			if ( empty( $atts['category'] ) && empty( $atts['group'] ) && empty( $atts['categories'] ) ) {
 				$best = (int) $row->ID;
 				break;
 			}
@@ -73,28 +80,66 @@ class DWCAT_WP_Front {
 		delete_transient( 'dwcat_catalog_page' );
 	}
 
+	const CATALOG_TAGS = array( 'dw_wholesale_catalog', 'dw_catalog' );
+
+	/**
+	 * Full attributes of the first catalog shortcode in some content (saved widget and 3.0 defaults
+	 * applied), or null when there is none.
+	 */
 	private static function shortcode_atts_in( $content ) {
-		if ( preg_match_all( '/' . get_shortcode_regex( array( 'dw_catalog' ) ) . '/', (string) $content, $m, PREG_SET_ORDER ) ) {
+		if ( preg_match_all( '/' . get_shortcode_regex( self::CATALOG_TAGS ) . '/', (string) $content, $m, PREG_SET_ORDER ) ) {
 			$atts = shortcode_parse_atts( $m[0][3] );
-			return is_array( $atts ) ? $atts : array();
+			return dwcat()->front()->resolve( is_array( $atts ) ? $atts : array(), 'dw_wholesale_catalog' === $m[0][2] );
 		}
 		return null;
+	}
+
+	private static function has_catalog( $content ) {
+		foreach ( self::CATALOG_TAGS as $tag ) {
+			if ( has_shortcode( (string) $content, $tag ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	// ─────────────────────────────────────────────────────────────
 	// Shortcodes
 	// ─────────────────────────────────────────────────────────────
 
+	public function shortcode_wholesale( $atts ) {
+		return $this->catalog_shortcode( $atts, true );
+	}
+
 	public function shortcode_catalog( $atts ) {
+		return $this->catalog_shortcode( $atts, false );
+	}
+
+	private function catalog_shortcode( $atts, $wholesale ) {
 		DWCAT_WP_I18n::ensure_front(); // widget language (Settings), before any text
 		// 게이트 1 + 8 — 라이선스 없이는 프런트에 카탈로그를 렌더하지 않습니다.
 		if ( ! dwcat_can_render() || ! dwcat_can_use_shortcode() ) {
 			return dwcat_gate_placeholder();
 		}
-		$this->enqueue( true, false );
-		$atts = shortcode_atts( \DWCatalog\Front\FrontApp::defaults(), $atts, 'dw_catalog' );
+		return $this->safely( function () use ( $atts, $wholesale ) {
+			$full = dwcat()->front()->resolve( is_array( $atts ) ? $atts : array(), $wholesale );
+			$this->enqueue( true, false, (string) $full['design'] );
+			return dwcat()->front()->catalog( $full, $this->context_for( get_the_ID() ) );
+		} );
+	}
+
+	/** [dw_wholesale_search placeholder="" size="small|large" suggest="nori, wasabi" page="123"] */
+	public function shortcode_search( $atts ) {
+		DWCAT_WP_I18n::ensure_front();
+		if ( ! dwcat_can_render() || ! dwcat_can_use_shortcode() ) {
+			return dwcat_gate_placeholder();
+		}
+		$atts = shortcode_atts( array( 'placeholder' => '', 'size' => 'small', 'suggest' => '', 'design' => '', 'label' => '', 'page' => 0 ), $atts, 'dw_wholesale_search' );
 		return $this->safely( function () use ( $atts ) {
-			return dwcat()->front()->catalog( $atts, $this->context_for( get_the_ID() ) );
+			$page = (int) $atts['page'] && 'page' === get_post_type( (int) $atts['page'] ) ? (int) $atts['page'] : self::catalog_page_id();
+			$this->enqueue( false, false, (string) $atts['design'] );
+			$ctx = $page ? new \DWCatalog\Front\Context( get_permalink( $page ) ) : new \DWCatalog\Front\Context( home_url( '/' ) );
+			return dwcat()->front()->search( $atts, $ctx );
 		} );
 	}
 
@@ -112,8 +157,8 @@ class DWCAT_WP_Front {
 		if ( ! dwcat_can_render() || ! dwcat_can_use_shortcode() ) {
 			return dwcat_gate_placeholder();
 		}
-		$this->enqueue( false, $carousel );
-		$atts = shortcode_atts( array( 'type' => '', 'category' => '', 'per_page' => 12, 'columns' => 0, 'per_slide' => 3, 'ids' => '', 'show_fields' => '', 'orderby' => 'date', 'order' => 'DESC', 'autoplay' => 'yes', 'interval' => 5000 ), $atts, $tag );
+		$atts = shortcode_atts( array( 'type' => '', 'category' => '', 'per_page' => 12, 'columns' => 0, 'per_slide' => 3, 'ids' => '', 'show_fields' => '', 'orderby' => 'date', 'order' => 'DESC', 'autoplay' => 'yes', 'interval' => 5000, 'design' => '' ), $atts, $tag );
+		$this->enqueue( false, $carousel, (string) $atts['design'] );
 		$page = self::catalog_page_id();
 		return $this->safely( function () use ( $atts, $carousel, $page ) {
 			$ctx = $page ? $this->context_for( $page ) : new \DWCatalog\Front\Context( home_url( '/' ) );
@@ -138,14 +183,23 @@ class DWCAT_WP_Front {
 		if ( ! is_singular() || ! $post ) {
 			return;
 		}
-		$catalog  = has_shortcode( $post->post_content, 'dw_catalog' );
+		$catalog  = self::has_catalog( $post->post_content );
 		$carousel = has_shortcode( $post->post_content, 'dw_catalog_carousel' );
-		if ( $catalog || $carousel || has_shortcode( $post->post_content, 'dw_catalog_grid' ) ) {
-			$this->enqueue( $catalog, $carousel );
+		if ( $catalog || $carousel || has_shortcode( $post->post_content, 'dw_catalog_grid' ) || has_shortcode( $post->post_content, 'dw_wholesale_search' ) ) {
+			$design = '';
+			if ( $catalog ) {
+				try {
+					$atts   = self::shortcode_atts_in( $post->post_content );
+					$design = $atts ? (string) $atts['design'] : '';
+				} catch ( \Throwable $e ) { // phpcs:ignore — catalog DB unavailable
+				}
+			}
+			$this->enqueue( $catalog, $carousel, $design );
 		}
 	}
 
-	private function enqueue( $catalog, $carousel ) {
+	/** Styles / scripts; $design = preset whose font the widget uses (several presets: several fonts). */
+	private function enqueue( $catalog, $carousel, $design = '' ) {
 		// 게이트 2 — 프런트 CSS/JS
 		if ( ! dwcat_can_load_assets() ) {
 			return;
@@ -153,9 +207,9 @@ class DWCAT_WP_Front {
 		$host = new DWCAT_WP_Host();
 		wp_enqueue_style( 'dwcat-front', $host->assetUrl( 'front.css' ), array(), $host->version() );
 		try {
-			$font = \DWCatalog\Front\Design::fontUrl( dwcat()->settings() );
+			$font = \DWCatalog\Front\Design::fontUrl( dwcat()->settings(), $design );
 			if ( '' !== $font ) {
-				wp_enqueue_style( 'dwcat-font', $font, array(), null ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion — Google Fonts URL
+				wp_enqueue_style( 'dwcat-font-' . substr( md5( $font ), 0, 8 ), $font, array(), null ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion — Google Fonts URL
 			}
 		} catch ( \Throwable $e ) { // phpcs:ignore — catalog DB unavailable: theme font
 		}
@@ -177,14 +231,17 @@ class DWCAT_WP_Front {
 		if ( ! $asks || ! is_page() ) {
 			return;
 		}
-		$atts = self::shortcode_atts_in( get_post_field( 'post_content', get_queried_object_id() ) );
+		try {
+			$atts = self::shortcode_atts_in( get_post_field( 'post_content', get_queried_object_id() ) );
+		} catch ( \Throwable $e ) {
+			$atts = null; // catalog database unavailable
+		}
 		if ( null === $atts || ! dwcat_can_render() ) {
 			global $wp_query;
 			$wp_query->set_404();
 			status_header( 404 );
 			return;
 		}
-		$atts = shortcode_atts( \DWCatalog\Front\FrontApp::defaults(), $atts, 'dw_catalog' );
 		$ctx  = $this->context_for( get_queried_object_id() );
 		try {
 			$item = dwcat()->front()->requestedItem( $atts, $ctx );

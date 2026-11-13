@@ -10,7 +10,7 @@ namespace DWCatalog\Db;
  */
 class Schema {
 
-	const VERSION = 3;
+	const VERSION = 4;
 
 	/** Tables whose primary key is an auto-increment "id". */
 	const AUTO_ID = array( 'items', 'terms', 'images', 'variations', 'applications' );
@@ -39,6 +39,7 @@ class Schema {
 					'excerpt'    => array( 'text' ),
 					'status'     => array( 'string:20', 'default' => "'draft'" ),
 					'review'     => array( 'string:40', 'default' => "''" ),
+					'position'   => array( 'int' ),
 					'author_id'  => array( 'bigint' ),
 					'created_at' => array( 'datetime' ),
 					'updated_at' => array( 'datetime' ),
@@ -176,6 +177,9 @@ class Schema {
 		if ( $from > 0 && $from < 3 ) {
 			self::upgradeTo3( $db, $prefix );
 		}
+		if ( $from > 0 && $from < 4 ) {
+			self::upgradeTo4( $db );
+		}
 		foreach ( self::tables() as $name => $def ) {
 			foreach ( $db->dialect()->createTable( $db->table( $name ), $prefix . $name, $def ) as $sql ) {
 				$db->execute( $sql );
@@ -212,6 +216,15 @@ class Schema {
 				$db->execute( $sql );
 			}
 			$db->execute( 'UPDATE ' . $table . " SET review = '' WHERE review IS NULL" );
+		}
+	}
+
+	/** v4: items.position (manual "recommended" order on the site; 0 = no particular place). */
+	private static function upgradeTo4( Connection $db ): void {
+		if ( ! $db->columnExists( 'items', 'position' ) ) {
+			foreach ( $db->dialect()->addColumn( $db->table( 'items' ), 'position', array( 'int' ) ) as $sql ) {
+				$db->execute( $sql );
+			}
 		}
 	}
 
