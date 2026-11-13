@@ -14,6 +14,38 @@
 
 	var seq = 0;
 
+	// Translated strings printed by the server on .dwc-admin[data-dwc-i18n]; %s / %1$s placeholders.
+	var strings = {};
+	(function () {
+		var root = document.querySelector('.dwc-admin[data-dwc-i18n]');
+		try {
+			strings = root ? JSON.parse(root.getAttribute('data-dwc-i18n')) || {} : {};
+		} catch (e) {
+			strings = {};
+		}
+	})();
+	function T(text) {
+		var out = strings[text] || text;
+		var args = Array.prototype.slice.call(arguments, 1);
+		var i = 0;
+		return out.replace(/%(?:(\d+)\$)?[sd]/g, function (m, n) {
+			var v = n ? args[parseInt(n, 10) - 1] : args[i++];
+			return v === undefined ? m : String(v);
+		});
+	}
+
+	// View-only screens: the server refuses every change; lock the form controls so it is obvious.
+	document.querySelectorAll('.dwc-admin.is-readonly form[method=post]').forEach(function (form) {
+		if (form.classList.contains('dwc-lang')) {
+			return;
+		}
+		form.querySelectorAll('input, select, textarea, button').forEach(function (el) {
+			if (el.type !== 'hidden') {
+				el.disabled = true;
+			}
+		});
+	});
+
 	function rowsBody(name) {
 		var table = document.querySelector('[data-dwc-rows="' + name + '"]');
 		return table ? table.tBodies[0] : null;
@@ -291,7 +323,7 @@
 		var buttons = input.form ? input.form.querySelectorAll('button[type=submit]') : [];
 		Array.prototype.forEach.call(buttons, function (b) { b.disabled = true; });
 		if (status) {
-			status.textContent = 'Optimizing photos…';
+			status.textContent = T('Optimizing photos…');
 		}
 		Promise.all(files.map(shrink)).then(function (out) {
 			var dt = new DataTransfer();
@@ -304,7 +336,7 @@
 			});
 			input.files = dt.files;
 			if (status) {
-				status.textContent = out.length + ' photo(s): ' + mb(before) + ' → ' + mb(after);
+				status.textContent = T('%1$d photo(s): %2$s → %3$s', out.length, mb(before), mb(after));
 			}
 		}).catch(function () {
 			if (status) {
@@ -601,7 +633,7 @@
 		colsBody.innerHTML = colsSnapshot;
 		box.querySelectorAll('[data-dwc-preset]').forEach(function (b) { b.classList.remove('dwc-btn-primary'); });
 		if (wasActive) {
-			result.textContent = result.getAttribute('data-removed') || 'Preset removed. Saved fields are unchanged.';
+			result.textContent = result.getAttribute('data-removed') || T('Preset removed. Saved fields are unchanged.');
 			result.hidden = false;
 			return;
 		}
@@ -644,8 +676,7 @@
 				colsAdded++;
 			});
 		}
-		result.textContent = preset.label + ': ' + added + ' fields added, ' + skipped + ' already existed, ' + colsAdded +
-			' variation columns added. Pick another type to switch, or click it again to undo. Click "Save fields" to keep.';
+		result.textContent = T('%1$s: %2$d fields added, %3$d already existed, %4$d variation columns added. Pick another type to switch, or click it again to undo. Click "Save fields" to keep.', preset.label, added, skipped, colsAdded);
 		result.hidden = false;
 	}
 })();

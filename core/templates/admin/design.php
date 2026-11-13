@@ -37,7 +37,7 @@ $groups  = array(
 	),
 );
 ?>
-<?php echo $app->head( $app->t( 'Settings' ) ); ?>
+<?php echo $app->head( $app->t( 'Design' ) ); ?>
 <?php include __DIR__ . '/_nav.php'; ?>
 
 <?php echo $app->form( 'save_design', $type ); ?>

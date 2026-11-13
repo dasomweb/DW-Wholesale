@@ -57,7 +57,7 @@ $header  = CsvFormat::header( $c, $type );
 				<li><?php echo Html::e( $app->t( 'New image URLs are downloaded; images already in the catalog are kept.' ) ); ?></li>
 			</ul>
 			<pre class="dwc-code"><?php echo Html::e( implode( ',', $header ) ); ?></pre>
-			<?php if ( $c->host()->can( 'catalog.export' ) ) : ?>
+			<?php if ( $app->allowed( 'csv_export' ) ) : ?>
 				<?php echo $app->form( 'export_csv', $type ); ?>
 					<input type="hidden" name="template" value="1">
 					<button type="submit" class="dwc-btn"><?php echo Html::e( $app->t( 'Download template CSV' ) ); ?></button>

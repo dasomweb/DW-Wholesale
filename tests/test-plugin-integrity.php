@@ -49,6 +49,14 @@ $required_files = array(
 	'core/src/Admin/AdminApp.php',
 	'core/src/Front/FrontApp.php',
 	'core/src/Security/Csrf.php',
+	'core/src/Security/Access.php',
+	'core/src/I18n/Languages.php',
+	'core/src/I18n/FrontStrings.php',
+	'core/templates/admin/dashboard.php',
+	'core/templates/admin/settings.php',
+	'core/templates/admin/access.php',
+	'core/templates/admin/placeholder.php',
+	'core/templates/admin/shortcodes.php',
 	'core/assets/front.css',
 	'core/assets/catalog.js',
 	'core/assets/carousel.js',
@@ -58,7 +66,15 @@ $required_files = array(
 	'includes/wp/class-dwcat-wpdb-connection.php',
 	'includes/wp/class-dwcat-wp-host.php',
 	'includes/wp/class-dwcat-wp-admin.php',
+	'includes/wp/class-dwcat-wp-i18n.php',
+	'includes/wp/class-dwcat-wp-access.php',
 	'includes/wp/class-dwcat-wp-front.php',
+	// Translations (M9) — Korean shipped, English is the source language
+	'languages/dw-wholesale.pot',
+	'languages/dw-wholesale-ko_KR.po',
+	'languages/dw-wholesale-ko_KR.mo',
+	'languages/dw-wholesale-en_US.po',  // license SDK screens in English
+	'languages/dw-wholesale-en_US.mo',
 	'includes/wp/class-dwcat-wp-rest.php',
 	'includes/class-pc-github-updater.php',
 	'includes/class-dw-license-manager.php',
@@ -174,6 +190,8 @@ $expected_classes = array(
 	'DWCAT_Wpdb_Connection'    => 'wp/class-dwcat-wpdb-connection.php',
 	'DWCAT_WP_Host'            => 'wp/class-dwcat-wp-host.php',
 	'DWCAT_WP_Admin'           => 'wp/class-dwcat-wp-admin.php',
+	'DWCAT_WP_I18n'            => 'wp/class-dwcat-wp-i18n.php',
+	'DWCAT_WP_Access'          => 'wp/class-dwcat-wp-access.php',
 	'DWCAT_WP_Front'           => 'wp/class-dwcat-wp-front.php',
 	'DWCAT_WP_Rest'            => 'wp/class-dwcat-wp-rest.php',
 );
@@ -213,7 +231,12 @@ echo "--- 7. Security Patterns (Nonce + Sanitize) ---\n";
 // All admin_post handlers should have nonce verification
 $admin_app = file_get_contents( "$plugin_root/core/src/Admin/AdminApp.php" );
 assert_true( strpos( $admin_app, 'csrf()->verify' ) !== false, 'Core admin verifies CSRF token on every POST' );
-assert_true( strpos( $admin_app, 'host()->can(' ) !== false, 'Core admin checks capabilities' );
+assert_true( strpos( $admin_app, '$access->level( $menu ) >= $level' ) !== false, 'Core admin checks the menu access level on every POST' );
+assert_true( strpos( $admin_app, '$access->allowed( $permission )' ) !== false, 'Core admin checks action permissions (delete, CSV export, …)' );
+assert_true( strpos( $admin_app, 'function canOpen' ) !== false, 'Core admin refuses hidden screens on GET' );
+$wp_admin = file_get_contents( "$plugin_root/includes/wp/class-dwcat-wp-admin.php" );
+assert_true( strpos( $wp_admin, "'load-' . \$this->hook" ) !== false && strpos( $wp_admin, "'response' => 403" ) !== false, 'WP adapter: hidden screens refused with 403 before output' );
+assert_true( strpos( $wp_admin, "'edit_posts'" ) === false, 'WP adapter: menu visibility no longer tied to edit_posts' );
 assert_true( strpos( $admin_app, 'host()->allows(' ) !== false, 'Core admin checks host policy (license)' );
 $license_mgr = file_get_contents( "$plugin_root/includes/class-dw-license-manager.php" );
 assert_true( strpos( $license_mgr, "'license_action'" ) !== false, "License SDK nonce action present" );

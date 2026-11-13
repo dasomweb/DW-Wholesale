@@ -3,7 +3,7 @@
  * Plugin Name: DW Wholesale
  * Plugin URI: https://github.com/dasomweb/DW-Wholesale
  * Description: Independent product catalog system (own tables, search, filters, variations) placed on WordPress pages by shortcode.
- * Version: 3.0.0
+ * Version: 3.0.0-alpha.1
  * Author: Dasom Web
  * Author URI: https://github.com/dasomweb
  * License: GPL v2 or later
@@ -27,7 +27,7 @@ function dwcat_get_config() {
 		'github_repo_owner'  => 'dasomweb',
 		'github_repo_name'   => 'DW-Wholesale',
 		'plugin_slug'        => 'dw-wholesale',
-		'plugin_version'     => '3.0.0',
+		'plugin_version'     => '3.0.0-alpha.1',
 		'plugin_name'        => 'DW Wholesale',
 		'plugin_text_domain' => 'dw-wholesale',
 		'github_branch'      => 'main',
@@ -66,6 +66,8 @@ require_once dwcat_get_path() . 'includes/class-dwcat-license-rest.php';
 
 require_once dwcat_get_path() . 'includes/wp/class-dwcat-wpdb-connection.php';
 require_once dwcat_get_path() . 'includes/wp/class-dwcat-wp-host.php';
+require_once dwcat_get_path() . 'includes/wp/class-dwcat-wp-i18n.php';
+require_once dwcat_get_path() . 'includes/wp/class-dwcat-wp-access.php';
 require_once dwcat_get_path() . 'includes/wp/class-dwcat-wp-admin.php';
 require_once dwcat_get_path() . 'includes/wp/class-dwcat-wp-front.php';
 require_once dwcat_get_path() . 'includes/wp/class-dwcat-wp-rest.php';
@@ -84,7 +86,7 @@ DW_DWCAT_License_Manager::init( array(
 	'plugin_file'     => __FILE__,
 	'plugin_basename' => plugin_basename( __FILE__ ),
 	'plugin_name'     => 'DW Wholesale',
-	'plugin_version'  => '3.0.0',
+	'plugin_version'  => '3.0.0-alpha.1',
 	'settings_page'   => 'dw-wholesale-license',
 	'menu_parent'     => DWCAT_WP_Host::ADMIN_PAGE,
 	'public_keys'     => array(
@@ -147,7 +149,10 @@ function dwcat() {
 // Initialize the WordPress adapter
 add_action( 'plugins_loaded', 'dwcat_init', 10 );
 function dwcat_init() {
-	load_plugin_textdomain( 'dw-wholesale', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+	// Translations: the language chosen in DW Wholesale → Settings (admin and site widgets apart),
+	// loaded on `init` from languages/dw-wholesale-{locale}.mo.
+	DWCAT_WP_I18n::init();
+	new DWCAT_WP_Access();     // operator mode (DW Wholesale → Access)
 	new DWCAT_WP_Admin();
 	new DWCAT_WP_Front();
 	new DWCAT_WP_Rest();

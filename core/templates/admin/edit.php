@@ -93,7 +93,7 @@ $mainImg = $images ? $images[0] : null;
 ?>
 <div class="dwc-head">
 	<div class="dwc-head-title">
-		<nav class="dwc-crumbs" aria-label="<?php echo Html::attr( $app->t( 'Breadcrumb' ) ); ?>"><a href="<?php echo Html::url( $app->url( array( 'view' => 'items', 'type' => $type ) ) ); ?>"><?php echo Html::e( $app->t( 'All Items' ) ); ?></a> <span aria-hidden="true">/</span> <?php echo Html::e( $id ? $app->t( 'Edit' ) : $app->t( 'Add New' ) ); ?></nav>
+		<nav class="dwc-crumbs" aria-label="<?php echo Html::attr( $app->t( 'Breadcrumb' ) ); ?>"><a href="<?php echo Html::url( $app->url( array( 'view' => 'items', 'type' => $type ) ) ); ?>"><?php echo Html::e( $app->t( 'Products' ) ); ?></a> <span aria-hidden="true">/</span> <?php echo Html::e( $id ? $app->t( 'Edit' ) : $app->t( 'Add New' ) ); ?></nav>
 		<div class="dwc-titlerow">
 			<h1><?php echo Html::e( $id ? $item['title'] : $app->t( 'Add item' ) ); ?></h1>
 			<?php if ( $id ) : ?>
@@ -249,12 +249,14 @@ $mainImg = $images ? $images[0] : null;
 				<?php endif; ?>
 			</div>
 			<div class="dwc-card-foot">
-				<?php if ( $id && $c->host()->can( 'catalog.delete' ) ) : ?>
+				<?php if ( $id && ! $readonly && $app->allowed( 'product_delete' ) ) : ?>
 					<button type="submit" form="dwc-delete-form" class="dwc-link dwc-danger" data-dwc-confirm="<?php echo Html::attr( $app->t( 'Delete this item and its images? This cannot be undone.' ) ); ?>"><?php echo Html::e( $app->t( 'Delete item' ) ); ?></button>
 				<?php else : ?>
 					<span></span>
 				<?php endif; ?>
+				<?php if ( ! $readonly ) : ?>
 				<button type="submit" class="dwc-btn dwc-btn-primary"><?php echo Html::e( $id ? $app->t( 'Save changes' ) : $app->t( 'Add item' ) ); ?></button>
+				<?php endif; ?>
 			</div>
 		</section>
 
@@ -326,7 +328,7 @@ $mainImg = $images ? $images[0] : null;
 	</aside>
 </form>
 
-<?php if ( $id && $c->host()->can( 'catalog.delete' ) ) : ?>
+<?php if ( $id && ! $readonly && $app->allowed( 'product_delete' ) ) : ?>
 	<?php echo $app->form( 'delete_item', $type, false, 'id="dwc-delete-form" hidden' ); ?>
 		<input type="hidden" name="id" value="<?php echo $id; ?>">
 	</form>

@@ -1,0 +1,1101 @@
+# DW Wholesale — Korean translation.
+# Maintained catalogue: add new strings here, then run `php build/i18n.php all`
+# (writes dw-wholesale.pot and compiles dw-wholesale-ko_KR.mo).
+msgid ""
+msgstr ""
+"Project-Id-Version: DW Wholesale 3.0.0\n"
+"Language: ko_KR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Domain: dw-wholesale\n"
+
+msgid "%1$d photo(s): %2$s → %3$s"
+msgstr "사진 %1$d장: %2$s → %3$s"
+
+msgid "%1$d–%2$d of %3$d items"
+msgstr "%3$d개 중 %1$d–%2$d"
+
+msgid "%1$s: %2$d fields added, %3$d already existed, %4$d variation columns added. Pick another type to switch, or click it again to undo. Click \"Save fields\" to keep."
+msgstr "%1$s: 필드 %2$d개 추가, %3$d개는 이미 있음, 옵션 컬럼 %4$d개 추가. 다른 업종을 고르면 바뀌고, 같은 업종을 다시 누르면 취소됩니다. 유지하려면 \"필드 저장\"을 누르세요."
+
+msgid "%d item"
+msgstr "상품 %d개"
+
+msgid "%d items"
+msgstr "상품 %d개"
+
+msgid "%d products share an item code with another product."
+msgstr "상품 %d개가 다른 상품과 품목코드가 같습니다."
+
+msgid "%s is required."
+msgstr "%s 항목은 필수입니다."
+
+msgid "%s: the value was not accepted."
+msgstr "%s: 입력한 값을 저장할 수 없습니다."
+
+msgid "(none = all)"
+msgstr "(없음 = 전체)"
+
+msgid "(optional)"
+msgstr "(선택)"
+
+msgid "(top level)"
+msgstr "(최상위)"
+
+msgid "/ %d sub"
+msgstr "/ 하위 %d"
+
+msgid "Accent color"
+msgstr "강조 색상"
+
+msgid "Access"
+msgstr "접근 권한"
+
+msgid "Action"
+msgstr "작업"
+
+msgid "Actions"
+msgstr "작업"
+
+msgid "Actions by role"
+msgstr "역할별 작업 권한"
+
+msgid "Activate now"
+msgstr "지금 활성화"
+
+msgid "Active"
+msgstr "활성"
+
+msgid "Active items in this category"
+msgstr "이 카테고리의 활성 상품"
+
+msgid "Active — visible on catalog"
+msgstr "활성 — 카탈로그에 표시"
+
+msgid "Add New"
+msgstr "새로 추가"
+
+msgid "Add and edit products, prices, options and photos."
+msgstr "상품, 가격, 옵션, 사진을 추가하고 수정합니다."
+
+msgid "Add categories"
+msgstr "카테고리 추가"
+
+msgid "Add category"
+msgstr "카테고리 추가"
+
+msgid "Add column"
+msgstr "컬럼 추가"
+
+msgid "Add field"
+msgstr "필드 추가"
+
+msgid "Add item"
+msgstr "상품 추가"
+
+msgid "Add rows when this item comes in several sizes, packs or flavors."
+msgstr "이 상품의 크기·포장·맛이 여러 가지라면 줄을 추가하세요."
+
+msgid "Add variation"
+msgstr "옵션 추가"
+
+msgid "Adds an \"Inquire\" button on detail pages."
+msgstr "상세 페이지에 \"문의하기\" 버튼을 추가합니다."
+
+msgid "Admin language (your account only)"
+msgstr "관리자 화면 언어 (내 계정에만 적용)"
+
+msgid "Admin screens"
+msgstr "관리자 화면"
+
+msgid "All"
+msgstr "전체"
+
+msgid "All fields, categories, tags, image URLs and variations (one row per variation). Edit in a spreadsheet and bring it back with Import → Update."
+msgstr "모든 필드, 카테고리, 태그, 이미지 URL, 옵션(옵션마다 한 줄)을 내보냅니다. 스프레드시트에서 수정한 뒤 가져오기 → 업데이트로 다시 올리세요."
+
+msgid "All unique"
+msgstr "모두 고유"
+
+msgid "Also used by:"
+msgstr "같은 코드를 쓰는 상품:"
+
+msgid "Alt text"
+msgstr "대체 텍스트"
+
+msgid "Always allowed"
+msgstr "항상 허용"
+
+msgid "Any %s"
+msgstr "모든 %s"
+
+msgid "Any category"
+msgstr "모든 카테고리"
+
+msgid "Any status"
+msgstr "모든 상태"
+
+msgid "Apparel"
+msgstr "의류"
+
+msgid "Application form with your own questions and file uploads"
+msgstr "직접 정한 질문과 파일 첨부가 있는 신청서"
+
+msgid "Applications"
+msgstr "신청서"
+
+msgid "Apply"
+msgstr "적용"
+
+msgid "Approval creates the account and sends a one-time password link"
+msgstr "승인하면 계정이 만들어지고 1회용 비밀번호 설정 링크가 발송됩니다"
+
+msgid "Approve or reject applications"
+msgstr "신청서 승인·거절"
+
+msgid "Arrange category groups and categories."
+msgstr "카테고리 그룹과 카테고리를 정리합니다."
+
+msgid "Available in PDF export"
+msgstr "PDF 내보내기에 사용"
+
+msgid "Back to list"
+msgstr "목록으로"
+
+msgid "Background"
+msgstr "배경"
+
+msgid "Bakery"
+msgstr "베이커리"
+
+msgid "Basic information"
+msgstr "기본 정보"
+
+msgid "Beauty Supply"
+msgstr "뷰티서플라이"
+
+msgid "Border color"
+msgstr "테두리 색상"
+
+msgid "Border width (px)"
+msgstr "테두리 두께 (px)"
+
+msgid "Breadcrumb"
+msgstr "현재 위치"
+
+msgid "Bring products in from a spreadsheet, or take them out."
+msgstr "스프레드시트로 상품을 가져오거나 내보냅니다."
+
+msgid "Business type presets"
+msgstr "업종별 프리셋"
+
+msgid "CSV (spreadsheet)"
+msgstr "CSV (스프레드시트)"
+
+msgid "CSV file"
+msgstr "CSV 파일"
+
+msgid "Cafe"
+msgstr "카페"
+
+msgid "Card"
+msgstr "카드"
+
+msgid "Card preview"
+msgstr "카드 미리보기"
+
+msgid "Cards per row"
+msgstr "한 줄 카드 수"
+
+msgid "Carousel of one category"
+msgstr "한 카테고리 슬라이드"
+
+msgid "Categories"
+msgstr "카테고리"
+
+msgid "Category"
+msgstr "카테고리"
+
+msgid "Category slug(s) this page shows. The sidebar lists its sub-categories."
+msgstr "이 페이지에 보여줄 카테고리 슬러그. 사이드바에 하위 카테고리가 나옵니다."
+
+msgid "Change price groups"
+msgstr "가격 그룹 변경"
+
+msgid "Choose which product fields exist and who sees them."
+msgstr "상품 필드를 정하고 누구에게 보일지 정합니다."
+
+msgid "Clear"
+msgstr "지우기"
+
+msgid "Clear filters"
+msgstr "필터 해제"
+
+msgid "Clear selection"
+msgstr "선택 해제"
+
+msgid "Close"
+msgstr "닫기"
+
+msgid "Close filters"
+msgstr "필터 닫기"
+
+msgid "Collapse all"
+msgstr "모두 접기"
+
+msgid "Colors, fonts and corners of the catalog on your site."
+msgstr "사이트 카탈로그의 색상, 글꼴, 모서리 모양을 정합니다."
+
+msgid "Column in the admin list and field on catalog cards"
+msgstr "관리자 목록의 열, 카탈로그 카드의 항목으로 표시"
+
+msgid "Columns (max)"
+msgstr "열 수 (최대)"
+
+msgid "Columns of each item's Variations table. Remove all columns to turn variations off. Changing a key or removing a column hides values already entered under it."
+msgstr "상품별 옵션 표의 컬럼입니다. 컬럼을 모두 지우면 옵션 기능이 꺼집니다. 키를 바꾸거나 컬럼을 지우면 그 컬럼에 입력한 값이 보이지 않게 됩니다."
+
+msgid "Coming in a later 3.0 update"
+msgstr "3.0 후속 업데이트에서 제공"
+
+msgid "Comma (,)"
+msgstr "쉼표 (,)"
+
+msgid "Copied"
+msgstr "복사됨"
+
+msgid "Copy %s"
+msgstr "%s 복사"
+
+msgid "Corner radius (px)"
+msgstr "모서리 둥글기 (px)"
+
+msgid "Cosmetics"
+msgstr "화장품"
+
+msgid "Customers"
+msgstr "거래처"
+
+msgid "DW Wholesale"
+msgstr "DW Wholesale"
+
+msgid "DW Wholesale:"
+msgstr "DW Wholesale:"
+
+msgid "DW Wholesale: the license is not active, so the catalog cannot be shown."
+msgstr "DW Wholesale: 라이선스가 활성화되지 않아 카탈로그를 표시할 수 없습니다."
+
+msgid "DW Wholesale: the license is not active, so this action cannot run."
+msgstr "DW Wholesale: 라이선스가 활성화되지 않아 이 작업을 실행할 수 없습니다."
+
+msgid "Dashboard"
+msgstr "대시보드"
+
+msgid "Date"
+msgstr "날짜"
+
+msgid "Delete"
+msgstr "삭제"
+
+msgid "Delete item"
+msgstr "상품 삭제"
+
+msgid "Delete products"
+msgstr "상품 삭제"
+
+msgid "Delete the selected items? This cannot be undone."
+msgstr "선택한 상품을 삭제할까요? 되돌릴 수 없습니다."
+
+msgid "Delete this category? Items stay; sub-categories move up one level."
+msgstr "이 카테고리를 삭제할까요? 상품은 남고, 하위 카테고리는 한 단계 위로 올라갑니다."
+
+msgid "Delete this item and its images? This cannot be undone."
+msgstr "이 상품과 이미지를 삭제할까요? 되돌릴 수 없습니다."
+
+msgid "Deleted."
+msgstr "삭제했습니다."
+
+msgid "Delimiter"
+msgstr "구분자"
+
+msgid "Description"
+msgstr "설명"
+
+msgid "Design"
+msgstr "디자인"
+
+msgid "Details"
+msgstr "상세"
+
+msgid "Detect automatically"
+msgstr "자동 감지"
+
+msgid "Download CSV"
+msgstr "CSV 내려받기"
+
+msgid "Download template CSV"
+msgstr "양식 CSV 내려받기"
+
+msgid "Draft"
+msgstr "초안"
+
+msgid "Drag to move"
+msgstr "끌어서 이동"
+
+msgid "Drag ⠿ to reorder. Drop on the middle of a category to put it inside; drop above or below to place it next to it. Changes are saved when you click \"Save order\"."
+msgstr "⠿ 를 끌어 순서를 바꿉니다. 카테고리 가운데에 놓으면 그 안(하위)으로, 위·아래에 놓으면 그 옆으로 들어갑니다. \"순서 저장\"을 눌러야 저장됩니다."
+
+msgid "Drop images or choose files"
+msgstr "이미지를 끌어다 놓거나 파일을 선택하세요"
+
+msgid "Dry run first: counts, problems and how to handle each one"
+msgstr "먼저 사전 점검: 건수, 문제, 문제별 처리 방법"
+
+msgid "Each item should have its own code."
+msgstr "상품마다 고유한 코드를 쓰는 것이 좋습니다."
+
+msgid "Edit"
+msgstr "편집"
+
+msgid "Email"
+msgstr "이메일"
+
+msgid "Existing items"
+msgstr "이미 있는 상품"
+
+msgid "Expand all"
+msgstr "모두 펼치기"
+
+msgid "Export"
+msgstr "내보내기"
+
+msgid "Export CSV"
+msgstr "CSV 내보내기"
+
+msgid "Export and import the current setup as a .json file"
+msgstr "현재 설정을 .json 파일로 내보내고 가져오기"
+
+msgid "Export selected"
+msgstr "선택 항목 내보내기"
+
+msgid "Field keys offered as sidebar filters (public fields only)."
+msgstr "사이드바 필터로 쓸 필드 키 (공개 필드만)."
+
+msgid "Field keys shown on cards (default: List fields)."
+msgstr "카드에 표시할 필드 키 (기본값: 목록 필드)."
+
+msgid "Field keys shown on the detail page (default: Public fields)."
+msgstr "상세 페이지에 표시할 필드 키 (기본값: 공개 필드)."
+
+msgid "Fields"
+msgstr "필드"
+
+msgid "Fields, option columns, category groups, filters and price groups in one bundle"
+msgstr "필드, 옵션 컬럼, 카테고리 그룹, 필터, 가격 그룹을 한 묶음으로"
+
+msgid "File format"
+msgstr "파일 형식"
+
+msgid "Filter"
+msgstr "필터"
+
+msgid "Filters"
+msgstr "필터"
+
+msgid "Filters apply instantly — no Apply button needed."
+msgstr "필터는 바로 적용됩니다 — 적용 버튼을 누르지 않아도 됩니다."
+
+msgid "Find category"
+msgstr "카테고리 찾기"
+
+msgid "Finds the previous plugins and their data automatically"
+msgstr "기존 플러그인과 데이터를 자동으로 찾습니다"
+
+msgid "First image is the catalog thumbnail · JPG, PNG, WebP · resized for the web before upload"
+msgstr "첫 번째 이미지가 카탈로그 썸네일입니다 · JPG, PNG, WebP · 올리기 전에 웹용 크기로 줄입니다"
+
+msgid "Follow each user's WordPress language"
+msgstr "사용자별 워드프레스 언어 따름"
+
+msgid "Follow the site language"
+msgstr "사이트 언어 따름"
+
+msgid "Font family (blank = theme font)"
+msgstr "글꼴 (비우면 테마 글꼴)"
+
+msgid "For everyone except administrators: hide the WordPress Appearance, Plugins and Tools menus (and refuse those pages), and open the DW Wholesale dashboard after logging in."
+msgstr "관리자를 제외한 모든 사용자에게 워드프레스 외모·플러그인·도구 메뉴를 숨기고(해당 페이지 접근도 차단), 로그인 후 DW Wholesale 대시보드를 엽니다."
+
+msgid "Full"
+msgstr "전체 권한"
+
+msgid "General"
+msgstr "일반"
+
+msgid "General Goods"
+msgstr "일반 도매"
+
+msgid "Generate PDF"
+msgstr "PDF 만들기"
+
+msgid "Go to license settings"
+msgstr "라이선스 설정으로 이동"
+
+msgid "Grid gap (px)"
+msgstr "카드 간격 (px)"
+
+msgid "Grid of newest items"
+msgstr "최신 상품 그리드"
+
+msgid "Grid view"
+msgstr "그리드 보기"
+
+msgid "Hidden"
+msgstr "숨김"
+
+msgid "Hidden menus disappear from the menu and are refused even when the address is typed in. View shows the screen without letting the person change anything. Administrators always have full access."
+msgstr "숨김으로 정한 메뉴는 메뉴에서 사라지고, 주소를 직접 입력해도 열리지 않습니다. 보기는 화면을 볼 수만 있고 바꿀 수는 없습니다. 관리자(Administrator)는 항상 전체 권한을 가집니다."
+
+msgid "High → Low"
+msgstr "높은 순"
+
+msgid "Image %d"
+msgstr "이미지 %d"
+
+msgid "Images"
+msgstr "이미지"
+
+msgid "Import"
+msgstr "가져오기"
+
+msgid "Import / Export"
+msgstr "가져오기 / 내보내기"
+
+msgid "Import CSV"
+msgstr "CSV 가져오기"
+
+msgid "Import finished."
+msgstr "가져오기를 마쳤습니다."
+
+msgid "Inactive"
+msgstr "비활성"
+
+msgid "Inactive — hidden"
+msgstr "비활성 — 숨김"
+
+msgid "Include main image"
+msgstr "대표 이미지 포함"
+
+msgid "Inquire about this item"
+msgstr "이 상품 문의하기"
+
+msgid "Internal"
+msgstr "내부용"
+
+msgid "Item details"
+msgstr "상품 정보"
+
+msgid "Item not found."
+msgstr "상품을 찾을 수 없습니다."
+
+msgid "Items per page (max 100)."
+msgstr "페이지당 상품 수 (최대 100)."
+
+msgid "Jewelry"
+msgstr "주얼리"
+
+msgid "Keep staff on the wholesale screens"
+msgstr "직원은 홀세일 화면만 사용"
+
+msgid "Key"
+msgstr "키"
+
+msgid "Label"
+msgstr "이름"
+
+msgid "Label color"
+msgstr "항목명 색상"
+
+msgid "Label size (px)"
+msgstr "항목명 크기 (px)"
+
+msgid "Language of the catalog, search box and forms your visitors see. Set separately from the admin screens."
+msgstr "방문자가 보는 카탈로그, 검색창, 신청서의 언어입니다. 관리자 화면과 따로 정합니다."
+
+msgid "Languages"
+msgstr "언어"
+
+msgid "Languages and the wording of buttons on your site."
+msgstr "언어와 사이트 버튼 문구를 정합니다."
+
+msgid "Last updated %s"
+msgstr "마지막 수정 %s"
+
+msgid "License activation required. The catalog stops showing on the site in %d days."
+msgstr "라이선스 인증이 필요합니다. %d일 후 사이트에 카탈로그가 표시되지 않습니다."
+
+msgid "License settings"
+msgstr "라이선스 설정"
+
+msgid "List"
+msgstr "목록"
+
+msgid "List view"
+msgstr "목록 보기"
+
+msgid "Low → High"
+msgstr "낮은 순"
+
+msgid "Maximum columns (fewer on small screens)."
+msgstr "최대 열 수 (작은 화면에서는 줄어듭니다)."
+
+msgid "Menu"
+msgstr "메뉴"
+
+msgid "Menus by role"
+msgstr "역할별 메뉴 권한"
+
+msgid "Migration"
+msgstr "마이그레이션"
+
+msgid "More actions for %s"
+msgstr "%s 추가 작업"
+
+msgid "Move"
+msgstr "이동"
+
+msgid "Move %s"
+msgstr "%s 이동"
+
+msgid "Move down"
+msgstr "아래로"
+
+msgid "Move out one level"
+msgstr "한 단계 밖으로"
+
+msgid "Move products, categories and applications from the previous plugins."
+msgstr "기존 플러그인의 상품, 카테고리, 신청서를 옮겨 옵니다."
+
+msgid "Move products, categories, images and applications from DW Product Catalog and DW Wholesale Customer Management."
+msgstr "DW Product Catalog와 DW Wholesale Customer Management의 상품, 카테고리, 이미지, 신청서를 옮겨 옵니다."
+
+msgid "Move to category"
+msgstr "카테고리로 이동"
+
+msgid "Move to category…"
+msgstr "카테고리로 이동…"
+
+msgid "Move up"
+msgstr "위로"
+
+msgid "Name"
+msgstr "이름"
+
+msgid "Name color"
+msgstr "상품명 색상"
+
+msgid "Name field"
+msgstr "이름 필드"
+
+msgid "Name size (px)"
+msgstr "상품명 크기 (px)"
+
+msgid "Name weight"
+msgstr "상품명 굵기"
+
+msgid "Name: A → Z"
+msgstr "이름: 가나다순"
+
+msgid "Name: Z → A"
+msgstr "이름: 역순"
+
+msgid "Needs review"
+msgstr "검토 필요"
+
+msgid "New image URLs are downloaded; images already in the catalog are kept."
+msgstr "새 이미지 URL은 내려받고, 이미 카탈로그에 있는 이미지는 그대로 둡니다."
+
+msgid "New · More info requested · Approved · Rejected, with notes and history"
+msgstr "신규 · 추가 정보 요청 · 승인 · 거절, 메모와 활동 기록 포함"
+
+msgid "Newest"
+msgstr "최신순"
+
+msgid "Next"
+msgstr "다음"
+
+msgid "Next page"
+msgstr "다음 페이지"
+
+msgid "No categories yet."
+msgstr "아직 카테고리가 없습니다."
+
+msgid "No categories yet. Add the first one on the right."
+msgstr "아직 카테고리가 없습니다. 오른쪽에서 첫 카테고리를 추가하세요."
+
+msgid "No items"
+msgstr "상품 없음"
+
+msgid "No items found."
+msgstr "상품이 없습니다."
+
+msgid "No items match these filters."
+msgstr "이 조건에 맞는 상품이 없습니다."
+
+msgid "No items match your filters."
+msgstr "선택한 필터에 맞는 상품이 없습니다."
+
+msgid "No items yet."
+msgstr "아직 상품이 없습니다."
+
+msgid "Not allowed"
+msgstr "허용되지 않음"
+
+msgid "Not shown on the website"
+msgstr "사이트에 표시되지 않음"
+
+msgid "Number"
+msgstr "숫자"
+
+msgid "Oldest"
+msgstr "오래된순"
+
+msgid "One category, with a filter"
+msgstr "한 카테고리 + 필터"
+
+msgid "One row per variation. Rows with the same slug are one item; the first row carries the item columns."
+msgstr "옵션 하나에 한 줄입니다. 슬러그가 같은 줄은 한 상품이며, 첫 줄에 상품 정보를 적습니다."
+
+msgid "Open"
+msgstr "열기"
+
+msgid "Operator mode"
+msgstr "운영자 모드"
+
+msgid "Optimizing photos…"
+msgstr "사진 최적화 중…"
+
+msgid "Optional — used by search engines"
+msgstr "선택 — 검색엔진이 사용"
+
+msgid "Options"
+msgstr "옵션"
+
+msgid "Options (for Select)"
+msgstr "선택지 (선택형 필드)"
+
+msgid "Original"
+msgstr "원래 문구"
+
+msgid "PDF"
+msgstr "PDF"
+
+msgid "PDF catalog"
+msgstr "PDF 카탈로그"
+
+msgid "PDF library not found."
+msgstr "PDF 라이브러리를 찾을 수 없습니다."
+
+msgid "Padding (px)"
+msgstr "안쪽 여백 (px)"
+
+msgid "Page %1$s of %2$s"
+msgstr "%2$s페이지 중 %1$s"
+
+msgid "Pages"
+msgstr "페이지"
+
+msgid "Parent"
+msgstr "상위"
+
+msgid "Per page"
+msgstr "페이지당"
+
+msgid "Pick an existing brand or type a new one."
+msgstr "기존 브랜드를 고르거나 새로 입력하세요."
+
+msgid "Pick your business type to add its field set. Picking another type switches the set; fields that already exist are kept. Nothing is saved until you click \"Save fields\"."
+msgstr "업종을 고르면 그 업종의 필드 묶음이 추가됩니다. 다른 업종을 고르면 묶음이 바뀌고, 이미 있는 필드는 그대로 둡니다. \"필드 저장\"을 누르기 전에는 저장되지 않습니다."
+
+msgid "Plants"
+msgstr "식물"
+
+msgid "Please check the form — some values were not accepted."
+msgstr "입력 내용을 확인하세요 — 저장되지 않은 값이 있습니다."
+
+msgid "Preset removed. Saved fields are unchanged."
+msgstr "프리셋을 취소했습니다. 저장된 필드는 그대로입니다."
+
+msgid "Presets"
+msgstr "프리셋"
+
+msgid "Preview the changes before applying; a restore point is saved each time"
+msgstr "적용 전에 변경 내용을 미리 보고, 적용할 때마다 복원 지점을 저장"
+
+msgid "Previous"
+msgstr "이전"
+
+msgid "Previous page"
+msgstr "이전 페이지"
+
+msgid "Product"
+msgstr "상품"
+
+msgid "Product name"
+msgstr "상품명"
+
+msgid "Products"
+msgstr "상품"
+
+msgid "Public"
+msgstr "공개"
+
+msgid "Public field keys"
+msgstr "공개 필드 키"
+
+msgid "Public: costs, supplier info and internal notes should stay unchecked — they are then never printed on the site, never searchable and never filterable by visitors."
+msgstr "공개: 원가, 공급처 정보, 내부 메모는 체크하지 마세요 — 그러면 사이트에 출력되지 않고 방문자가 검색하거나 필터로 걸러 볼 수도 없습니다."
+
+msgid "Public: shown on the website and usable for site search, filters and sorting. Unchecked fields never leave the admin."
+msgstr "공개: 사이트에 표시되고 사이트 검색·필터·정렬에 쓰입니다. 체크하지 않은 필드는 관리자 화면 밖으로 나가지 않습니다."
+
+msgid "Publish"
+msgstr "게시"
+
+msgid "Published"
+msgstr "게시됨"
+
+msgid "Put a shortcode on any page. The catalog list, filters and item detail pages all appear on that page."
+msgstr "아무 페이지에나 숏코드를 넣으세요. 카탈로그 목록, 필터, 상품 상세 페이지가 모두 그 페이지에 나옵니다."
+
+msgid "Put every role back to the default menus and actions?"
+msgstr "모든 역할의 메뉴·작업 권한을 기본값으로 되돌릴까요?"
+
+msgid "Put inside the category above"
+msgstr "위 카테고리 안으로 넣기"
+
+msgid "Put the catalog, search box and forms on your pages."
+msgstr "카탈로그, 검색창, 신청서를 페이지에 넣습니다."
+
+msgid "Ready-made setups for each kind of wholesale business."
+msgstr "도매 업종별로 미리 준비된 설정입니다."
+
+msgid "Related items"
+msgstr "관련 상품"
+
+msgid "Remove"
+msgstr "삭제"
+
+msgid "Replace any button or message on the site with your own words. Leave a box empty to use the translation. Keep placeholders such as %s and %1$s."
+msgstr "사이트의 버튼이나 안내 문구를 원하는 말로 바꿉니다. 비워 두면 번역 문구가 쓰입니다. %s, %1$s 같은 자리표시자는 그대로 두세요."
+
+msgid "Required"
+msgstr "필수"
+
+msgid "Reset filters"
+msgstr "필터 초기화"
+
+msgid "Restaurant"
+msgstr "식당"
+
+msgid "Restore defaults"
+msgstr "기본값으로 되돌리기"
+
+msgid "Retailer"
+msgstr "소매"
+
+msgid "Review them"
+msgstr "검토하기"
+
+msgid "Rows"
+msgstr "행 수"
+
+msgid "Runs in the background in batches, can be resumed and undone"
+msgstr "백그라운드에서 나눠 실행하며, 이어서 실행하거나 되돌릴 수 있습니다"
+
+msgid "Same layout as the CSV export: export, edit in a spreadsheet, import."
+msgstr "CSV 내보내기와 같은 형식입니다: 내보내기 → 스프레드시트에서 수정 → 가져오기."
+
+msgid "Save"
+msgstr "저장"
+
+msgid "Save access"
+msgstr "권한 저장"
+
+msgid "Save changes"
+msgstr "변경 사항 저장"
+
+msgid "Save design"
+msgstr "디자인 저장"
+
+msgid "Save fields"
+msgstr "필드 저장"
+
+msgid "Save order"
+msgstr "순서 저장"
+
+msgid "Save settings"
+msgstr "설정 저장"
+
+msgid "Saved."
+msgstr "저장했습니다."
+
+msgid "Seafood Market"
+msgstr "수산·일식 식자재"
+
+msgid "Search"
+msgstr "검색"
+
+msgid "Search by name, item code or brand"
+msgstr "상품명, 품목코드, 브랜드로 검색"
+
+msgid "Search catalog"
+msgstr "카탈로그 검색"
+
+msgid "Search items"
+msgstr "상품 검색"
+
+msgid "Search name, %s, brand"
+msgstr "이름, %s, 브랜드 검색"
+
+msgid "See staff-only fields"
+msgstr "직원 전용 필드 보기"
+
+msgid "Select %s"
+msgstr "%s 선택"
+
+msgid "Select (Dropdown)"
+msgstr "선택형 (드롭다운)"
+
+msgid "Select all"
+msgstr "전체 선택"
+
+msgid "Select at least one category."
+msgstr "카테고리를 하나 이상 선택하세요."
+
+msgid "Semicolon (;)"
+msgstr "세미콜론 (;)"
+
+msgid "Set Active"
+msgstr "활성으로"
+
+msgid "Set Inactive"
+msgstr "비활성으로"
+
+msgid "Settings"
+msgstr "설정"
+
+msgid "Shadow"
+msgstr "그림자"
+
+msgid "Shared"
+msgstr "중복"
+
+msgid "Short summary"
+msgstr "짧은 요약"
+
+msgid "Shortcodes"
+msgstr "숏코드"
+
+msgid "Show / hide sub-categories"
+msgstr "하위 카테고리 보기 / 숨기기"
+
+msgid "Show all %s"
+msgstr "%s 모두 보기"
+
+msgid "Showing %1$s of %2$s items"
+msgstr "상품 %2$s개 중 %1$s"
+
+msgid "Site widgets"
+msgstr "사이트 위젯"
+
+msgid "Skip"
+msgstr "건너뛰기"
+
+msgid "Slug"
+msgstr "슬러그"
+
+msgid "Sort by"
+msgstr "정렬"
+
+msgid "Status"
+msgstr "상태"
+
+msgid "Status for new items"
+msgstr "새 상품의 상태"
+
+msgid "Tab"
+msgstr "탭"
+
+msgid "Tags"
+msgstr "태그"
+
+msgid "Text"
+msgstr "텍스트"
+
+msgid "Textarea"
+msgstr "여러 줄 텍스트"
+
+msgid "The catalog is not licensed on this site. Activate the license to manage the catalog."
+msgstr "이 사이트에는 카탈로그 라이선스가 없습니다. 라이선스를 활성화해야 카탈로그를 관리할 수 있습니다."
+
+msgid "The default for everyone. Each person can still switch with the EN / 한국어 buttons at the top of these screens — that choice applies to their own account only."
+msgstr "모든 사용자의 기본값입니다. 각자 화면 위쪽의 EN / 한국어 버튼으로 바꿀 수 있으며, 그 선택은 본인 계정에만 적용됩니다."
+
+msgid "The form has expired. Please reload the page and try again."
+msgstr "입력 시간이 지났습니다. 페이지를 새로 고친 뒤 다시 시도하세요."
+
+msgid "The license is not active, so the catalog cannot be shown."
+msgstr "라이선스가 활성화되지 않아 카탈로그를 표시할 수 없습니다."
+
+msgid "These need their own permission, on top of being able to edit the screen they are on."
+msgstr "해당 화면의 편집 권한과 별도로 이 권한이 있어야 합니다."
+
+msgid "This %s is shared with another item"
+msgstr "이 %s 값을 다른 상품도 쓰고 있습니다"
+
+msgid "This feature requires an active license."
+msgstr "이 기능은 활성 라이선스가 필요합니다."
+
+msgid "This item is not available."
+msgstr "이 상품은 볼 수 없습니다."
+
+msgid "This page is not available to your account."
+msgstr "이 계정으로는 이 페이지를 열 수 없습니다."
+
+msgid "Total items"
+msgstr "전체 상품"
+
+msgid "Type"
+msgstr "형식"
+
+msgid "URL"
+msgstr "URL"
+
+msgid "URL slug"
+msgstr "URL 슬러그"
+
+msgid "Undo"
+msgstr "되돌리기"
+
+msgid "Unique — no other item uses this code."
+msgstr "고유 — 이 코드를 쓰는 다른 상품이 없습니다."
+
+msgid "Unknown action."
+msgstr "알 수 없는 작업입니다."
+
+msgid "Unsaved changes"
+msgstr "저장하지 않은 변경 사항"
+
+msgid "Update (match by slug)"
+msgstr "업데이트 (슬러그로 찾기)"
+
+msgid "Update changes only the columns in the file — a file with just slug and price updates prices."
+msgstr "업데이트는 파일에 있는 컬럼만 바꿉니다 — 슬러그와 가격만 있는 파일이면 가격만 바뀝니다."
+
+msgid "Used when the file has no status column."
+msgstr "파일에 상태 컬럼이 없을 때 사용합니다."
+
+msgid "Value color"
+msgstr "값 색상"
+
+msgid "Value size (px)"
+msgstr "값 크기 (px)"
+
+msgid "Variation columns"
+msgstr "옵션 컬럼"
+
+msgid "Variations"
+msgstr "옵션"
+
+msgid "View"
+msgstr "보기"
+
+msgid "View only"
+msgstr "보기 전용"
+
+msgid "View only — you can look at this screen but not change it."
+msgstr "보기 전용 — 이 화면을 볼 수는 있지만 바꿀 수는 없습니다."
+
+msgid "Which staff roles see which menus."
+msgstr "어떤 직원 역할에 어떤 메뉴를 보여줄지 정합니다."
+
+msgid "Whole catalog page"
+msgstr "전체 카탈로그 페이지"
+
+msgid "Wholesale applications and customer accounts."
+msgstr "홀세일 신청서와 거래처 계정을 관리합니다."
+
+msgid "Wholesale applications, approval with a price group, customer accounts and quote requests."
+msgstr "홀세일 신청서, 가격 그룹을 정한 승인, 거래처 계정, 견적 요청을 관리합니다."
+
+msgid "Wholesaler"
+msgstr "도매"
+
+msgid "Widget text"
+msgstr "위젯 문구"
+
+msgid "You do not have permission to do that."
+msgstr "이 작업을 할 권한이 없습니다."
+
+msgid "You do not have permission to view this page."
+msgstr "이 페이지를 볼 권한이 없습니다."
+
+msgid "Your screens"
+msgstr "내 화면"
+
+msgid "Your text"
+msgstr "바꿀 문구"
+
+msgid "[dw_catalog] options"
+msgstr "[dw_catalog] 옵션"
+
+msgid "across %s"
+msgstr "%s 범위"
+
+msgid "and"
+msgstr "및"
+
+msgid "category: \"Parent > Child\"; several categories or image URLs separated by \" | \"."
+msgstr "category: \"상위 > 하위\" 형식, 여러 카테고리나 이미지 URL은 \" | \" 로 구분합니다."
+
+msgid "comma, separated"
+msgstr "쉼표로, 구분"
+
+msgid "date_desc, date_asc, title_asc, title_desc, field:{key}:asc|desc"
+msgstr "date_desc, date_asc, title_asc, title_desc, field:{key}:asc|desc"
+
+msgid "from the name"
+msgstr "이름에서 자동 생성"
+
+msgid "selected"
+msgstr "개 선택됨"
+
+msgid "shared %s"
+msgstr "중복 %s"
+
+msgid "var_… columns are the variation columns."
+msgstr "var_… 컬럼은 옵션 컬럼입니다."
+
+msgid "yes / no — show the search box / sort menu."
+msgstr "yes / no — 검색창 / 정렬 메뉴 표시 여부."
+
+msgid "Administrator"
+msgstr "관리자"
+
+msgid "Editor"
+msgstr "편집자"
+
+msgid "Author"
+msgstr "글쓴이"
+
+msgid "Contributor"
+msgstr "기여자"
+
+msgid "Subscriber"
+msgstr "구독자"
+
+msgid "License"
+msgstr "라이선스"

@@ -8,7 +8,7 @@
  */
 use DWCatalog\Support\Html;
 
-$current = 'reference';
+$current = 'shortcodes';
 $public  = $c->fields()->fieldsByKey( $type, true );
 $tree    = $c->terms()->tree( $type );
 $first   = isset( $tree[0][0] ) ? $tree[0][0]['slug'] : 'category-slug';
@@ -26,7 +26,7 @@ $examples = array(
 	'Carousel of one category'     => '[dw_catalog_carousel category="' . $first . '"]',
 );
 ?>
-<?php echo $app->head( $app->t( 'Settings' ) ); ?>
+<?php echo $app->head( $app->t( 'Shortcodes' ) ); ?>
 <?php include __DIR__ . '/_nav.php'; ?>
 
 <div class="dwc-box">

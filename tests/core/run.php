@@ -5,6 +5,7 @@
  *   php tests/core/run.php                       (uses env vars below; skips a DB that is not set)
  *
  *   DWC_MYSQL="mysql:host=127.0.0.1;port=3306;dbname=dwc_test"  DWC_MYSQL_USER=root DWC_MYSQL_PASS=
+ *   DWC_MARIADB="mysql:host=127.0.0.1;port=3307;dbname=dwc_test" DWC_MARIADB_USER=root DWC_MARIADB_PASS=
  *   DWC_PGSQL="pgsql:host=127.0.0.1;port=5432;dbname=dwc_test"  DWC_PGSQL_USER=postgres DWC_PGSQL_PASS=
  *
  * Every run uses a fresh random table prefix and drops its tables at the end.
@@ -17,6 +18,7 @@ use DWCatalog\Admin\Forbidden;
 use DWCatalog\Catalog;
 use DWCatalog\Db\PdoConnection;
 use DWCatalog\Front\Context;
+use DWCatalog\I18n\Languages;
 use DWCatalog\Security\Csrf;
 
 $pass = 0;
@@ -36,7 +38,7 @@ function eq( $expected, $actual, $msg ) {
 }
 
 $targets = array();
-foreach ( array( 'mysql' => 'DWC_MYSQL', 'pgsql' => 'DWC_PGSQL' ) as $name => $env ) {
+foreach ( array( 'mysql' => 'DWC_MYSQL', 'mariadb' => 'DWC_MARIADB', 'pgsql' => 'DWC_PGSQL' ) as $name => $env ) {
 	if ( getenv( $env ) ) {
 		$targets[ $name ] = array( getenv( $env ), (string) getenv( $env . '_USER' ), (string) getenv( $env . '_PASS' ) );
 	}
@@ -46,8 +48,9 @@ if ( ! $targets ) {
 	exit( 0 );
 }
 
-foreach ( $targets as $driver => list( $dsn, $user, $pw ) ) {
-	echo "\n=== $driver ===\n";
+foreach ( $targets as $target => list( $dsn, $user, $pw ) ) {
+	$driver = 'pgsql' === $target ? 'pgsql' : 'mysql'; // MariaDB speaks the MySQL dialect
+	echo "\n=== $target ===\n";
 	$prefix = 't' . bin2hex( random_bytes( 3 ) ) . '_dwcat_';
 	$dir    = sys_get_temp_dir() . '/dwc-test-' . bin2hex( random_bytes( 4 ) );
 	mkdir( $dir );
@@ -193,7 +196,7 @@ function run_suite( Catalog $c, TestHost $host, string $driver ) {
 
 	echo "--- admin ---\n";
 	$admin = $c->admin();
-	foreach ( array( 'items', 'edit', 'categories', 'fields', 'import', 'export', 'design', 'reference' ) as $view ) {
+	foreach ( array_merge( array_keys( \DWCatalog\Admin\AdminApp::VIEWS ), array( 'reference' ) ) as $view ) {
 		$html = $admin->render( array( 'view' => $view ) );
 		ok( false !== strpos( $html, 'dwc-admin' ) && false === stripos( $html, 'warning' ), "view renders: $view" );
 	}
@@ -214,14 +217,14 @@ function run_suite( Catalog $c, TestHost $host, string $driver ) {
 	eq( 'Tonkotsu Renamed', $items2->get( $b )['title'], 'title stripped of tags' );
 	eq( '', $items2->value( $b, 'dw_pc_price' ), 'invalid number rejected' );
 	eq( array( array( 'name' => 'Big', 'item_code' => 'WK1-B', 'pack_size' => '', 'price' => '', 'stock' => '' ) ), $items2->variations( $b ), 'variation row cleaned, blank row dropped' );
-	$host->caps = array( 'catalog.edit' );
+	$host->roles = array( 'author' ); // products: edit, but no delete permission
 	try {
 		$admin->handle( array( 'do' => 'delete_item', 'type' => $type, 'id' => $b, Csrf::FIELD => $c->csrf()->token( 'delete_item' ) ) );
-		ok( false, 'delete without catalog.delete rejected' );
+		ok( false, 'delete without the product_delete permission rejected' );
 	} catch ( Forbidden $ex ) {
-		ok( true, 'delete without catalog.delete rejected' );
+		ok( true, 'delete without the product_delete permission rejected' );
 	}
-	$host->caps   = null;
+	$host->roles  = array( 'administrator' );
 	$host->denied = array( 'manage_fields' );
 	try {
 		$admin->handle( array( 'do' => 'save_fields', 'type' => $type, Csrf::FIELD => $c->csrf()->token( 'save_fields' ) ) );
@@ -250,14 +253,14 @@ function run_suite( Catalog $c, TestHost $host, string $driver ) {
 	eq( array( $ramen ), array_map( 'intval', array_column( ( new Catalog( $c->db(), $host, '' ) )->terms()->ofItem( $type, $e ), 'id' ) ), 'bulk move to category' );
 	$res = $bulk( array( 'bulk' => 'export', 'ids' => array( $e ) ) );
 	ok( isset( $res['download'] ) && false !== strpos( $res['download'][2], 'TF-100' ) && false === strpos( $res['download'][2], 'WK-009' ), 'export selected = only those items' );
-	$host->caps = array( 'catalog.edit' );
+	$host->roles = array( 'author' ); // products: edit, but no delete permission
 	try {
 		$bulk( array( 'bulk' => 'delete', 'ids' => array( $e ) ) );
-		ok( false, 'bulk delete needs catalog.delete' );
+		ok( false, 'bulk delete needs the product_delete permission' );
 	} catch ( Forbidden $ex ) {
-		ok( true, 'bulk delete needs catalog.delete' );
+		ok( true, 'bulk delete needs the product_delete permission' );
 	}
-	$host->caps = null;
+	$host->roles = array( 'administrator' );
 	$c->terms()->setItem( $type, $e, 'category', array( $tofu ) );
 	$items->saveValues( $g, array_merge( $items->values( $g ), array( 'dw_pc_item_code' => 'DR-1' ) ) );
 
@@ -308,6 +311,9 @@ function run_suite( Catalog $c, TestHost $host, string $driver ) {
 	ok( false === strpos( $html, '<script>alert' ) && false === strpos( $html, '<img src=x' ) && false === strpos( $html, '<svg onload' ), 'output escaped (title, values, query echo)' );
 	$grid = $c->front()->grid( array( 'category' => 'refrigerated', 'per_page' => 2 ), $ctx );
 	ok( 2 === substr_count( $grid, 'dwcat-card-title' ), 'grid block' );
+
+	run_access_suite( $c, $host, $type, $a );
+	run_i18n_suite( $c, $host, $type, $a, $ctx, $ctx2 );
 
 	echo "--- csv export / import ---\n";
 	$items->saveValues( $d, array_merge( $items->values( $d ), array( 'dw_pc_pack_size_raw' => '=SUM(A1)' ) ) );
@@ -409,4 +415,189 @@ function run_suite( Catalog $c, TestHost $host, string $driver ) {
 		$left += (int) $c->db()->selectValue( 'SELECT COUNT(*) FROM ' . $c->db()->table( $tbl ) . ' WHERE item_id = ?', array( $a ) );
 	}
 	eq( 0, $left, 'all rows of a deleted item removed' );
+}
+
+/** M8 — role × menu levels, action permissions, operator mode, hidden screens refused. */
+function run_access_suite( Catalog $c, TestHost $host, string $type, int $itemId ) {
+	echo "--- access ---\n";
+	$acc    = $c->access();
+	$admin  = $c->admin();
+	$as     = function ( array $roles ) use ( $host ) {
+		$host->roles = $roles;
+	};
+	$denied = function ( callable $fn ) {
+		try {
+			$fn();
+			return false;
+		} catch ( Forbidden $e ) {
+			return true;
+		}
+	};
+	$post = function ( string $do, array $extra = array() ) use ( $admin, $c, $type ) {
+		return $admin->handle( array_merge( array( 'do' => $do, 'type' => $type, Csrf::FIELD => $c->csrf()->token( $do ) ), $extra ) );
+	};
+
+	// Defaults (spec M8)
+	$expect = array(
+		'editor'      => array( 'dashboard' => 1, 'products' => 2, 'categories' => 2, 'customers' => 2, 'fields' => 0, 'import_export' => 0, 'migration' => 0, 'shortcodes' => 0, 'design' => 0, 'presets' => 0, 'settings' => 0, 'access' => 0 ),
+		'author'      => array( 'dashboard' => 1, 'products' => 2, 'categories' => 1, 'customers' => 1, 'fields' => 0, 'settings' => 0 ),
+		'contributor' => array( 'dashboard' => 1, 'products' => 1, 'categories' => 0, 'customers' => 0 ),
+	);
+	foreach ( $expect as $role => $menus ) {
+		$got = array();
+		foreach ( $menus as $menu => $lvl ) {
+			$got[ $menu ] = $acc->levelFor( array( $role ), false, $menu );
+		}
+		eq( $menus, $got, "defaults: $role" );
+	}
+	eq( 2, $acc->levelFor( array( 'administrator' ), true, 'access' ), 'administrator: full, including Access' );
+	eq( 0, $acc->levelFor( array( 'shop_manager' ), false, 'dashboard' ), 'unknown role: nothing by default' );
+	eq( '', $acc->firstMenuFor( array( 'shop_manager' ), false ), 'unknown role: no landing screen' );
+	eq( 0, $acc->levelFor( array( 'editor', 'dw_wholesale_customer' ), false, 'products' ), 'customer role never reaches the admin' );
+	ok( $acc->allowedFor( array( 'editor' ), false, 'product_delete' ) && ! $acc->allowedFor( array( 'author' ), false, 'product_delete' ), 'action defaults: editor deletes, author does not' );
+	ok( ! $acc->allowedFor( array( 'editor' ), false, 'csv_export' ) && $acc->allowedFor( array(), true, 'csv_export' ), 'CSV export: administrators only by default' );
+	eq( 2, $acc->levelFor( array( 'contributor', 'editor' ), false, 'products' ), 'several roles: highest level wins' );
+
+	// Screens: hidden ones are refused, view-only ones are locked
+	$as( array( 'editor' ) );
+	ok( ! $admin->canOpen( array( 'view' => 'fields' ) ), 'editor: Fields hidden (canOpen)' );
+	ok( false !== strpos( $admin->render( array( 'view' => 'fields' ) ), 'do not have permission' ), 'editor: Fields refused by URL' );
+	ok( ! $admin->canOpen( array( 'view' => 'access' ) ) && ! $admin->canOpen( array( 'view' => 'settings' ) ), 'editor: Access and Settings hidden' );
+	$dash = $admin->render( array( 'view' => 'dashboard' ) );
+	ok( false !== strpos( $dash, 'view=items' ) && false === strpos( $dash, 'view=fields' ) && false === strpos( $dash, 'view=access' ), 'editor: navigation lists only allowed menus' );
+	ok( $denied( function () use ( $post ) {
+		$post( 'save_fields' );
+	} ), 'editor: save_fields refused' );
+	ok( $denied( function () use ( $post ) {
+		$post( 'save_access', array( 'access' => array( 'roles' => array( 'editor' => array( 'menus' => array( 'fields' => 2 ) ) ) ) ) );
+	} ), 'editor cannot change Access' );
+	ok( $denied( function () use ( $post ) {
+		$post( 'export_csv' );
+	} ), 'editor: CSV export needs the csv_export permission' );
+
+	$as( array( 'contributor' ) );
+	$list = $admin->render( array( 'view' => 'items' ) );
+	ok( false !== strpos( $list, 'is-readonly' ) && false !== strpos( $list, 'View only' ), 'contributor: product list is view-only' );
+	ok( false === strpos( $list, 'Add item' ) && false === strpos( $list, 'name="bulk" value="publish"' ) && false === strpos( $list, 'value="publish:' ), 'contributor: no add / status buttons' );
+	ok( ! $admin->canOpen( array( 'view' => 'edit' ) ) && $admin->canOpen( array( 'view' => 'edit', 'id' => $itemId ) ), 'contributor: may open a product, may not add one' );
+	ok( $denied( function () use ( $post, $itemId ) {
+		$post( 'save_item', array( 'id' => $itemId, 'title' => 'x' ) );
+	} ), 'contributor: save_item refused' );
+	ok( $denied( function () use ( $post, $itemId ) {
+		$post( 'bulk_items', array( 'bulk' => 'draft', 'ids' => array( $itemId ) ) );
+	} ), 'contributor: bulk status change refused' );
+	ok( $denied( function () use ( $post, $itemId ) {
+		$post( 'bulk_items', array( 'bulk' => 'export', 'ids' => array( $itemId ) ) );
+	} ), 'contributor: bulk export refused without csv_export' );
+
+	$as( array( 'shop_manager' ) );
+	ok( ! $admin->canOpen( array() ), 'role without access: nothing opens' );
+	ok( $denied( function () use ( $post ) {
+		$post( 'set_lang', array( 'lang' => 'ko' ) );
+	} ), 'role without access: cannot even switch language' );
+	$host->user  = 0;
+	$host->roles = array();
+	ok( ! $admin->canOpen( array( 'view' => 'dashboard' ) ), 'visitor: nothing opens' );
+	$host->user = 1;
+
+	// Saving the matrix (administrator)
+	$as( array( 'administrator' ) );
+	$post( 'save_access', array( 'access' => array(
+		'roles'         => array(
+			'contributor'  => array( 'menus' => array( 'products' => 2, 'dashboard' => 2, 'access' => 2 ), 'actions' => array( 'csv_export' => '1', 'bogus' => '1' ) ),
+			'shop_manager' => array( 'menus' => array( 'categories' => 1 ) ),
+			'intruder'     => array( 'menus' => array( 'products' => 2 ) ),
+		),
+		'operator_mode' => '1',
+	) ) );
+	$acc = ( new Catalog( $c->db(), $host, $c->prefix() ) )->access(); // fresh settings cache
+	eq( 2, $acc->levelFor( array( 'contributor' ), false, 'products' ), 'saved: contributor edits products' );
+	eq( 1, $acc->levelFor( array( 'contributor' ), false, 'dashboard' ), 'saved: dashboard capped at View' );
+	eq( 0, $acc->levelFor( array( 'contributor' ), false, 'access' ), 'saved: Access stays administrator-only' );
+	ok( $acc->allowedFor( array( 'contributor' ), false, 'csv_export' ), 'saved: action permission' );
+	eq( 1, $acc->levelFor( array( 'shop_manager' ), false, 'categories' ), 'saved: custom role' );
+	eq( 0, $acc->levelFor( array( 'editor' ), false, 'products' ), 'saved: a role left out of the form loses its menus' );
+	ok( ! isset( $acc->matrix()['intruder'] ), 'saved: unknown role dropped' );
+	ok( $acc->operatorMode(), 'saved: operator mode on' );
+	$post( 'reset_access' );
+	$acc = ( new Catalog( $c->db(), $host, $c->prefix() ) )->access();
+	eq( 2, $acc->levelFor( array( 'editor' ), false, 'products' ), 'reset: defaults back' );
+	ok( $acc->operatorMode(), 'reset keeps operator mode' );
+	$acc->save( array(), array_keys( $host->roles() ) );
+	ok( ! $acc->operatorMode(), 'operator mode off when saved off' );
+	$c->settings()->delete( 'access' );
+	$host->roles = array( 'administrator' );
+}
+
+/** M9 — admin / widget language, per-user switch, widget text overrides, Korean completeness. */
+function run_i18n_suite( Catalog $c, TestHost $host, string $type, int $itemId, Context $ctx, Context $ctxDetail ) {
+	echo "--- i18n ---\n";
+	$s     = $c->settings();
+	$admin = $c->admin();
+	eq( 'ko_KR', Languages::adminLocale( $s, '', 'ko_KR' ), 'admin: follows the user language by default' );
+	eq( 'fr_FR', Languages::adminLocale( $s, '', 'fr_FR' ), 'admin: other languages passed to the host' );
+	eq( 'en_US', Languages::adminLocale( $s, 'en', 'ko_KR' ), 'admin: personal EN choice wins' );
+	Languages::save( $s, array( 'admin' => 'ko', 'front' => 'en' ) );
+	eq( 'ko_KR', Languages::adminLocale( $s, '', 'en_US' ), 'admin: site default when no personal choice' );
+	eq( 'en_US', Languages::adminLocale( $s, 'en', 'en_US' ), 'admin: personal choice beats site default' );
+	eq( 'en_US', Languages::frontLocale( $s, 'ko_KR' ), 'widgets: own setting, independent of admin' );
+	Languages::save( $s, array( 'admin' => 'xx', 'front' => 'follow' ) );
+	eq( 'ko', Languages::get( $s )['admin'], 'invalid language ignored' );
+	eq( 'ko_KR', Languages::frontLocale( $s, 'ko_KR' ), 'widgets: follow the site language' );
+	eq( 'ko', Languages::codeOf( 'ko_KR' ), 'codeOf(ko_KR)' );
+	eq( '', Languages::codeOf( 'fr_FR' ), 'codeOf(fr_FR) = none' );
+	$s->delete( Languages::KEY );
+
+	// Personal switch (any staff user, own account only)
+	$res = $admin->handle( array( 'do' => 'set_lang', 'lang' => 'en', 'back' => 'view=items&evil=1&id=5', Csrf::FIELD => $c->csrf()->token( 'set_lang' ) ) );
+	eq( 'en', $host->userMeta( Languages::USER_PREF ), 'set_lang stores the personal choice' );
+	ok( false !== strpos( $res['redirect'], 'view=items' ) && false !== strpos( $res['redirect'], 'id=5' ) && false === strpos( $res['redirect'], 'evil' ), 'set_lang returns to the same screen' );
+	$host->user = 2;
+	eq( '', $host->userMeta( Languages::USER_PREF ), 'personal choice does not affect other users' );
+	$host->user = 1;
+	$admin->handle( array( 'do' => 'set_lang', 'lang' => 'zz', Csrf::FIELD => $c->csrf()->token( 'set_lang' ) ) );
+	eq( '', $host->userMeta( Languages::USER_PREF ), 'unknown language clears the choice' );
+	ok( false !== strpos( $admin->render( array( 'view' => 'dashboard' ) ), 'name="lang" value="ko"' ), 'EN / 한국어 switch on every screen' );
+
+	// Widget text overrides
+	$key = Languages::overrideKey( 'Search' );
+	$admin->handle( array( 'do' => 'save_settings', 'type' => $type, 'i18n' => array( 'admin' => 'follow', 'front' => 'follow', 'overrides' => array( $key => 'Find <b>it</b>', 'nope' => 'x' ) ), Csrf::FIELD => $c->csrf()->token( 'save_settings' ) ) );
+	$c2   = new Catalog( $c->db(), $host, $c->prefix() );
+	$html = $c2->front()->catalog( array(), $ctx );
+	ok( false !== strpos( $html, 'Find it' ) && false === strpos( $html, '<b>it</b>' ), 'override shown on the site (tags stripped)' );
+	eq( array( 'Search' => 'Find it' ), Languages::get( $c2->settings() )['overrides'], 'only known strings can be overridden' );
+	$frontSrc = (string) file_get_contents( DWCATALOG_CORE_DIR . '/src/Front/FrontApp.php' );
+	foreach ( \DWCatalog\I18n\FrontStrings::EDITABLE as $src ) {
+		ok( false !== strpos( $frontSrc, "'" . $src . "'" ), "editable widget string still used: $src" );
+	}
+	$s->delete( Languages::KEY );
+
+	// Korean: every string any screen asks for must be translated
+	require_once dirname( __DIR__, 2 ) . '/build/i18n.php';
+	$host->dict    = dwcat_i18n_dict( dirname( __DIR__, 2 ) . '/languages/dw-wholesale-ko_KR.po' );
+	$host->missing = array();
+	$c3            = new Catalog( $c->db(), $host, $c->prefix() );
+	$admin3        = $c3->admin();
+	foreach ( array( array( 'administrator' ), array( 'editor' ), array( 'contributor' ) ) as $roles ) {
+		$host->roles = $roles;
+		foreach ( array_keys( \DWCatalog\Admin\AdminApp::VIEWS ) as $view ) {
+			$admin3->render( array( 'view' => $view, 'msg' => 'saved' ) );
+		}
+		$admin3->render( array( 'view' => 'edit', 'id' => $itemId ) );
+	}
+	$host->roles = array( 'administrator' );
+	foreach ( array_keys( \DWCatalog\Admin\AdminApp::NOTICES ) as $msg ) {
+		$admin3->render( array( 'view' => 'dashboard', 'msg' => $msg ) );
+	}
+	$c3->front()->catalog( array(), $ctx );
+	$c3->front()->catalog( array( 'category' => 'refrigerated' ), $ctxDetail );
+	$c3->front()->catalog( array(), new Context( 'https://site.test/c/', '', array( 'dwq' => 'zzzz-nothing' ) ) );
+	$missing = array_keys( $host->missing );
+	if ( $missing && getenv( 'DWC_DUMP_MISSING' ) ) {
+		file_put_contents( getenv( 'DWC_DUMP_MISSING' ), implode( "\n", $missing ) . "\n" );
+	}
+	ok( ! $missing, 'Korean: no untranslated string on any admin screen or widget' . ( $missing ? ' — missing ' . count( $missing ) . ': ' . implode( ' | ', array_slice( $missing, 0, 30 ) ) : '' ) );
+	ok( false !== strpos( $admin3->render( array( 'view' => 'dashboard' ) ), '대시보드' ), 'Korean dashboard renders' );
+	$host->dict    = null;
+	$host->missing = array();
 }

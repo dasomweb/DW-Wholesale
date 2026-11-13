@@ -54,6 +54,9 @@ if ( $dwcat_dir && 'dw-catalog' === basename( $dwcat_dir ) && is_dir( $dwcat_dir
 	@rmdir( $dwcat_dir );
 }
 
+// ── Per-user admin language choice (EN / 한국어 buttons) ─────────────
+delete_metadata( 'user', 0, 'dwcat_admin_lang', '', true );
+
 // ── Plugin options ──────────────────────────────────────────────────
 delete_option( 'dwcat_version' );
 delete_option( 'dwcat_activated' );

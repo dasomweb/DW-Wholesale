@@ -335,9 +335,9 @@ function dwcat_gate_placeholder() {
 		return '';
 	}
 	return '<p class="dwcat-unlicensed" style="padding:12px;border:1px dashed #d63638;color:#d63638;">'
-		. esc_html__( 'DW Wholesale: 라이선스가 활성화되지 않아 카탈로그를 표시할 수 없습니다.', 'dw-wholesale' )
+		. esc_html__( 'DW Wholesale: the license is not active, so the catalog cannot be shown.', 'dw-wholesale' )
 		. ' <a href="' . esc_url( admin_url( 'admin.php?page=dw-wholesale-license' ) ) . '">'
-		. esc_html__( '라이선스 설정', 'dw-wholesale' ) . '</a></p>';
+		. esc_html__( 'License settings', 'dw-wholesale' ) . '</a></p>';
 }
 
 /** 레거시 유예 안내 — 만료가 가까울수록 강하게. */
@@ -362,10 +362,10 @@ function dwcat_legacy_grace_notice() {
 		esc_html__( 'DW Wholesale:', 'dw-wholesale' ),
 		esc_html( sprintf(
 			/* translators: %d: days remaining */
-			__( '라이선스 인증이 필요합니다. %d일 후 카탈로그 출력이 중단됩니다.', 'dw-wholesale' ),
+			__( 'License activation required. The catalog stops showing on the site in %d days.', 'dw-wholesale' ),
 			$days
 		) ),
 		esc_url( admin_url( 'admin.php?page=dw-wholesale-license' ) ),
-		esc_html__( '지금 활성화', 'dw-wholesale' )
+		esc_html__( 'Activate now', 'dw-wholesale' )
 	);
 }

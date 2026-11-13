@@ -12,24 +12,73 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class DWCAT_WP_Host implements \DWCatalog\Host\Host {
 
-	const ADMIN_PAGE = 'dw-catalog';
-
-	/** Core capability → WordPress capability. */
-	const CAPS = array(
-		'catalog.edit'   => 'edit_posts',
-		'catalog.delete' => 'delete_posts',
-		'catalog.terms'  => 'manage_categories',
-		'catalog.manage' => 'manage_options',
-		'catalog.import' => 'edit_posts',
-		'catalog.export' => 'edit_posts',
-	);
+	const ADMIN_PAGE = 'dw-wholesale';
 
 	public function userId(): int {
 		return (int) get_current_user_id();
 	}
 
-	public function can( string $capability ): bool {
-		return isset( self::CAPS[ $capability ] ) && current_user_can( self::CAPS[ $capability ] );
+	/**
+	 * Roles of the current user. What a role may do in the catalog is decided by the core
+	 * (Security\Access, the DW Wholesale → Access screen), not by WordPress capabilities.
+	 */
+	public function userRoles(): array {
+		$user = wp_get_current_user();
+		return $user && $user->exists() ? array_values( (array) $user->roles ) : array();
+	}
+
+	/** The site administrator (or a network super admin) always has every permission. */
+	public function isAdministrator(): bool {
+		return self::is_administrator( wp_get_current_user() );
+	}
+
+	/** @param WP_User|false|null $user */
+	public static function is_administrator( $user ): bool {
+		if ( ! $user || ! $user->exists() ) {
+			return false;
+		}
+		return in_array( 'administrator', (array) $user->roles, true ) || ( is_multisite() && is_super_admin( $user->ID ) );
+	}
+
+	/** Standard roles get the plugin's own labels so they follow the DW Wholesale admin language. */
+	public function roles(): array {
+		$own = array(
+			'administrator' => __( 'Administrator', 'dw-wholesale' ),
+			'editor'        => __( 'Editor', 'dw-wholesale' ),
+			'author'        => __( 'Author', 'dw-wholesale' ),
+			'contributor'   => __( 'Contributor', 'dw-wholesale' ),
+			'subscriber'    => __( 'Subscriber', 'dw-wholesale' ),
+		);
+		$out = array();
+		foreach ( wp_roles()->get_names() as $slug => $name ) {
+			$out[ $slug ] = isset( $own[ $slug ] ) ? $own[ $slug ] : translate_user_role( $name );
+		}
+		return $out;
+	}
+
+	public function userMeta( string $key ): string {
+		$uid = get_current_user_id();
+		return $uid ? (string) get_user_meta( $uid, $key, true ) : '';
+	}
+
+	public function setUserMeta( string $key, string $value ): void {
+		$uid = get_current_user_id();
+		if ( ! $uid ) {
+			return;
+		}
+		if ( '' === $value ) {
+			delete_user_meta( $uid, $key );
+		} else {
+			update_user_meta( $uid, $key, $value );
+		}
+	}
+
+	public function userLocale(): string {
+		return get_current_user_id() ? (string) get_user_locale() : (string) get_locale();
+	}
+
+	public function siteLocale(): string {
+		return (string) get_locale();
 	}
 
 	/**

@@ -5,6 +5,8 @@ use DWCatalog\Catalog;
 use DWCatalog\Fields\FieldConfig;
 use DWCatalog\Fields\VariationColumns;
 use DWCatalog\Front\Design;
+use DWCatalog\I18n\Languages;
+use DWCatalog\Security\Access;
 use DWCatalog\Security\Csrf;
 use DWCatalog\Query\CatalogQuery;
 use DWCatalog\Support\Html;
@@ -13,41 +15,79 @@ use DWCatalog\Support\Text;
 /**
  * The one admin UI of the catalog — server-rendered pages, embedded by the host.
  *
- *   GET  render( $query )            view = items | edit | categories | fields | import | export | design | reference
- *   POST handle( $post, $files )     do   = save_item | delete_item | bulk_items | save_term | delete_term | save_tree |
- *                                           save_fields | import | export | export_csv | save_design
+ *   GET  render( $query )            view = see VIEWS (each belongs to one menu of Security\Access)
+ *   POST handle( $post, $files )     do   = see ACTIONS
  *
- * Every POST: capability check → host policy (license) → CSRF token bound to user + action.
- * Input arrives unslashed from the host (no magic quotes).
+ * Every GET: menu level >= view. Every POST: menu level (+ action permission) -> host policy (license)
+ * -> CSRF token bound to user + action. Input arrives unslashed from the host (no magic quotes).
  */
 class AdminApp {
 
 	/** @var Catalog */
 	private $c;
 
+	/** view => menu (Security\Access::MENUS). */
 	const VIEWS = array(
-		'items'      => 'catalog.edit',
-		'edit'       => 'catalog.edit',
-		'categories' => 'catalog.terms',
-		'fields'     => 'catalog.manage',
-		'import'     => 'catalog.import',
-		'export'     => 'catalog.export',
-		'design'     => 'catalog.manage',
-		'reference'  => 'catalog.edit',
+		'dashboard'  => 'dashboard',
+		'items'      => 'products',
+		'edit'       => 'products',
+		'categories' => 'categories',
+		'fields'     => 'fields',
+		'customers'  => 'customers',
+		'import'     => 'import_export',
+		'export'     => 'import_export',
+		'migration'  => 'migration',
+		'shortcodes' => 'shortcodes',
+		'design'     => 'design',
+		'presets'    => 'presets',
+		'settings'   => 'settings',
+		'access'     => 'access',
 	);
 
+	/** Old view names still accepted in URLs. */
+	const VIEW_ALIASES = array(
+		'reference' => 'shortcodes',
+	);
+
+	/** menu => the view its menu entry opens. */
+	const MENU_VIEW = array(
+		'dashboard'     => 'dashboard',
+		'products'      => 'items',
+		'categories'    => 'categories',
+		'fields'        => 'fields',
+		'customers'     => 'customers',
+		'import_export' => 'import',
+		'migration'     => 'migration',
+		'shortcodes'    => 'shortcodes',
+		'design'        => 'design',
+		'presets'       => 'presets',
+		'settings'      => 'settings',
+		'access'        => 'access',
+	);
+
+	/** Screens of later phases (shown as a short "coming" card until built). */
+	const PLACEHOLDERS = array( 'customers', 'migration', 'presets' );
+
+	/**
+	 * do => [ menu, minimum level, action permission or '', host feature ].
+	 * set_lang has no menu: any user who can open some screen may pick their own language.
+	 */
 	const ACTIONS = array(
-		'save_item'   => array( 'catalog.edit', 'save' ),
-		'delete_item' => array( 'catalog.delete', 'save' ),
-		'bulk_items'  => array( 'catalog.edit', 'save' ),
-		'save_term'   => array( 'catalog.terms', 'save' ),
-		'delete_term' => array( 'catalog.terms', 'save' ),
-		'save_tree'   => array( 'catalog.terms', 'save' ),
-		'save_fields' => array( 'catalog.manage', 'manage_fields' ),
-		'import'      => array( 'catalog.import', 'import' ),
-		'export'      => array( 'catalog.export', 'export' ),
-		'export_csv'  => array( 'catalog.export', 'export' ),
-		'save_design' => array( 'catalog.manage', 'save' ),
+		'save_item'     => array( 'products', Access::EDIT, '', 'save' ),
+		'delete_item'   => array( 'products', Access::EDIT, 'product_delete', 'save' ),
+		'bulk_items'    => array( 'products', Access::VIEW, '', 'save' ), // per bulk action: see bulk()
+		'save_term'     => array( 'categories', Access::EDIT, '', 'save' ),
+		'delete_term'   => array( 'categories', Access::EDIT, '', 'save' ),
+		'save_tree'     => array( 'categories', Access::EDIT, '', 'save' ),
+		'save_fields'   => array( 'fields', Access::EDIT, '', 'manage_fields' ),
+		'import'        => array( 'import_export', Access::EDIT, '', 'import' ),
+		'export'        => array( 'import_export', Access::VIEW, '', 'export' ),
+		'export_csv'    => array( 'import_export', Access::VIEW, 'csv_export', 'export' ),
+		'save_design'   => array( 'design', Access::EDIT, '', 'save' ),
+		'save_settings' => array( 'settings', Access::EDIT, '', 'save' ),
+		'save_access'   => array( 'access', Access::EDIT, '', 'admin' ),
+		'reset_access'  => array( 'access', Access::EDIT, '', 'admin' ),
+		'set_lang'      => array( '', Access::VIEW, '', 'admin' ),
 	);
 
 	const NOTICES = array(
@@ -66,18 +106,53 @@ class AdminApp {
 	// GET
 	// ─────────────────────────────────────────────────────────────
 
+	/** View to show for a request (aliases resolved; unknown or missing → the user's first screen). */
+	public function resolveView( array $q ): string {
+		$view = isset( $q['view'] ) && is_string( $q['view'] ) ? $q['view'] : '';
+		if ( isset( self::VIEW_ALIASES[ $view ] ) ) {
+			$view = self::VIEW_ALIASES[ $view ];
+		}
+		if ( ! isset( self::VIEWS[ $view ] ) ) {
+			$first = $this->access()->firstMenu();
+			$view  = '' !== $first ? self::MENU_VIEW[ $first ] : 'dashboard';
+		}
+		return $view;
+	}
+
+	/**
+	 * May the current user open this request? Hosts call this before printing anything, so a hidden
+	 * screen reached by URL gets a real 403 (render() refuses it again).
+	 */
+	public function canOpen( array $q ): bool {
+		$view = $this->resolveView( $q );
+		$menu = self::VIEWS[ $view ];
+		if ( 'edit' === $view && empty( $q['id'] ) ) {
+			return $this->access()->canEdit( $menu ); // "Add New" needs edit
+		}
+		return $this->access()->canView( $menu );
+	}
+
 	public function render( array $q ): string {
-		$view = isset( $q['view'] ) && isset( self::VIEWS[ $q['view'] ] ) ? $q['view'] : 'items';
+		$view = $this->resolveView( $q );
 		if ( ! $this->c->host()->allows( 'admin' ) ) {
 			return $this->wrap( '<div class="dwc-notice dwc-notice-error">' . Html::e( $this->t( 'The catalog is not licensed on this site. Activate the license to manage the catalog.' ) ) . '</div>' );
 		}
-		if ( ! $this->c->host()->can( self::VIEWS[ $view ] ) ) {
+		if ( ! $this->canOpen( $q ) ) {
 			return $this->wrap( '<div class="dwc-notice dwc-notice-error">' . Html::e( $this->t( 'You do not have permission to view this page.' ) ) . '</div>' );
 		}
-		$type = $this->type( $q );
-		$vars = array( 'type' => $type, 'q' => $q );
+		$menu              = self::VIEWS[ $view ];
+		$this->view        = $view;
+		$this->readonly    = Access::EDIT === Access::MENUS[ $menu ][1] && ! $this->access()->canEdit( $menu );
+		$type              = $this->type( $q );
+		$this->currentType = isset( $q['type'] ) ? $type : '';
+		$this->currentId   = isset( $q['id'] ) ? (int) $q['id'] : 0;
+		$vars              = array( 'type' => $type, 'q' => $q, 'readonly' => $this->readonly );
+		$template          = in_array( $view, self::PLACEHOLDERS, true ) ? 'placeholder' : $view;
 
 		switch ( $view ) {
+			case 'dashboard':
+				$vars += $this->dashboardData( $type );
+				break;
 			case 'items':
 				$vars += $this->itemsData( $type, $q );
 				break;
@@ -93,7 +168,27 @@ class AdminApp {
 		}
 		$notice = isset( $q['msg'] ) && isset( self::NOTICES[ $q['msg'] ] ) ? $this->notice( $q['msg'], 'invalid' === $q['msg'] ? 'error' : 'success' ) : '';
 		$flash  = $this->takeFlash();
-		return $this->wrap( $notice . $flash . $this->template( $view, $vars ) );
+		$ro     = $this->readonly ? '<div class="dwc-notice dwc-notice-info">' . Html::e( $this->t( 'View only — you can look at this screen but not change it.' ) ) . '</div>' : '';
+		return $this->wrap( $notice . $flash . $ro . $this->template( $template, $vars ) );
+	}
+
+	/** @var string view being rendered */
+	private $view = '';
+	/** @var bool the current screen is view-only for this user */
+	private $readonly = false;
+	/** @var string */
+	private $currentType = '';
+	/** @var int */
+	private $currentId = 0;
+
+	private function dashboardData( string $type ): array {
+		$stats = new ItemStats( $this->c );
+		$code  = $this->c->fields()->roleField( $type, 'code', false );
+		return array(
+			'counts'  => $stats->counts( $type ),
+			'catStat' => $stats->categoryCounts( $type ),
+			'shared'  => $code ? $stats->shared( $type, $code['meta_key'] ) : array(),
+		);
 	}
 
 	const PER_PAGE = array( 10, 20, 50, 100 );
@@ -175,12 +270,14 @@ class AdminApp {
 	 * @return array [ 'redirect' => url ] or [ 'download' => [ filename, mime, body ] ]
 	 */
 	public function handle( array $post, array $files = array() ): array {
-		$do = isset( $post['do'] ) && isset( self::ACTIONS[ $post['do'] ] ) ? $post['do'] : '';
+		$do = isset( $post['do'] ) && is_string( $post['do'] ) && isset( self::ACTIONS[ $post['do'] ] ) ? $post['do'] : '';
 		if ( '' === $do ) {
 			throw new Forbidden( 'Unknown action.' );
 		}
-		list( $cap, $feature ) = self::ACTIONS[ $do ];
-		if ( ! $this->c->host()->can( $cap ) ) {
+		list( $menu, $level, $permission, $feature ) = self::ACTIONS[ $do ];
+		$access = $this->access();
+		$ok     = '' === $menu ? '' !== $access->firstMenu() : $access->level( $menu ) >= $level;
+		if ( ! $ok || ( '' !== $permission && ! $access->allowed( $permission ) ) ) {
 			throw new Forbidden( $this->t( 'You do not have permission to do that.' ) );
 		}
 		if ( ! $this->c->host()->allows( $feature ) ) {
@@ -245,6 +342,19 @@ class AdminApp {
 			case 'save_design':
 				Design::save( $this->c->settings(), isset( $post['design'] ) && is_array( $post['design'] ) ? $post['design'] : array() );
 				return $this->redirect( array( 'view' => 'design', 'type' => $type, 'msg' => 'saved' ) );
+			case 'save_settings':
+				Languages::save( $this->c->settings(), isset( $post['i18n'] ) && is_array( $post['i18n'] ) ? $post['i18n'] : array() );
+				return $this->redirect( array( 'view' => 'settings', 'msg' => 'saved' ) );
+			case 'save_access':
+				$access->save( isset( $post['access'] ) && is_array( $post['access'] ) ? $post['access'] : array(), array_keys( $this->c->host()->roles() ) );
+				return $this->redirect( array( 'view' => 'access', 'msg' => 'saved' ) );
+			case 'reset_access':
+				$access->reset();
+				return $this->redirect( array( 'view' => 'access', 'msg' => 'saved' ) );
+			case 'set_lang':
+				$lang = isset( $post['lang'] ) && is_string( $post['lang'] ) && isset( Languages::AVAILABLE[ $post['lang'] ] ) ? $post['lang'] : '';
+				$this->c->host()->setUserMeta( Languages::USER_PREF, $lang );
+				return array( 'redirect' => $this->backUrl( isset( $post['back'] ) ? (string) $post['back'] : '' ) );
 		}
 		throw new Forbidden( 'Unknown action.' );
 	}
@@ -266,6 +376,10 @@ class AdminApp {
 		}
 		$back = $this->listState( isset( $post['back'] ) ? (string) $post['back'] : '', $type );
 		$msg  = 'saved';
+		// Exporting only reads; every other bulk action changes products.
+		if ( 'export' !== $action && ! $this->access()->canEdit( 'products' ) ) {
+			throw new Forbidden( $this->t( 'You do not have permission to do that.' ) );
+		}
 		switch ( $action ) {
 			case 'publish':
 			case 'draft':
@@ -282,7 +396,7 @@ class AdminApp {
 				}
 				break;
 			case 'export':
-				if ( ! $this->c->host()->can( 'catalog.export' ) || ! $this->c->host()->allows( 'export' ) ) {
+				if ( ! $this->access()->allowed( 'csv_export' ) || ! $this->c->host()->allows( 'export' ) ) {
 					throw new Forbidden( $this->t( 'You do not have permission to do that.' ) );
 				}
 				if ( $valid ) {
@@ -290,7 +404,7 @@ class AdminApp {
 				}
 				break;
 			case 'delete':
-				if ( ! $this->c->host()->can( 'catalog.delete' ) ) {
+				if ( ! $this->access()->allowed( 'product_delete' ) ) {
 					throw new Forbidden( $this->t( 'You do not have permission to do that.' ) );
 				}
 				foreach ( $valid as $id ) {
@@ -331,6 +445,46 @@ class AdminApp {
 		return $this->c->t( $text );
 	}
 
+	public function access(): Access {
+		return $this->c->access();
+	}
+
+	/** Shortcuts for templates. */
+	public function canEdit( string $menu ): bool {
+		return $this->access()->canEdit( $menu );
+	}
+
+	public function canView( string $menu ): bool {
+		return $this->access()->canView( $menu );
+	}
+
+	public function allowed( string $action ): bool {
+		return $this->access()->allowed( $action );
+	}
+
+	/** The current screen is view-only for this user. */
+	public function readonly(): bool {
+		return $this->readonly;
+	}
+
+	/** Language of the admin screens for the current user ('en' / 'ko', '' for another language). */
+	public function language(): string {
+		$host = $this->c->host();
+		return Languages::codeOf( Languages::adminLocale( $this->c->settings(), $host->userMeta( Languages::USER_PREF ), $host->userLocale() ) );
+	}
+
+	/** Same screen after a language switch: only view / type / id survive. */
+	private function backUrl( string $qs ): string {
+		parse_str( $qs, $in );
+		$out = array();
+		foreach ( array( 'view', 'type', 'id' ) as $k ) {
+			if ( isset( $in[ $k ] ) && is_scalar( $in[ $k ] ) && '' !== (string) $in[ $k ] ) {
+				$out[ $k ] = 'id' === $k ? (int) $in[ $k ] : Text::key( (string) $in[ $k ], 20 );
+			}
+		}
+		return $this->url( $out );
+	}
+
 	public function url( array $params ): string {
 		return $this->c->host()->adminUrl( $params );
 	}
@@ -339,9 +493,9 @@ class AdminApp {
 		return array( 'redirect' => $this->url( $params ) );
 	}
 
-	/** Page header: kicker, title, action buttons (already-escaped HTML). */
+	/** Page header: optional line above the title (breadcrumb), title, action buttons (already-escaped HTML). */
 	public function head( string $title, string $actions = '', string $before = '' ): string {
-		return '<div class="dwc-head"><div class="dwc-head-title">' . ( '' !== $before ? $before : '<span class="dwc-kicker">DW CATALOG</span>' )
+		return '<div class="dwc-head"><div class="dwc-head-title">' . $before
 			. '<h1>' . Html::e( $title ) . '</h1></div>' . ( '' !== $actions ? '<div class="dwc-head-actions">' . $actions . '</div>' : '' ) . '</div>';
 	}
 
@@ -405,7 +559,43 @@ class AdminApp {
 	}
 
 	private function wrap( string $body ): string {
-		return '<div class="dwc-admin">' . $body . '</div>';
+		return '<div class="dwc-admin' . ( $this->readonly ? ' is-readonly' : '' ) . '" data-dwc-i18n="' . Html::attr( (string) json_encode( $this->jsStrings(), JSON_UNESCAPED_UNICODE ) ) . '">'
+			. $this->topbar() . $body . '</div>';
+	}
+
+	/** Top strip: product name + the user's own EN / 한국어 switch (applies to this account only). */
+	private function topbar(): string {
+		$html = '<div class="dwc-topbar"><span class="dwc-kicker">DW WHOLESALE</span>';
+		if ( $this->c->host()->userId() > 0 && '' !== $this->access()->firstMenu() ) {
+			$cur   = $this->language();
+			$back  = http_build_query( array_filter( array( 'view' => $this->view, 'type' => $this->currentType, 'id' => $this->currentId ) ) );
+			$html .= '<form class="dwc-lang" method="post" action="' . Html::url( $this->c->host()->adminPostUrl() ) . '">'
+				. '<input type="hidden" name="do" value="set_lang">'
+				. '<input type="hidden" name="back" value="' . Html::attr( $back ) . '">'
+				. $this->c->csrf()->field( 'set_lang' )
+				. '<span class="dwc-lang-label">' . Html::e( $this->t( 'Admin language (your account only)' ) ) . '</span>';
+			foreach ( Languages::AVAILABLE as $code => $spec ) {
+				$on    = $cur === $code;
+				$html .= '<button type="submit" name="lang" value="' . Html::attr( $code ) . '" class="' . ( $on ? 'is-on' : '' ) . '" aria-pressed="' . ( $on ? 'true' : 'false' ) . '" lang="' . Html::attr( $code ) . '">'
+					. Html::e( 'en' === $code ? 'EN' : $spec[0] ) . '</button>';
+			}
+			$html .= '</form>';
+		}
+		return $html . '</div>';
+	}
+
+	/** Strings admin.js shows (translated here, read from data-dwc-i18n). */
+	private function jsStrings(): array {
+		$out = array();
+		foreach ( array(
+			'Optimizing photos…',
+			'%1$d photo(s): %2$s → %3$s',
+			'Preset removed. Saved fields are unchanged.',
+			'%1$s: %2$d fields added, %3$d already existed, %4$d variation columns added. Pick another type to switch, or click it again to undo. Click "Save fields" to keep.',
+		) as $s ) {
+			$out[ $s ] = $this->t( $s );
+		}
+		return $out;
 	}
 
 	private function template( string $name, array $vars ): string {

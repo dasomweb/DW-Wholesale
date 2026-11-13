@@ -13,15 +13,27 @@ interface Host {
 	public function userId(): int;
 
 	/**
-	 * Capability check for the current user. Core capabilities:
-	 *   catalog.edit    create / edit items, upload images
-	 *   catalog.delete  delete items
-	 *   catalog.terms   manage categories
-	 *   catalog.manage  field schema, variation columns, design, settings
-	 *   catalog.import  CSV import
-	 *   catalog.export  PDF export
+	 * Role slugs of the current user (WordPress: "editor", "author", …). Empty for visitors.
+	 * What each role may do in the catalog admin is decided by the core (Security\Access).
 	 */
-	public function can( string $capability ): bool;
+	public function userRoles(): array;
+
+	/** True when the current user is the site's full administrator (always has every permission). */
+	public function isAdministrator(): bool;
+
+	/** Every role of the site: slug => display name (for the Access screen). */
+	public function roles(): array;
+
+	/** A per-user preference of the current user ('' if unset). */
+	public function userMeta( string $key ): string;
+
+	public function setUserMeta( string $key, string $value ): void;
+
+	/** The current user's language in the host, e.g. "ko_KR" (site language for visitors). */
+	public function userLocale(): string;
+
+	/** The site's language in the host, e.g. "en_US". */
+	public function siteLocale(): string;
 
 	/**
 	 * Host policy for a core feature (the WordPress adapter maps these to license gates).

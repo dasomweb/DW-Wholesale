@@ -8,8 +8,13 @@ use DWCatalog\Host\Host;
 class TestHost implements Host {
 
 	public $user     = 1;
-	public $caps     = null; // null = all
+	public $roles    = array( 'administrator' );
 	public $denied   = array();
+	public $meta     = array();      // user id => [ key => value ]
+	public $locale   = 'en_US';
+	/** @var array|null msgid => msgstr; when set, translate() uses it and records misses */
+	public $dict     = null;
+	public $missing  = array();
 	public $cache    = array();
 	public $dir;
 
@@ -21,8 +26,32 @@ class TestHost implements Host {
 		return $this->user;
 	}
 
-	public function can( string $capability ): bool {
-		return $this->user > 0 && ( null === $this->caps || in_array( $capability, $this->caps, true ) );
+	public function userRoles(): array {
+		return $this->user > 0 ? $this->roles : array();
+	}
+
+	public function isAdministrator(): bool {
+		return $this->user > 0 && in_array( 'administrator', $this->roles, true );
+	}
+
+	public function roles(): array {
+		return array( 'administrator' => 'Administrator', 'editor' => 'Editor', 'author' => 'Author', 'contributor' => 'Contributor', 'shop_manager' => 'Shop manager' );
+	}
+
+	public function userMeta( string $key ): string {
+		return isset( $this->meta[ $this->user ][ $key ] ) ? (string) $this->meta[ $this->user ][ $key ] : '';
+	}
+
+	public function setUserMeta( string $key, string $value ): void {
+		$this->meta[ $this->user ][ $key ] = $value;
+	}
+
+	public function userLocale(): string {
+		return $this->locale;
+	}
+
+	public function siteLocale(): string {
+		return $this->locale;
 	}
 
 	public function allows( string $feature ): bool {
@@ -34,6 +63,13 @@ class TestHost implements Host {
 	}
 
 	public function translate( string $text ): string {
+		if ( null === $this->dict ) {
+			return $text;
+		}
+		if ( isset( $this->dict[ $text ] ) && '' !== $this->dict[ $text ] ) {
+			return $this->dict[ $text ];
+		}
+		$this->missing[ $text ] = true;
 		return $text;
 	}
 

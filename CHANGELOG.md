@@ -9,6 +9,8 @@ DW Wholesale (구 DW Catalog WP) 의 변경 이력. [SemVer](https://semver.org/
 
 ## [3.0.0] — 개발 시작 (미출시)
 
+> 사전 출시 `3.0.0-alpha.1` (2026-11-13): 제품명 변경과 1단계까지 포함합니다. 2~6단계는 아직 들어 있지 않습니다.
+
 ### Changed — 제품명 변경: DW Catalog WP → DW Wholesale
 - DW Product Catalog 와 DW Wholesale Customer Management 를 하나로 통합하는 제품의 기반으로 전환합니다.
 - 플러그인 이름 `DW Wholesale`, 메인 파일 `dw-wholesale.php`, 슬러그 · 텍스트 도메인 `dw-wholesale`.
@@ -16,7 +18,61 @@ DW Wholesale (구 DW Catalog WP) 의 변경 이력. [SemVer](https://semver.org/
 - 라이선스 SDK 의 product slug · 옵션 키 · 설정 페이지를 새 슬러그로 변경 (`dw_license_dw_wholesale`, `dw-wholesale-license`).
 - 내부 코드 접두사(`dwcat_`, `DWCAT_`)와 테이블 이름(`{prefix}dwcat_*`)은 그대로 유지합니다.
 
+### Added — 1단계: 메뉴 개편 · 권한별 메뉴 접근(M8) · 관리자 언어(M9)
+
+작업 기준 문서: [docs/V3-SPEC.md](docs/V3-SPEC.md)
+
+**메뉴 구조**
+- `DW Wholesale > Dashboard, Products, Categories, Fields, Customers, Import / Export, Migration,
+  Shortcodes, Design, Presets, Settings, Access` (12개). 관리자 페이지 주소 `admin.php?page=dw-wholesale`.
+- **Dashboard** 신설: 상품(전체·활성·비활성·검토 필요)·카테고리 건수, 품목코드 중복 알림, 내가 열 수 있는 화면 바로가기.
+- Design 과 Shortcodes 가 각자 메뉴로 분리(옛 `view=reference` 주소도 Shortcodes 로 열림).
+- Customers · Migration · Presets 는 해당 단계 전까지 "3.0 후속 업데이트에서 제공" 안내 카드.
+- 관리자 화면 글꼴 Inter + Noto Sans KR.
+
+**권한별 메뉴 접근 (M8)** — `core/src/Security/Access.php`
+- **Access** 화면(Administrator 전용): 역할 × 메뉴 표에서 숨김 · 보기 · 편집, 역할 × 세부 동작(상품 삭제,
+  신청서 승인·거절, 가격 그룹 변경, 직원 전용 필드 보기, CSV 내보내기). 사이트의 사용자 정의 역할도 표에 나옴.
+  "기본값으로 되돌리기".
+- 기본값: Editor = 대시보드(보기)·상품·카테고리·거래처(편집) / Author = 대시보드·카테고리·거래처(보기)·상품(편집) /
+  Contributor = 대시보드·상품(보기). 나머지 메뉴는 Administrator 만. 세부 동작 기본값: Editor = 상품 삭제·승인·거절·
+  직원 전용 필드, Author = 직원 전용 필드, 가격 그룹 변경·CSV 내보내기 = Administrator 만.
+- Administrator 는 항상 전체 권한. `dw_wholesale_customer` 역할은 다른 역할이 함께 있어도 관리자 화면에 들어오지 못함.
+- **서버 차단**: 숨긴 메뉴는 메뉴에서 빠지고, 주소로 직접 열면 출력 전에 **403**. 모든 POST 는 메뉴 수준 + 세부 동작 권한 +
+  라이선스 + CSRF 를 확인. "보기" 화면은 "보기 전용" 안내, 쓰기 버튼 숨김, 입력란 잠금.
+- **운영자 모드**: Administrator 가 아닌 사용자에게 외모 · 플러그인 · 도구 메뉴 숨김(해당 페이지 403), 로그인 후 DW Wholesale 대시보드로 이동.
+- WordPress capability(`edit_posts` 등)에 묶여 있던 메뉴·작업 권한을 이 표로 대체. 코어 `Host` 인터페이스는 `can()` 대신
+  역할 · 관리자 여부 · 역할 목록 · 사용자 설정 · 언어를 제공 (권한 판단은 코어가 함).
+
+**관리자 언어 (M9)**
+- 관리자 화면 언어: English · 한국어 · 워드프레스 사용자 언어 따름(Settings). 화면 위 **EN / 한국어** 버튼은 내 계정에만 적용.
+- 사이트 위젯 언어는 따로 설정(English · 한국어 · 사이트 언어 따름). **위젯 문구 직접 수정**: 검색창 안내, 필터, 정렬, 빈 결과,
+  목록으로, 문의하기 등 24개 문구를 사이트 고유 문구로 교체.
+- `languages/dw-wholesale-ko_KR.po/.mo` (363개 문구) + `dw-wholesale.pot`. 원문은 영어로 통일 — 어댑터·게이트의 한국어 원문 안내를 영어 원문 + 한국어 번역으로 바꿈.
+- `build/i18n.php`: 코드의 번역 문구 추출 · 누락/자리표시자 검사 · `.pot` 생성 · `.mo` 컴파일 (gettext 도구 불필요).
+- 번역은 `init` 에서 요청마다 고른 언어로 로드(관리자), 사이트는 위젯이 렌더될 때만 로드 — 카탈로그가 없는 페이지는 추가 DB 조회 없음.
+  워드프레스 자체 언어는 바뀌지 않음. 표준 역할 이름(관리자·편집자 등)도 관리자 언어를 따름.
+- 플러그인 삭제 시 사용자별 언어 선택(user meta)도 삭제.
+- **라이선스 화면도 관리자 언어를 따름** — 라이선스 게이트 유지 결정(2026-11-10)에 따라. 라이선스 SDK 는 여러 플러그인에
+  같은 파일로 배포되므로 수정하지 않고, 한국어 원문 58개를 `languages/dw-wholesale-en_US.po/.mo` 에서 영어로 번역.
+  영어 관리자 화면에서 이 파일을 로드(플러그인 자체 문구는 원래 영어라 영향 없음). `build/i18n.php` 가 SDK 문구 누락도 검사.
+
+**테스트**
+- `tests/core/run.php`: 권한(기본값, 숨김 화면 거부, 보기 전용, 세부 동작, 저장·초기화, 알 수 없는 역할 제거, 운영자 모드),
+  언어(결정 순서, 개인 전환, 위젯 문구 교체), **한국어 완전성**(모든 관리자 화면 × Administrator/Editor/Contributor + 위젯을
+  한국어로 렌더해 번역 안 된 문구가 하나라도 있으면 실패). **MariaDB 대상 추가**(`DWC_MARIADB`).
+- `tests/test-i18n.php` (DB 불필요): 코드 ↔ 카탈로그 누락, 자리표시자 일치, `.mo`·`.pot` 최신 여부, 메뉴 이름 일치.
+- CI: MariaDB 11 서비스 + 번역 테스트 추가.
+- 확인 결과: MySQL 8.0 · MariaDB 11 · PostgreSQL 16 / PHP 7.4 · 8.3 전부 통과. 실제 WordPress 7.1.4 에서 역할별 메뉴 ·
+  URL 직접 접근 403 · 운영자 모드 · 언어 전환 스모크 테스트 65건 통과.
+
+### Fixed
+- `.mo` 를 `.gitattributes` 에 binary 로 지정 (빌드 결정론).
+
 ### Anti-piracy 관련 변경
+- **라이선스 게이트 유지** (운영자 결정 2026-11-10, docs/V3-SPEC.md 결정 기록).
+- 새 동작의 게이트: `save_settings` → `dwcat_can_save_meta`, `save_access` · `reset_access` · `set_lang` → `dwcat_can_render_admin`.
+  기존 9개 게이트와 두 겹 구조(어댑터 진입점 + `Host::allows()`)는 그대로.
 - DASOM-Forge 에 등록된 product slug 가 `dw-catalog-wp` → `dw-wholesale` 로 바뀝니다.
   dasomforge 에 `dw-wholesale` 제품을 등록하기 전까지 라이선스 활성화가 되지 않습니다.
 
