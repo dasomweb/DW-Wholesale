@@ -9,6 +9,8 @@ DW Wholesale (구 DW Catalog WP) 의 변경 이력. [SemVer](https://semver.org/
 
 ## [3.0.0] — 개발 시작 (미출시)
 
+> 사전 출시 `3.0.0-alpha.1` (2026-11-13): 제품명 변경과 1단계까지 포함합니다. 2~6단계는 아직 들어 있지 않습니다.
+
 ### Changed — 제품명 변경: DW Catalog WP → DW Wholesale
 - DW Product Catalog 와 DW Wholesale Customer Management 를 하나로 통합하는 제품의 기반으로 전환합니다.
 - 플러그인 이름 `DW Wholesale`, 메인 파일 `dw-wholesale.php`, 슬러그 · 텍스트 도메인 `dw-wholesale`.

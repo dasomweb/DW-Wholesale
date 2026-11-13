@@ -3,7 +3,7 @@
  * Plugin Name: DW Wholesale
  * Plugin URI: https://github.com/dasomweb/DW-Wholesale
  * Description: Independent product catalog system (own tables, search, filters, variations) placed on WordPress pages by shortcode.
- * Version: 3.0.0
+ * Version: 3.0.0-alpha.1
  * Author: Dasom Web
  * Author URI: https://github.com/dasomweb
  * License: GPL v2 or later
@@ -27,7 +27,7 @@ function dwcat_get_config() {
 		'github_repo_owner'  => 'dasomweb',
 		'github_repo_name'   => 'DW-Wholesale',
 		'plugin_slug'        => 'dw-wholesale',
-		'plugin_version'     => '3.0.0',
+		'plugin_version'     => '3.0.0-alpha.1',
 		'plugin_name'        => 'DW Wholesale',
 		'plugin_text_domain' => 'dw-wholesale',
 		'github_branch'      => 'main',
@@ -86,7 +86,7 @@ DW_DWCAT_License_Manager::init( array(
 	'plugin_file'     => __FILE__,
 	'plugin_basename' => plugin_basename( __FILE__ ),
 	'plugin_name'     => 'DW Wholesale',
-	'plugin_version'  => '3.0.0',
+	'plugin_version'  => '3.0.0-alpha.1',
 	'settings_page'   => 'dw-wholesale-license',
 	'menu_parent'     => DWCAT_WP_Host::ADMIN_PAGE,
 	'public_keys'     => array(
